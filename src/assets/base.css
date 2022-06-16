@@ -1,0 +1,14 @@
+body {
+  background: linear-gradient(to right, #FFF6EB, #DFD1C5);
+  font-family: 'roboto',sans-serif; 
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+.mainPage {
+  display: flex;
+  flex-direction: column;
+}
+.home {
+  margin-top: 110px;
+}
