@@ -5,8 +5,8 @@ import NavBar from "./components/NavBar.vue";
 
 <template>
 <div class="mainPage">
-    <div class="mainItem"><NavBar /></div>  
-    <div class="home"><RouterView /></div>
+    <NavBar/>
+    <div class="home"><RouterView/></div>
 </div>  
 </template>
 

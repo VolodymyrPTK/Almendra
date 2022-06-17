@@ -1,7 +1,7 @@
 <template>
   <header class="navBar">
     <div>
-      <img alt="Almendra logo" class="logo" src="@/assets/logoNav.png" />
+      <img alt="Almendra logo" class="logo"  src="@/assets/logoNav.png" />
     </div>
     <div>
       <input class="searchInput" placeholder="Шукати" />

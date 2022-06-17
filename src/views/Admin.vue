@@ -27,28 +27,28 @@ import { RouterLink } from "vue-router";
 <style scoped>
 .admin {
   display: flex;
-  height: 800px;
-  padding: 10px;
+  border-radius: 25px;
 }
 .menu {
   text-align: center;
-  display: block;
+  display: flex;
+  flex-direction: column;
   height: 800px;
   width: 12%;
   background-color: white;
   border-radius: 25px;
   box-shadow: 0 10px 10px grey;
-  margin: 10px;
+  margin: 0;
 }
 .admincontent {
   display: flex;
   justify-content: center;
   width: 90%;
-  height: 100%;
+  height: 800px;
   background-color: white;
   border-radius: 25px;
   box-shadow: 0 10px 10px grey;
-  margin: 10px;
+  margin-left: 20px;
 }
 .navButton {
   text-align: center;
