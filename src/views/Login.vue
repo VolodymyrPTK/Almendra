@@ -2,18 +2,45 @@
   <div class="login-body">
     <div class="login-container">
       <h2>Вхід</h2>
-      <input type="email" placeholder="Електронна пошта" />
-      <input type="password" placeholder="Пароль" />
-      <p v-if="errMsg">{{ errMsg }}</p>
-      <div>
-        <button class="loginButton">Увійти</button>
-        <RouterLink class="regbtn" to="/register">Реєстрація</RouterLink>
+      <input type="email" v-model="email" placeholder="Електронна пошта" />
+    <input type="password" @keyup.enter="login" v-model="password" placeholder="Пароль" />
+    <p v-if="errMsg">{{ errMsg }}</p>
+    <div>
+      <button class="loginButton" @click="login">Увійти</button>
+      <RouterLink class="regbtn" to="/register">Реєстрація</RouterLink>
       </div>
     </div>
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { ref } from "vue";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+const email = ref("");
+const password = ref("");
+const errMsg = ref();
+const login = () => {
+  signInWithEmailAndPassword(getAuth(), email.value, password.value)
+  .then((data) => {
+      console.log("Вхід успішний");
+      router.push("/");
+    })
+    .catch((error) => {
+      console.log(error.code);
+      switch (error.code) {
+        case "auth/invalid-email":
+          errMsg.value = "Неправильна електронна пошта";
+          break;
+        case "auth/user-not-found":
+          errMsg.value = "Користувача з цією електронною поштою не знайдено";
+          break;
+        case "auth/wrong-password":
+          errMsg.value = "Неправильний пароль";
+          break;        
+      }
+    });
+};
+</script>
 
 <style scoped>
 .login-body {
