@@ -1,22 +1,22 @@
 <template>
   <div class="user">
-   <h1 class="menu">User</h1>
-  </div>    
+    <h1 class="menu">User</h1>
+  </div>
 </template>
 
 <style lang="scss" scoped>
-
 .user {
   display: flex;
   height: 800px;
   justify-content: center;
-  background-color: white;
+  background-color: #f0f0f0;
   border-radius: 25px;
-  box-shadow: 0 10px 10px grey; 
+  box-shadow: 0 10px 10px grey;
 }
+
 .menu {
   background: aqua;
   text-align: center;
-  display: block;   
+  display: block;
 }
 </style>

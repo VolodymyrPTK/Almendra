@@ -29,27 +29,30 @@ import { RouterLink } from "vue-router";
   display: flex;
   border-radius: 25px;
 }
+
 .menu {
   text-align: center;
   display: flex;
   flex-direction: column;
   height: 800px;
   width: 12%;
-  background-color: white;
+  background-color: #f0f0f0;
   border-radius: 25px;
   box-shadow: 0 10px 10px grey;
   margin: 0;
 }
+
 .admincontent {
   display: flex;
   justify-content: center;
   width: 90%;
   height: 800px;
-  background-color: white;
+  background-color: #f0f0f0;
   border-radius: 25px;
   box-shadow: 0 10px 10px grey;
   margin-left: 20px;
 }
+
 .navButton {
   text-align: center;
   width: 75%;
@@ -65,13 +68,16 @@ import { RouterLink } from "vue-router";
   color: black;
   transition: ease-in-out 0.5s;
 }
+
 .navButton:hover {
   box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3);
 }
+
 .navButton:active {
   box-shadow: inset 0 3px 3px rgba(0, 0, 0, 0.3);
   background: linear-gradient(rgb(233, 233, 233), white);
 }
+
 ul {
   list-style-type: none;
   padding: 0;
