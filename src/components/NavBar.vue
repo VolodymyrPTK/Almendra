@@ -10,6 +10,8 @@
     <div>
       <RouterLink class="navButton" to="/">Головна</RouterLink>
       <RouterLink class="navButton" to="/store">Крамниця</RouterLink>
+      <RouterLink class="navButton" to="/user">User</RouterLink>
+      <RouterLink class="navButton" to="/admin">Admin</RouterLink>
       <RouterLink
         class="navButton"
         to="/"
@@ -17,11 +19,36 @@
         v-if="isLoggedIn"
         >Вийти</RouterLink
       >
-      <RouterLink class="navButton" to="/user">User</RouterLink>
-      <RouterLink class="navButton" to="/admin">Admin</RouterLink>
     </div>
   </header>
 </template>
+
+<script setup>
+import { RouterLink, useRouter } from "vue-router";
+import { onMounted, ref } from "vue";
+import { getAuth, onAuthStateChanged, signOut} from "firebase/auth";
+
+const router = useRouter();
+const isLoggedIn = ref(false);
+
+let auth;
+onMounted(() => {
+  auth = getAuth();
+  onAuthStateChanged(auth, (user) =>{
+    if (user) {
+      isLoggedIn.value = true;
+    } else {
+      isLoggedIn.value = false;
+    }
+  });
+});
+
+const handSignOut = () => {
+  signOut(auth).then(() =>{
+    router.push("/");
+  });
+};
+</script>
 
 <style scoped>
 .navBar {
