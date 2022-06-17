@@ -26,7 +26,6 @@ import { RouterLink } from "vue-router";
 
 <style scoped>
 .admin {
-  margin-top: 100px;
   display: flex;
   height: 800px;
   padding: 10px;

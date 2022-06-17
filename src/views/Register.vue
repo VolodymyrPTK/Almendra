@@ -2,17 +2,38 @@
   <div class="login-body">
     <div class="login-container">
       <h2>Створити логін</h2>
-      <input type="email" placeholder="Електронна пошта" />
-      <input type="password" placeholder="Пароль" />
+      <input type="email" placeholder="Електронна пошта" v-model="email"/>
+      <input type="password" placeholder="Пароль" v-model="password" />
       <div>
-        <button class="loginButton">Зареєструватися</button>
+        <button class="loginButton" @click="register">Зареєструватися</button>
         <RouterLink class="regbtn" to="/login">Вхід</RouterLink>
       </div>
     </div>
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { ref } from "vue";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+const email = ref("");
+const password = ref("");
+const register = () => {
+  createUserWithEmailAndPassword(getAuth(), email.value, password.value)
+  .then((data) => {
+      console.log("Реєстрація успішна");
+      router.push("/");
+    })
+    .catch((error) => {
+      console.log(error.code);
+      switch (error.code) {
+        case "auth/email-already-in-use":
+          errMsg.value = "Користувач з цією електронною поштою вже існує";
+          break;        
+      }
+    });
+};
+
+</script>
 
 <style scoped>
 .login-body {

@@ -1,8 +1,21 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
-
 import App from "./App.vue";
 import router from "./router";
+import { initializeApp } from "firebase/app";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDO4sBYIDZlWsKTFrmUfgG1ZATkRbqumNE",
+  authDomain: "almendra-a411d.firebaseapp.com",
+  databaseURL: "https://almendra-a411d-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "almendra-a411d",
+  storageBucket: "almendra-a411d.appspot.com",
+  messagingSenderId: "673059035521",
+  appId: "1:673059035521:web:59332f550787711fe47080",
+  measurementId: "G-BPLB9LX991"
+};
+
+initializeApp(firebaseConfig);
 
 const app = createApp(App);
 
