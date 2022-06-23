@@ -1,13 +1,21 @@
 <template>
   <div class="addproduct">
-    <input type="text" v-model="name" placeholder="Назва товару">
-    <input type="number" v-model="price" placeholder="Ціна">
+    <div class="inputs">
+      <input type="text" v-model="name" placeholder="Назва товару">
+      <input type="text" v-model="detail" placeholder="Деталі">
+      <input type="number" v-model="price" placeholder="Ціна">
+    </div>
+    <textarea type="text" v-model="description" placeholder="Опис"></textarea>
+    <div class="inputs">
+      <input type="text" v-model="kcal" placeholder="КБЖУ">
+      <input type="text" v-model="brand" placeholder="Бренд">
+      <input type="text" v-model="category" placeholder="Категорія">
+    </div>
     <button class="productbutton" @click="saveData">Зберегти</button>
   </div>
 </template>
 
 <script>
-
 import { dataBase } from '../main';
 import { addDoc } from "firebase/firestore";
 
@@ -19,7 +27,12 @@ export default {
   data() {
     return {
       name: '',
-      price: ''
+      detail: '',
+      price: '',
+      description: '',
+      kcal: '',
+      brand: '',
+      category: ''
     }
   },
   methods: {
@@ -27,9 +40,13 @@ export default {
       try {
         const docRef = addDoc(dataBase, this.$data);
         console.log("Document written with ID: ", docRef.id);
+        this.reset();
       } catch (e) {
         console.error("Error adding document: ", e);
       }
+    },
+    reset() {
+      Object.assign(this.$data, this.$options.data.apply(this));
     }
   }
 };
@@ -44,10 +61,27 @@ export default {
   justify-content: center;
 }
 
+.inputs {
+  justify-content: space-around;
+  display: flex;
+  width: 500px;
+  margin: 20px 0 20px 0;
+}
+
 input {
   text-align: center;
-  margin: 10px;
   height: 40px;
+  width: 150px;
+  border-radius: 25px;
+  border: none;
+  box-shadow: 4px 4px 4px rgb(200, 200, 200) inset, -4px -4px 4px rgb(255, 255, 255) inset;
+  background-color: transparent;
+}
+
+textarea {
+  text-align: center;
+  width: 500px;
+  height: 100px;
   border-radius: 25px;
   border: none;
   box-shadow: 4px 4px 4px rgb(200, 200, 200) inset, -4px -4px 4px rgb(255, 255, 255) inset;
