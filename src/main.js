@@ -3,6 +3,7 @@ import { createPinia } from "pinia";
 import App from "./App.vue";
 import router from "./router";
 import { initializeApp } from "firebase/app";
+import { collection, getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDO4sBYIDZlWsKTFrmUfgG1ZATkRbqumNE",
@@ -17,7 +18,12 @@ const firebaseConfig = {
 
 initializeApp(firebaseConfig);
 
+const db = getFirestore();
+const dataBase = collection(db, "products");
+export {dataBase};
+
 const app = createApp(App);
+
 
 app.use(createPinia());
 app.use(router);
