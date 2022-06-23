@@ -1,17 +1,39 @@
 <template>
-  <div class="addproduct">
-    <div class="inputs">
-      <input type="text" v-model="name" placeholder="Назва товару">
-      <input type="text" v-model="detail" placeholder="Деталі">
-      <input type="number" v-model="price" placeholder="Ціна">
+  <div class="products">
+    <div class="addproduct">
+      <div class="inputs">
+        <input type="text" v-model="name" placeholder="Назва товару">
+        <input type="text" v-model="detail" placeholder="Деталі">
+        <input type="number" v-model="price" placeholder="Ціна">
+      </div>
+      <textarea type="text" v-model="description" placeholder="Опис"></textarea>
+      <div class="inputs">
+        <input type="text" v-model="kcal" placeholder="КБЖУ">
+        <input type="text" v-model="brand" placeholder="Бренд">
+        <input type="text" v-model="category" placeholder="Категорія">
+      </div>
+      <button class="productbutton" @click="saveData">Зберегти</button>
     </div>
-    <textarea type="text" v-model="description" placeholder="Опис"></textarea>
-    <div class="inputs">
-      <input type="text" v-model="kcal" placeholder="КБЖУ">
-      <input type="text" v-model="brand" placeholder="Бренд">
-      <input type="text" v-model="category" placeholder="Категорія">
+    <div class="productlist">
+      <table>
+        <thead>
+          <tr>
+            <th>Назва</th>
+            <th>Деталі</th>
+            <th>Бренд</th>
+            <th>Категорія</th>
+            <th>Ціна</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <button class="productbutton" @click="saveData">Зберегти</button>
   </div>
 </template>
 
@@ -54,24 +76,46 @@ export default {
 </script>
 
 <style scoped>
+.products {
+  display: flex;
+  width: 100%;
+
+}
+
 .addproduct {
+  width: 30%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: #f0f0f0;
+  border-radius: 25px;
+  box-shadow: 0 10px 10px grey;
+}
+
+.productlist {
+  width: 70%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  background-color: #f0f0f0;
+  border-radius: 25px;
+  box-shadow: 0 10px 10px grey;
+  margin-left: 20px;
 }
 
 .inputs {
   justify-content: space-around;
   display: flex;
-  width: 500px;
+  width: 300px;
   margin: 20px 0 20px 0;
 }
 
 input {
   text-align: center;
   height: 40px;
-  width: 150px;
+  width: 30%;
   border-radius: 25px;
   border: none;
   box-shadow: 4px 4px 4px rgb(200, 200, 200) inset, -4px -4px 4px rgb(255, 255, 255) inset;
@@ -80,7 +124,7 @@ input {
 
 textarea {
   text-align: center;
-  width: 500px;
+  width: 80%;
   height: 100px;
   border-radius: 25px;
   border: none;

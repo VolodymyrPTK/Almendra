@@ -47,9 +47,6 @@ import { RouterLink } from "vue-router";
   justify-content: center;
   width: 90%;
   height: 800px;
-  background-color: #f0f0f0;
-  border-radius: 25px;
-  box-shadow: 0 10px 10px grey;
   margin-left: 20px;
 }
 
