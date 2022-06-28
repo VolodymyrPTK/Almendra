@@ -20,6 +20,7 @@ initializeApp(firebaseConfig);
 
 const db = getFirestore();
 const dataBase = collection(db, "products");
+
 export {dataBase};
 
 const app = createApp(App);

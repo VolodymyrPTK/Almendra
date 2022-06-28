@@ -26,10 +26,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>
-
-            </td>
+          <tr v-for="product in products">
+            <td>{{ product.name }}</td>
           </tr>
         </tbody>
       </table>
@@ -39,7 +37,7 @@
 
 <script>
 import { dataBase } from '../main';
-import { addDoc } from "firebase/firestore";
+import { addDoc, onSnapshot } from "firebase/firestore";
 
 export default {
   name: "Products",
@@ -48,6 +46,7 @@ export default {
   },
   data() {
     return {
+      products: [],
       name: '',
       detail: '',
       price: '',
@@ -70,9 +69,17 @@ export default {
     reset() {
       Object.assign(this.$data, this.$options.data.apply(this));
     }
+  },
+  created() {
+    onSnapshot(dataBase, (snapshot) => {
+      let products = []
+      snapshot.docs.forEach((doc) => {
+        products.push({ ...doc.data(), id: doc.id })
+      })
+      console.log(products)
+    });
   }
 };
-
 </script>
 
 <style scoped>
@@ -124,8 +131,12 @@ input {
 
 textarea {
   text-align: center;
-  width: 80%;
-  height: 100px;
+  width: 90%;
+  max-width: 90%;
+  min-width: 50%;
+  height: 400px;
+  max-height: 550px;
+  min-height: 300px;
   border-radius: 25px;
   border: none;
   box-shadow: 4px 4px 4px rgb(200, 200, 200) inset, -4px -4px 4px rgb(255, 255, 255) inset;
