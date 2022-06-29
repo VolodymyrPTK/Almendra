@@ -2,15 +2,15 @@
   <div class="products">
     <div class="addproduct">
       <div class="inputs">
-        <input type="text" v-model="name" placeholder="Назва товару">
-        <input type="text" v-model="detail" placeholder="Деталі">
-        <input type="number" v-model="price" placeholder="Ціна">
+        <input type="text" v-model="product.name" placeholder="Назва товару">
+        <input type="text" v-model="product.detail" placeholder="Деталі">
+        <input type="number" v-model="product.price" placeholder="Ціна">
       </div>
-      <textarea type="text" v-model="description" placeholder="Опис"></textarea>
+      <textarea type="text" v-model="product.description" placeholder="Опис"></textarea>
       <div class="inputs">
-        <input type="text" v-model="kcal" placeholder="КБЖУ">
-        <input type="text" v-model="brand" placeholder="Бренд">
-        <input type="text" v-model="category" placeholder="Категорія">
+        <input type="text" v-model="product.kcal" placeholder="КБЖУ">
+        <input type="text" v-model="product.brand" placeholder="Бренд">
+        <input type="text" v-model="product.category" placeholder="Категорія">
       </div>
       <button class="productbutton" @click="saveData">Зберегти</button>
     </div>
@@ -30,6 +30,7 @@
             <td>{{ product.brand }}</td>
             <td>{{ product.category }}</td>
             <td>{{ product.price }}</td>
+            <button>delete</button>
           </tr>
         </tbody>
       </table>
@@ -49,19 +50,21 @@ export default {
   data() {
     return {
       products: [],
-      name: '',
-      detail: '',
-      price: '',
-      description: '',
-      kcal: '',
-      brand: '',
-      category: ''
+      product: {
+        name: '',
+        detail: '',
+        price: '',
+        description: '',
+        kcal: '',
+        brand: '',
+        category: ''
+      }
     }
   },
   methods: {
     saveData() {
       try {
-        const docRef = addDoc(dataBase, this.$data);
+        const docRef = addDoc(dataBase, this.product);
         console.log("Document written with ID: ", docRef.id);
         this.reset();
       } catch (e) {
@@ -74,11 +77,9 @@ export default {
   },
   created() {
     onSnapshot(dataBase, (snapshot) => {
-      let products = []
       snapshot.docs.forEach((doc) => {
         this.products.push({ ...doc.data(), id: doc.id })
       })
-      console.log(products)
     });
   }
 };
