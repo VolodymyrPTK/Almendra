@@ -19,7 +19,6 @@
         <thead>
           <tr>
             <th>Назва</th>
-            <th>Деталі</th>
             <th>Бренд</th>
             <th>Категорія</th>
             <th>Ціна</th>
@@ -28,6 +27,9 @@
         <tbody>
           <tr v-for="product in products">
             <td>{{ product.name }}</td>
+            <td>{{ product.brand }}</td>
+            <td>{{ product.category }}</td>
+            <td>{{ product.price }}</td>
           </tr>
         </tbody>
       </table>
@@ -74,7 +76,7 @@ export default {
     onSnapshot(dataBase, (snapshot) => {
       let products = []
       snapshot.docs.forEach((doc) => {
-        products.push({ ...doc.data(), id: doc.id })
+        this.products.push({ ...doc.data(), id: doc.id })
       })
       console.log(products)
     });
