@@ -32,7 +32,7 @@
             <td>{{ product.category }}</td>
             <td>₴ {{ product.price }}</td>
             <td class="tablebtns"><button class="editButton">≡</button>
-              <button class="deleteButton" @click="deleteProduct(product)">X</button>
+              <button class="deleteButton" @click="deleteProduct(product.id)">X</button>
             </td>
           </tr>
         </tbody>
@@ -41,9 +41,9 @@
   </div>
 </template>
 
-<script>
+  <script>
 import { dataBase } from '../main';
-import { addDoc, onSnapshot } from "firebase/firestore";
+import { addDoc, deleteDoc, onSnapshot, doc } from "firebase/firestore";
 
 export default {
   name: "Products",
@@ -69,9 +69,16 @@ export default {
       try {
         addDoc(dataBase, this.product).then((docRef) => {
           console.log("Document written with ID: ", docRef.id);
-        });
+        })
       } catch (e) {
         console.error("Error adding document: ", e);
+      }
+    },
+    async deleteProduct(id) {
+      if (confirm('Видалити ?')) {
+        await deleteDoc(doc(dataBase, id));
+      } else {
+
       }
     }
   },
@@ -254,7 +261,7 @@ textarea {
     display: block;
     overflow: auto;
     width: 100%;
-    height: 90%;
+    height: 100%;
 
     tr:nth-child(even) {
       background-color: #DDD;
