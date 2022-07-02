@@ -31,12 +31,32 @@
             <td>{{ product.brand }}</td>
             <td>{{ product.category }}</td>
             <td>₴ {{ product.price }}</td>
-            <td class="tablebtns"><button class="editButton">≡</button>
-              <button class="deleteButton" @click="deleteProduct(product.id)">X</button>
+            <td class="tablebtns">
+              <button class="editButton" @click="toggle = !toggle">≡</button>
+              <button class="deleteButton" @click="deleteProduct(product.id)">×</button>
             </td>
           </tr>
         </tbody>
       </table>
+    </div>
+    <div v-if="toggle" to="body" class="modal">
+      <div class="modalContent">
+        <div class="inputs">
+          <input type="text" placeholder="Назва товару">
+          <input type="text" placeholder="Деталі">
+          <input type="number" placeholder="Ціна">
+        </div>
+        <textarea type="text" placeholder="Опис"></textarea>
+        <div class="inputs">
+          <input type="text" placeholder="КБЖУ">
+          <input type="text" placeholder="Бренд">
+          <input type="text" placeholder="Категорія">
+        </div>
+        <div>
+          <button class="productbutton" @click="saveData">Зберегти</button>
+          <button class="productbutton" @click="toggle = !toggle">Закрити</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -44,9 +64,13 @@
   <script>
 import { dataBase } from '../main';
 import { addDoc, deleteDoc, onSnapshot, doc } from "firebase/firestore";
+import { ref } from 'vue';
 
 export default {
   name: "Products",
+  setup() {
+    return { toggle: ref(false) }
+  },
   props: {
     msg: String
   },
@@ -159,6 +183,7 @@ textarea {
   text-align: center;
   border: none;
   padding: 13px 13px 13px 13px;
+  margin: 5px;
   border-radius: 25px;
   background-color: transparent;
   box-shadow: 4px 4px 4px rgb(200, 200, 200), -4px -4px 4px rgb(255, 255, 255);
@@ -271,5 +296,28 @@ textarea {
 
 .tablebtns {
   display: flex;
+}
+
+.modal {
+  position: absolute;
+  display: flex;
+  left: 0;
+  top: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  height: 100%;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(8px);
+}
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f0f0f0;
+  border-radius: 25px;
+  height: 700px;
+  width: 700px;
 }
 </style>
