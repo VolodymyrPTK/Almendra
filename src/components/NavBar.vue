@@ -1,7 +1,7 @@
 <template>
-  <header class="navBar">
+  <div class="navBar">
     <div>
-      <img alt="Almendra logo" class="logo"  src="@/assets/logoNav.png" />
+      <img alt="Almendra logo" class="logo" src="@/assets/logoNav.png" />
     </div>
     <div>
       <input class="searchInput" placeholder="Шукати" />
@@ -12,21 +12,15 @@
       <RouterLink class="navButton" to="/store">Крамниця</RouterLink>
       <RouterLink class="navButton" to="/user">User</RouterLink>
       <RouterLink class="navButton" to="/admin">Admin</RouterLink>
-      <RouterLink
-        class="navButton"
-        to="/"
-        @click="handSignOut"
-        v-if="isLoggedIn"
-        >Вийти</RouterLink
-      >
+      <RouterLink class="navButton" to="/" @click="handSignOut" v-if="isLoggedIn">Вийти</RouterLink>
     </div>
-  </header>
+  </div>
 </template>
 
 <script setup>
 import { RouterLink, useRouter } from "vue-router";
 import { onMounted, ref } from "vue";
-import { getAuth, onAuthStateChanged, signOut} from "firebase/auth";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 
 const router = useRouter();
 const isLoggedIn = ref(false);
@@ -34,7 +28,7 @@ const isLoggedIn = ref(false);
 let auth;
 onMounted(() => {
   auth = getAuth();
-  onAuthStateChanged(auth, (user) =>{
+  onAuthStateChanged(auth, (user) => {
     if (user) {
       isLoggedIn.value = true;
     } else {
@@ -44,7 +38,7 @@ onMounted(() => {
 });
 
 const handSignOut = () => {
-  signOut(auth).then(() =>{
+  signOut(auth).then(() => {
     router.push("/");
   });
 };
@@ -61,6 +55,7 @@ const handSignOut = () => {
   align-items: center;
   box-shadow: 0px 5px 5px 0 rgba(0, 0, 0, 0.3);
 }
+
 .navBar:before {
   backdrop-filter: blur(8px);
   content: "";
@@ -76,6 +71,7 @@ const handSignOut = () => {
   display: flex;
   backdrop-filter: blur(0px);
 }
+
 .navButton {
   text-align: center;
   width: 70px;
@@ -92,15 +88,18 @@ const handSignOut = () => {
   text-decoration: none;
   color: black;
 }
+
 .navButton:hover {
   transition: 0.3s;
   box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3);
 }
+
 .navButton:active {
   box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3),
     inset 0px 3px 5px rgba(0, 0, 0, 0.3);
   transition: 0.1s;
 }
+
 .searchInput {
   border-radius: 25px 0 0 25px;
   text-align: center;
@@ -110,6 +109,7 @@ const handSignOut = () => {
   padding: 13px 13px 13px 13px;
   backdrop-filter: blur(0px);
 }
+
 .searchButton {
   border-radius: 0 25px 25px 0;
   text-align: center;
@@ -120,10 +120,12 @@ const handSignOut = () => {
   backdrop-filter: blur(0px);
   cursor: pointer;
 }
+
 .searchButton:hover {
   transition: 0.3s;
   box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3);
 }
+
 .searchButton:active {
   box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3),
     inset 0px 3px 5px rgba(0, 0, 0, 0.3);

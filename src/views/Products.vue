@@ -26,14 +26,13 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="product in products">
+          <tr class="tableline" @dblclick="toggle = !toggle; editProduct()" v-for="product in products">
             <td>{{ product.name }}</td>
             <td>{{ product.brand }}</td>
             <td>{{ product.category }}</td>
             <td>₴ {{ product.price }}</td>
             <td class="tablebtns">
-              <button class="editButton" @click="toggle = !toggle">≡</button>
-              <button class="deleteButton" @click="deleteProduct(product.id)">×</button>
+              <button class="deleteButton" @click="deleteProduct(product.id)">⊗</button>
             </td>
           </tr>
         </tbody>
@@ -42,18 +41,18 @@
     <div v-if="toggle" to="body" class="modal">
       <div class="modalContent">
         <div class="inputs">
-          <input type="text" placeholder="Назва товару">
-          <input type="text" placeholder="Деталі">
-          <input type="number" placeholder="Ціна">
+          <input type="text" v-model="product.name" placeholder="Назва товару">
+          <input type="text" v-model="product.detail" placeholder="Деталі">
+          <input type="number" v-model="product.price" placeholder="Ціна">
         </div>
-        <textarea type="text" placeholder="Опис"></textarea>
+        <textarea type="text" v-model="product.description" placeholder="Опис"></textarea>
         <div class="inputs">
-          <input type="text" placeholder="КБЖУ">
-          <input type="text" placeholder="Бренд">
-          <input type="text" placeholder="Категорія">
+          <input type="text" v-model="product.kcal" placeholder="КБЖУ">
+          <input type="text" v-model="product.brand" placeholder="Бренд">
+          <input type="text" v-model="product.category" placeholder="Категорія">
         </div>
         <div>
-          <button class="productbutton" @click="saveData">Зберегти</button>
+          <button class="productbutton" @click="saveData(); toggle = !toggle">Зберегти</button>
           <button class="productbutton" @click="toggle = !toggle">Закрити</button>
         </div>
       </div>
@@ -62,14 +61,15 @@
 </template>
 
   <script>
-import { dataBase } from '../main';
-import { addDoc, deleteDoc, onSnapshot, doc } from "firebase/firestore";
+import { dataBase, db } from '../main';
+import { addDoc, deleteDoc, onSnapshot, updateDoc, doc } from "firebase/firestore";
 import { ref } from 'vue';
+
 
 export default {
   name: "Products",
   setup() {
-    return { toggle: ref(false) }
+    return { toggle: ref(false) };
   },
   props: {
     msg: String
@@ -104,6 +104,10 @@ export default {
       } else {
 
       }
+    },
+    async editProduct() {
+      const refDoc = doc(db, "products", this.product);
+      await updateDoc(refDoc, { name: product.name }); //not woorking
     }
   },
   created() {
@@ -203,28 +207,14 @@ textarea {
   transition: 0.1s;
 }
 
-.editButton {
-  background-color: rgb(255, 229, 143);
-  border: none;
-  border-radius: 50px;
-}
-
-.editButton:hover {
-  background-color: rgb(255, 211, 68);
-}
-
-.editButton:active {
-  background-color: rgb(253, 202, 36);
-}
-
 .deleteButton {
-  background-color: rgb(255, 130, 72);
+  width: 25px;
   border: none;
   border-radius: 50px;
 }
 
 .deleteButton:hover {
-  background-color: rgb(252, 74, 74);
+  background-color: rgb(151, 151, 151);
 }
 
 .deleteButton:active {
@@ -276,10 +266,16 @@ textarea {
     background-color: rgb(177, 177, 177);
     color: #FDFDFD;
 
+
     tr {
       display: block;
       position: relative;
     }
+  }
+
+  .tableline:hover {
+    transition: 0.1s;
+    background-color: rgb(212, 212, 212);
   }
 
   tbody {
@@ -289,7 +285,7 @@ textarea {
     height: 100%;
 
     tr:nth-child(even) {
-      background-color: #DDD;
+      background-color: rgb(228, 228, 228);
     }
   }
 }

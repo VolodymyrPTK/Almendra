@@ -19,12 +19,27 @@ import { RouterLink } from "vue-router";
       </li>
     </ul>
     <div class="admincontent">
-      <RouterView />
+      <RouterView class="router-view" v-slot="{ Component }">
+        <Transition name="page-slide" mode="out-in">
+          <component :is="Component" />
+        </Transition>
+      </RouterView>
     </div>
   </div>
+
 </template>
 
 <style scoped>
+.page-slide-enter-active,
+.page-slide-leave-active {
+  transition: 500ms ease all;
+}
+
+.page-slide-enter-from,
+.page-slide-leave-to {
+  transform: translateX(1800px);
+}
+
 .admin {
   display: flex;
   border-radius: 25px;
