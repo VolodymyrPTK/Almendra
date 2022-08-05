@@ -90,7 +90,7 @@
 <script>
 import { dataBase, db, storage } from '../main';
 import { addDoc, deleteDoc, onSnapshot, updateDoc, doc } from "firebase/firestore";
-import { uploadBytes, ref as storageReference } from "firebase/storage";
+import { ref as storageReference, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { ref } from 'vue';
 
 
@@ -113,6 +113,7 @@ export default {
         kcal: '',
         brand: '',
         category: '',
+        image: '',
         freeGluten: false,
         freeSugar: false,
         freeLactosa: false,
@@ -146,7 +147,18 @@ export default {
     uploadImage(e) {
       const file = e.target.files[0];
       const storageRef = storageReference(storage, `products/${file.name}`);
-      uploadBytes(storageRef, file);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+      uploadTask.on('state_changed', (snapshot) => {
+      },
+        (error) => {
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            this.product.image = downloadURL;
+            console.log('File available at', downloadURL);
+          });
+        }
+      );
     }
   },
   created() {
