@@ -46,7 +46,6 @@ const handSignOut = () => {
 
 <style scoped>
 .navBar {
-  top: 0;
   height: 90px;
   width: 100%;
   position: fixed;
