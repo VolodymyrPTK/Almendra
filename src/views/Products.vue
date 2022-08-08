@@ -1,4 +1,5 @@
 <template>
+  <Modal @close="toggleModal" :modalActive="modalActive"></Modal>
   <div class="products">
     <div class="addproduct">
       <div class="inputs">
@@ -52,37 +53,17 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="tableline" @dblclick="toggle = !toggle; editProduct(product.id)" v-for="product in products">
+          <tr class="tableline" @dblclick="toggleModal" v-for="product in products">
             <td>{{ product.name }}</td>
             <td>{{ product.brand }}</td>
             <td>{{ product.category }}</td>
             <td>₴ {{ product.price }}</td>
-            <td>{{ product.id }}</td>
             <td>
               <button class="deleteButton" @click="deleteProduct(product.id)">⊗</button>
             </td>
           </tr>
         </tbody>
       </table>
-    </div>
-    <div v-if="toggle" to="body" class="modal">
-      <div class="modalContent">
-        <div class="inputs">
-          <input type="text" v-model="product.name" placeholder="Назва товару">
-          <input type="text" v-model="product.detail" placeholder="Деталі">
-          <input type="number" v-model="product.price" placeholder="Ціна">
-        </div>
-        <textarea type="text" v-model="product.description" placeholder="Опис"></textarea>
-        <div class="inputs">
-          <input type="text" v-model="product.kcal" placeholder="КБЖУ">
-          <input type="text" v-model="product.brand" placeholder="Бренд">
-          <input type="text" v-model="product.category" placeholder="Категорія">
-        </div>
-        <div>
-          <button class="productbutton" @click="saveData(); toggle = !toggle">Зберегти</button>
-          <button class="productbutton" @click="toggle = !toggle">Закрити</button>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -91,13 +72,20 @@
 import { dataBase, db, storage } from '../main';
 import { addDoc, deleteDoc, onSnapshot, updateDoc, doc } from "firebase/firestore";
 import { ref as storageReference, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import Modal from './Modal.vue';
 import { ref } from 'vue';
-
 
 export default {
   name: "Products",
+  components: {
+    Modal,
+  },
   setup() {
-    return { toggle: ref(false) };
+    const modalActive = ref(false);
+    const toggleModal = () => {
+      modalActive.value = !modalActive.value;
+    };
+    return { modalActive, toggleModal };
   },
   props: {
     msg: String
@@ -140,10 +128,6 @@ export default {
 
       }
     },
-    async editProduct(id) {
-      const refDoc = doc(db, "products", id);
-      await updateDoc(refDoc, { name: this.product.name, brand: this.product.brand }); //not woorking
-    },
     uploadImage(e) {
       const file = e.target.files[0];
       const storageRef = storageReference(storage, `products/${file.name}`);
@@ -155,7 +139,6 @@ export default {
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
             this.product.image = downloadURL;
-            console.log('File available at', downloadURL);
           });
         }
       );
@@ -332,7 +315,6 @@ textarea {
 
     tr {
       display: block;
-      position: relative;
     }
   }
 
@@ -351,30 +333,6 @@ textarea {
       background-color: rgb(228, 228, 228);
     }
   }
-}
-
-.modal {
-  position: absolute;
-  display: flex;
-  left: 0;
-  top: 0;
-  background-color: rgba(0, 0, 0, 0.3);
-  height: 100%;
-  width: 100%;
-  justify-content: center;
-  align-items: center;
-  backdrop-filter: blur(8px);
-}
-
-.modalContent {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: #f0f0f0;
-  border-radius: 25px;
-  height: 700px;
-  width: 700px;
-  box-shadow: 0 15px 50px rgb(107, 107, 107);
 }
 
 .chekBoxes {

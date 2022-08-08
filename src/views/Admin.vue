@@ -15,6 +15,9 @@ import { RouterLink } from "vue-router";
         <RouterLink class="navButton" to="/admin/products">Продукти</RouterLink>
       </li>
       <li>
+        <RouterLink class="navButton" to="/admin/clients">Кліенти</RouterLink>
+      </li>
+      <li>
         <RouterLink class="navButton" to="/admin/orders">Замовлення</RouterLink>
       </li>
     </ul>

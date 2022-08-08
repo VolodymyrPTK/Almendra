@@ -20,10 +20,12 @@ const firebaseConfig = {
 initializeApp(firebaseConfig);
 const db = getFirestore();
 const dataBase = collection(getFirestore(), "products");
+const profileReg = collection(getFirestore(), "profiles");
 const storage = getStorage();
 
 
 export {dataBase};
+export {profileReg};
 export {db};
 export {storage};
 
