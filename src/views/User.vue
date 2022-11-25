@@ -6,9 +6,10 @@
         <div class="head">
           <img class="profilePic" src="../assets/Logo.png" alt="profilePic">
           <div class="names">
-            <h2>User Name</h2>
+            <h2>{{ name }}</h2>
             <div>{{ email }}</div>
             <div>(068) 835 29 74</div>
+            <div>{{ uid }}</div>
           </div>
         </div>
       </div>
@@ -19,23 +20,24 @@
 </template>
 
 <script>
-import { ref } from 'vue';
 import { getAuth } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 
 export default {
-  name: "Clients",
-  setup() {
-    return { toggle: ref(false) };
-  },
+  name: "User",
   data() {
     return {
-      email: '',
+      name: null,
+      email: null
     }
   },
   created() {
     const auth = getAuth();
     const user = auth.currentUser;
     this.email = user.email;
+    this.uid = user.uid;
+
+  }, firestore() {
   }
 };
 </script>

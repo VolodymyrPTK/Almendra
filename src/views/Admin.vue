@@ -1,13 +1,10 @@
 <script setup>
-import { RouterLink } from "vue-router";
+import { RouterView } from "vue-router";
 </script>
 
 <template>
   <div class="admin">
     <ul class="menu">
-      <li>
-        <RouterLink class="navButton" to="/admin">Admin</RouterLink>
-      </li>
       <li>
         <RouterLink class="navButton" to="/admin/overview">Огляд</RouterLink>
       </li>
@@ -22,27 +19,13 @@ import { RouterLink } from "vue-router";
       </li>
     </ul>
     <div class="admincontent">
-      <RouterView class="router-view" v-slot="{ Component }">
-        <Transition name="page-slide" mode="out-in">
-          <component :is="Component" />
-        </Transition>
-      </RouterView>
+      <RouterView />
     </div>
   </div>
 
 </template>
 
 <style scoped>
-.page-slide-enter-active,
-.page-slide-leave-active {
-  transition: 500ms ease all;
-}
-
-.page-slide-enter-from,
-.page-slide-leave-to {
-  transform: translateX(1800px);
-}
-
 .admin {
   display: flex;
   border-radius: 25px;

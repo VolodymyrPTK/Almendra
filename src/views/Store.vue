@@ -1,3 +1,3 @@
 <template>
-  <h1>Store</h1>
+  <h1>Stpwefigeworgvjgkjberore</h1>
 </template>

@@ -1,56 +1,55 @@
 <template>
-    <transition name="modal-animation">
-        <div v-show="modalActive" class="modal">
-            <transition name="content-animation">
-                <div class="modalContent">
-                    <div class="inputs">
-                        <input type="text" placeholder="Назва товару">
-                        <input type="text" placeholder="Деталі">
-                        <input type="number" placeholder="Ціна">
-                    </div>
-                    <textarea type="text" placeholder="Опис"></textarea>
-                    <div class="inputs">
-                        <div>
-                            <input type="text" placeholder="КБЖУ">
-                            <select>
-                                <option disabled value="">Бренд</option>
-                                <option>Bebig</option>
-                                <option>Holms</option>
-                                <option>Gullon</option>
-                            </select>
-                            <select class="menus">
-                                <option disabled value="">Категорія</option>
-                                <option>Паста</option>
-                                <option>Снеки</option>
-                                <option>Напої</option>
-                            </select>
-                        </div>
-                        <div class="file-upload">
-                            <input type="file" @change="uploadImage" />
-                            <img class="btnimg" src="../assets/btnimg.png" alt="icon">
-                        </div>
-                    </div>
-                    <div class="chekBoxes">
-                        <input type="checkbox" class="checkbox" id="checkbox" />
-                        <label for="checkbox">Free gluten</label>
-                        <input type="checkbox" class="checkbox" id="checkbox" />
-                        <label for="checkbox">Free sugar</label>
-                        <input type="checkbox" class="checkbox" id="checkbox" />
-                        <label for="checkbox">Free lactosa</label>
-                        <input type="checkbox" class="checkbox" id="checkbox" />
-                        <label for="checkbox">Vegan</label>
-                    </div>
-                    <div>
-                        <button class="productbutton" @click="close">Зберегти</button>
-                        <button class="productbutton" @click="close">Закрити</button>
-                    </div>
+    <div v-show="modalActive" class="modal">
+        <div class="modalContent">
+            <div class="inputs">
+                <input type="text" v-model="product.name" placeholder="Назва товару">
+                <input type="text" placeholder="Деталі">
+                <input type="number" placeholder="Ціна">
+            </div>
+            <textarea type="text" placeholder="Опис"></textarea>
+            <div class="inputs">
+                <div>
+                    <input type="text" placeholder="КБЖУ">
+                    <select>
+                        <option disabled value="">Бренд</option>
+                        <option>Bebig</option>
+                        <option>Holms</option>
+                        <option>Gullon</option>
+                    </select>
+                    <select class="menus">
+                        <option disabled value="">Категорія</option>
+                        <option>Паста</option>
+                        <option>Снеки</option>
+                        <option>Напої</option>
+                    </select>
                 </div>
-            </transition>
+                <div class="file-upload">
+                    <input type="file" @change="uploadImage" />
+                    <img class="btnimg" src="../assets/btnimg.png" alt="icon">
+                </div>
+            </div>
+            <div class="chekBoxes">
+                <input type="checkbox" class="checkbox" id="checkbox" />
+                <label for="checkbox">Free gluten</label>
+                <input type="checkbox" class="checkbox" id="checkbox" />
+                <label for="checkbox">Free sugar</label>
+                <input type="checkbox" class="checkbox" id="checkbox" />
+                <label for="checkbox">Free lactosa</label>
+                <input type="checkbox" class="checkbox" id="checkbox" />
+                <label for="checkbox">Vegan</label>
+            </div>
+            <div>
+                <button class="productbutton" @click="close">Зберегти</button>
+                <button class="productbutton" @click="close">Закрити</button>
+            </div>
         </div>
-    </transition>
+    </div>
 </template>
 
 <script>
+import { onSnapshot } from '@firebase/firestore';
+import { dataBase } from '../main';
+
 export default {
     props: ['modalActive'],
     setup(props, { emit }) {
@@ -59,27 +58,44 @@ export default {
         };
         return { close };
     },
+    data() {
+        return {
+            products: [],
+            product: {
+                name: '',
+                detail: '',
+                price: '',
+                description: '',
+                kcal: '',
+                brand: '',
+                category: '',
+                image: '',
+                freeGluten: false,
+                freeSugar: false,
+                freeLactosa: false,
+                vegan: false,
+                raw: false
+            }
+        }
+    },
+    created() {
+        onSnapshot(dataBase, (snapshot) => {
+            snapshot.docs.forEach((doc) => {
+                this.products.push({ ...doc.data(), id: doc.id })
+            })
+        })
+    }
 };
 
 
     //async editProduct(id) {
     //  const refDoc = doc(db, "products", id);
-     // await updateDoc(refDoc, { name: this.product.name, brand: this.product.brand }); //not woorking
+     //await updateDoc(refDoc, { name: this.product.name, brand: this.product.brand }); //not woorking
    // },
 
 </script>
 
 <style lang="scss" scoped>
-.modal-animation-enter-active,
-.modal-animation-leave-active {
-    transition: opacity 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
-}
-
-.modal-animation-enter-from,
-.modal-animation-leave-to {
-    opacity: 0;
-}
-
 .modal {
     position: absolute;
     display: flex;

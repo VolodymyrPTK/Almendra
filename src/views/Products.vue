@@ -38,6 +38,8 @@
         <label for="checkbox">Free lactosa</label>
         <input type="checkbox" class="checkbox" id="checkbox" v-model="product.vegan" />
         <label for="checkbox">Vegan</label>
+        <input type="checkbox" class="checkbox" id="checkbox" v-model="product.raw" />
+        <label for="checkbox">Raw</label>
       </div>
       <button class="productbutton" @click="saveData">Зберегти</button>
     </div>
@@ -45,6 +47,7 @@
       <table class="fixed_headers">
         <thead>
           <tr>
+            <th></th>
             <th>Назва</th>
             <th>Бренд</th>
             <th>Категорія</th>
@@ -53,7 +56,10 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="tableline" @dblclick="toggleModal" v-for="product in products">
+          <tr class="tableline" @dblclick="toggleModal(product.id)" v-for="product in products">
+            <td>
+              <img class="productImage" :src="product.image">
+            </td>
             <td>{{ product.name }}</td>
             <td>{{ product.brand }}</td>
             <td>{{ product.category }}</td>
@@ -69,8 +75,8 @@
 </template>
 
 <script>
-import { dataBase, db, storage } from '../main';
-import { addDoc, deleteDoc, onSnapshot, updateDoc, doc } from "firebase/firestore";
+import { dataBase, storage } from '../main';
+import { addDoc, deleteDoc, onSnapshot, doc } from "firebase/firestore";
 import { ref as storageReference, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import Modal from './Modal.vue';
 import { ref } from 'vue';
@@ -105,7 +111,8 @@ export default {
         freeGluten: false,
         freeSugar: false,
         freeLactosa: false,
-        vegan: false
+        vegan: false,
+        raw: false
       }
     }
   },
@@ -158,7 +165,6 @@ export default {
 .products {
   display: flex;
   width: 100%;
-
 }
 
 .addproduct {
@@ -182,6 +188,10 @@ export default {
   border-radius: 25px;
   box-shadow: 0 10px 10px grey;
   margin-left: 20px;
+}
+
+.productImage {
+  width: 40px;
 }
 
 .inputs {
@@ -285,12 +295,12 @@ textarea {
 
   td:nth-child(1),
   th:nth-child(1) {
-    width: 40%;
+    width: 5%;
   }
 
   td:nth-child(2),
   th:nth-child(2) {
-    width: 25%;
+    width: 35%;
   }
 
   td:nth-child(3),
@@ -306,6 +316,11 @@ textarea {
   td:nth-child(5),
   th:nth-child(5) {
     width: 10%;
+  }
+
+  td:nth-child(6),
+  th:nth-child(6) {
+    width: 5%;
   }
 
   thead {
@@ -350,7 +365,6 @@ textarea {
   border-radius: 25px;
   border: none;
   box-shadow: 4px 4px 4px rgb(200, 200, 200), -4px -4px 4px rgb(255, 255, 255);
-  background-color: transparent;
   margin: 0 5px 0 5px;
   display: flex;
   align-items: center;
@@ -371,5 +385,9 @@ textarea {
 
 .btnimg {
   height: 20px;
+}
+
+label {
+  width: 60px;
 }
 </style>

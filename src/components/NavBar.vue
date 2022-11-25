@@ -1,17 +1,16 @@
 <template>
   <div class="navBar">
-    <div>
+    <RouterLink to="/">
       <img alt="Almendra logo" class="logo" src="@/assets/logoNav.png" />
-    </div>
+    </RouterLink>
     <div>
       <input class="searchInput" placeholder="Шукати" />
       <button class="searchButton">O</button>
     </div>
     <div>
-      <RouterLink class="navButton" to="/">Головна</RouterLink>
       <RouterLink class="navButton" to="/store">Крамниця</RouterLink>
       <RouterLink class="navButton" to="/user">User</RouterLink>
-      <RouterLink class="navButton" to="/admin">Admin</RouterLink>
+      <RouterLink class="navButton" to="/admin/overview">Admin</RouterLink>
       <RouterLink class="navButton" to="/" @click="handSignOut" v-if="isLoggedIn">Вийти</RouterLink>
     </div>
   </div>

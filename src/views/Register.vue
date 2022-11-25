@@ -17,10 +17,10 @@
 <script setup>
 
 import { ref } from "vue";
-import { addDoc, doc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "vue-router";
-import { profileReg } from '../main';
+import { db } from '../main';
 
 const name = ref("");
 const email = ref("");
@@ -31,7 +31,9 @@ const router = useRouter()
 const register = () => {
   createUserWithEmailAndPassword(getAuth(), email.value, password.value)
     .then((data) => {
-      console.log("Реєстрація успішна");
+      setDoc(doc(db, "profiles", (data.user.uid)), {
+        name: name.value
+      });
       router.push("/");
     })
     .catch((error) => {
@@ -43,6 +45,8 @@ const register = () => {
       }
     });
 };
+
+
 </script>
 
 <style scoped lang="scss">
