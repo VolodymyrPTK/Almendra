@@ -10,35 +10,42 @@
       <textarea type="text" v-model="product.description" placeholder="Опис"></textarea>
       <div class="inputs">
         <div>
-          <input type="text" v-model="product.kcal" placeholder="КБЖУ">
-          <select v-model="product.brand">
-            <option disabled value="">Бренд</option>
-            <option>Bebig</option>
-            <option>Holms</option>
-            <option>Gullon</option>
-          </select>
-          <select class="menus" v-model="product.category">
-            <option disabled value="">Категорія</option>
-            <option>Паста</option>
-            <option>Снеки</option>
-            <option>Напої</option>
-          </select>
-        </div>
-        <div class="file-upload">
-          <input type="file" @change="uploadImage" />
-          <img class="btnimg" src="../assets/btnimg.png" alt="icon">
+          <div class="kcal">
+            <input type="number" v-model="product.kcal" placeholder="kcal">
+            <input type="number" v-model="product.fat" placeholder="жири">
+            <input type="number" v-model="product.carbo" placeholder="вуглеводи">
+            <input type="number" v-model="product.protein" placeholder="білки">
+          </div>
+          <div class="kcal">
+            <select v-model="product.brand">
+              <option disabled value="">Бренд</option>
+              <option>Bebig</option>
+              <option>Holms</option>
+              <option>Gullon</option>
+            </select>
+            <select class="menus" v-model="product.category">
+              <option disabled value="">Категорія</option>
+              <option>Паста</option>
+              <option>Снеки</option>
+              <option>Напої</option>
+            </select>
+            <div class="file-upload">
+              <input type="file" @change="uploadImage" />
+              <img class="btnimg" src="../assets/btnimg.png" alt="icon">
+            </div>
+          </div>
         </div>
       </div>
       <div class="chekBoxes">
-        <input type="checkbox" class="checkbox" id="checkbox" v-model="product.freeGluten" />
+        <input type="checkbox" class="checkbox" v-model="product.freeGluten" />
         <label for="checkbox">Free gluten</label>
-        <input type="checkbox" class="checkbox" id="checkbox" v-model="product.freeSugar" />
+        <input type="checkbox" class="checkbox" v-model="product.freeSugar" />
         <label for="checkbox">Free sugar</label>
-        <input type="checkbox" class="checkbox" id="checkbox" v-model="product.freeLactosa" />
+        <input type="checkbox" class="checkbox" v-model="product.freeLactosa" />
         <label for="checkbox">Free lactosa</label>
-        <input type="checkbox" class="checkbox" id="checkbox" v-model="product.vegan" />
+        <input type="checkbox" class="checkbox" v-model="product.vegan" />
         <label for="checkbox">Vegan</label>
-        <input type="checkbox" class="checkbox" id="checkbox" v-model="product.raw" />
+        <input type="checkbox" class="checkbox" v-model="product.raw" />
         <label for="checkbox">Raw</label>
       </div>
       <button class="productbutton" @click="saveData">Зберегти</button>
@@ -78,13 +85,14 @@
 import { dataBase, storage } from '../main';
 import { addDoc, deleteDoc, onSnapshot, doc } from "firebase/firestore";
 import { ref as storageReference, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import Modal from './Modal.vue';
-import { ref } from 'vue';
+import Modal from '../components/Modal.vue';
+import { ref, Teleport } from 'vue';
 
 export default {
   name: "Products",
   components: {
     Modal,
+    Teleport
   },
   setup() {
     const modalActive = ref(false);
@@ -100,11 +108,15 @@ export default {
     return {
       products: [],
       product: {
+        id: '',
         name: '',
         detail: '',
         price: '',
         description: '',
         kcal: '',
+        protein: '',
+        carbo: '',
+        fat: '',
         brand: '',
         category: '',
         image: '',
@@ -242,12 +254,13 @@ textarea {
   font-size: 15px;
   text-align: center;
   border: none;
+  border-radius: 25px;
+  width: 50%;
   padding: 13px 13px 13px 13px;
   margin: 50px;
-  border-radius: 25px;
   background-color: transparent;
   box-shadow: 4px 4px 4px rgb(200, 200, 200), -4px -4px 4px rgb(255, 255, 255);
-  transition: 0.1s;
+  transition: 0.3s;
   text-decoration: none;
   color: black;
   cursor: pointer;
@@ -255,7 +268,7 @@ textarea {
 
 .productbutton:hover {
   transition: 0.3s;
-  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0.3);
 }
 
 .productbutton:active {
@@ -265,16 +278,20 @@ textarea {
 
 .deleteButton {
   width: 25px;
+  height: 25px;
   border: none;
   border-radius: 50px;
+  font-size: 15px;
 }
 
 .deleteButton:hover {
-  background-color: rgb(151, 151, 151);
+  background-color: rgb(250, 108, 108);
+  transition: 0.5s;
 }
 
 .deleteButton:active {
   background-color: rgb(255, 42, 42);
+  transition: 0.5s;
 }
 
 .fixed_headers {
@@ -357,6 +374,7 @@ textarea {
 .checkbox {
   height: 15px;
   width: 15px;
+  box-shadow: none;
 }
 
 .file-upload {
@@ -389,5 +407,12 @@ textarea {
 
 label {
   width: 60px;
+}
+
+.kcal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
 }
 </style>

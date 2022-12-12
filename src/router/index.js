@@ -10,6 +10,7 @@ import Overview from "../views/Overview.vue";
 import Products from "../views/Products.vue";
 import Orders from "../views/Orders.vue";
 import Clients from "../views/Clients.vue";
+import Product from "../components/Product.vue"
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -33,6 +34,11 @@ const router = createRouter({
       path: "/register",
       name: "register",
       component: Register,
+    },
+    {
+      path: "/product/:id",
+      name: "product",
+      component: Product,
     },
     {
       path: "/user",

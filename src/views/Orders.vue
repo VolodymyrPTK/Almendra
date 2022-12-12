@@ -32,7 +32,7 @@
 <script>
 import { dataBase } from '../main';
 import { addDoc, onSnapshot } from "firebase/firestore";
-import Modal from './Modal.vue';
+import Modal from '../components/Modal.vue';
 import { ref } from 'vue';
 
 export default {

@@ -36,8 +36,6 @@ export default {
     const user = auth.currentUser;
     this.email = user.email;
     this.uid = user.uid;
-
-  }, firestore() {
   }
 };
 </script>
