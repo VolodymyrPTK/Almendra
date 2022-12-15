@@ -11,9 +11,9 @@
       </div>
       <div class="buy">
         <h2 class="price">₴{{ product.price }}.00</h2>
-        <AddToCart :product-id="product.id" :price="product.price" :name="product.name">
-        </AddToCart>
       </div>
+      <AddToCart :product-id="product.id" :price="product.price" :name="product.name">
+      </AddToCart>
     </RouterLink>
   </div>
 </template>
@@ -79,7 +79,8 @@ export default {
   margin: 10px;
   background-color: #f0f0f0;
   border-radius: 25px;
-  box-shadow: 0 10px 10px grey;
+  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.125);
 }
 
 .productImage {

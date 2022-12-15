@@ -27,21 +27,23 @@ export default {
 <style scoped lang="scss">
 .buy-button {
     height: 50px;
-    width: 120px;
+    width: 300px;
+    font-size: 24px;
     border-radius: 25px;
     background-color: rgb(255, 255, 255);
     box-shadow: inset 0 0px 0px grey, 0 5px 10px grey;
     border: none;
-    transition: 0.5s;
+    transition: 0.3s;
+    margin-bottom: 20px;
 }
 
 .buy-button:hover {
     box-shadow: inset 0 0px 0px grey, 0 1px 5px grey;
-    transition: 0.5s;
+    transition: 0.3s;
 }
 
 .buy-button:active {
     box-shadow: inset 0 5px 10px grey;
-    transition: 0.5s;
+    transition: 0.3s;
 }
 </style>

@@ -8,6 +8,7 @@
         <input type="number" v-model="product.price" placeholder="Ціна">
       </div>
       <textarea type="text" v-model="product.description" placeholder="Опис"></textarea>
+      <textarea type="text" v-model="product.sklad" placeholder="Склад"></textarea>
       <div class="inputs">
         <div>
           <div class="kcal">
@@ -15,8 +16,10 @@
             <input type="number" v-model="product.fat" placeholder="жири">
             <input type="number" v-model="product.carbo" placeholder="вуглеводи">
             <input type="number" v-model="product.protein" placeholder="білки">
+            <input type="text" v-model="product.vitamins" placeholder="вітаміни">
           </div>
           <div class="kcal">
+            <input type="text" v-model="product.madeIn" placeholder="країна">
             <select v-model="product.brand">
               <option disabled value="">Бренд</option>
               <option>Bebig</option>
@@ -108,11 +111,12 @@ export default {
     return {
       products: [],
       product: {
-        id: '',
+        madeIn: '',
         name: '',
         detail: '',
         price: '',
         description: '',
+        sklad: '',
         kcal: '',
         protein: '',
         carbo: '',
@@ -120,6 +124,7 @@ export default {
         brand: '',
         category: '',
         image: '',
+        vitamins: '',
         freeGluten: false,
         freeSugar: false,
         freeLactosa: false,
@@ -185,9 +190,10 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  background-color: #f0f0f0;
   border-radius: 25px;
-  box-shadow: 0 10px 10px grey;
+  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
+  background-color: rgba(253, 253, 253, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.125);
 }
 
 .productlist {
@@ -196,9 +202,10 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #f0f0f0;
   border-radius: 25px;
-  box-shadow: 0 10px 10px grey;
+  background-color: rgba(253, 253, 253, 0.75);
+  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.125);
   margin-left: 20px;
 }
 
@@ -240,9 +247,9 @@ textarea {
   width: 90%;
   max-width: 90%;
   min-width: 50%;
-  height: 400px;
-  max-height: 550px;
-  min-height: 300px;
+  height: 200px;
+  max-height: 300px;
+  min-height: 200px;
   border-radius: 25px;
   border: none;
   box-shadow: 4px 4px 4px rgb(200, 200, 200) inset, -4px -4px 4px rgb(255, 255, 255) inset;

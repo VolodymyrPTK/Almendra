@@ -3,7 +3,7 @@
         <div class="modalContent">
             <div class="inputs">
                 <input type="text" v-model="product.name" placeholder="Назва товару">
-                <button class="productbutton" @click="editProduct(id)">Зберегти</button>
+                <button class="productbutton" @click="editProduct()">Зберегти</button>
                 <button class="productbutton" @click="close">Закрити</button>
             </div>
         </div>
@@ -26,7 +26,8 @@ export default {
         return {
             products: [],
             product: {
-                name: ''
+                name: '',
+                id: ''
             }
         }
     },
@@ -37,7 +38,7 @@ export default {
             })
         })
     },
-    async editProduct(id) {
+    async editProduct() {
         const docRef = doc(dataBase, this.product.id);
         await updateDoc(docRef, { name: this.product.name });
     }

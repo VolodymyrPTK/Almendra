@@ -1,17 +1,19 @@
 <template>
-  <div class="navBar">
-    <RouterLink to="/">
-      <img alt="Almendra logo" class="logo" src="@/assets/logoNav.png" />
-    </RouterLink>
-    <div>
-      <input class="searchInput" placeholder="Шукати" />
-      <button class="searchButton">O</button>
-    </div>
-    <div>
-      <RouterLink class="navButton" to="/store">Крамниця</RouterLink>
-      <RouterLink class="navButton" to="/user">User</RouterLink>
-      <RouterLink class="navButton" to="/admin/overview">Admin</RouterLink>
-      <RouterLink class="navButton" to="/" @click="handSignOut" v-if="isLoggedIn">Вийти</RouterLink>
+  <div class="navbar-body">
+    <div class="navBar">
+      <RouterLink to="/">
+        <img alt="Almendra logo" class="logo" src="@/assets/logoNav.png" />
+      </RouterLink>
+      <div>
+        <input class="searchInput" placeholder="Шукати" />
+        <button class="searchButton">O</button>
+      </div>
+      <div>
+        <RouterLink class="navButton" to="/store">Крамниця</RouterLink>
+        <RouterLink class="navButton" to="/user">User</RouterLink>
+        <RouterLink class="navButton" to="/admin/overview">Admin</RouterLink>
+        <RouterLink class="navButton" to="/" @click="handSignOut" v-if="isLoggedIn">Вийти</RouterLink>
+      </div>
     </div>
   </div>
 </template>
@@ -44,19 +46,32 @@ const handSignOut = () => {
 </script>
 
 <style scoped>
-.navBar {
-  height: 90px;
+.navbar-body {
+  height: 100px;
   width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.navBar {
+  height: 80px;
+  width: 90%;
+  border-radius: 50px;
   position: fixed;
   display: inline-flex;
   justify-content: space-around;
   align-items: center;
-  box-shadow: 0px 5px 5px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
+  background-color: rgba(253, 253, 253, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.125);
+
 }
 
 .navBar:before {
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(40px);
   content: "";
+  border-radius: 50px;
   height: 100%;
   width: 100%;
   position: absolute;
@@ -65,8 +80,7 @@ const handSignOut = () => {
 }
 
 .logo {
-  height: 80px;
-  display: flex;
+  height: 75px;
   backdrop-filter: blur(0px);
 }
 

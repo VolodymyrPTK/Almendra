@@ -49,23 +49,27 @@ export default {
 
 .orders {
   width: 70%;
-  background-color: #f0f0f0;
   border-radius: 25px;
-  box-shadow: 0 10px 10px grey;
+  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
+  background-color: rgba(253, 253, 253, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.125);
+
 }
 
 .user {
   width: 30%;
 }
 
-* .profile {
+.profile {
   display: flex;
   align-items: center;
   height: 150px;
   margin: 0 0 20px 20px;
-  background-color: #f0f0f0;
   border-radius: 25px;
-  box-shadow: 0 10px 10px grey;
+  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
+  background-color: rgba(253, 253, 253, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.125);
+
 }
 
 .head {
@@ -86,16 +90,19 @@ export default {
 .adress {
   height: 200px;
   margin: 0 0 20px 20px;
-  background-color: #f0f0f0;
   border-radius: 25px;
-  box-shadow: 0 10px 10px grey;
+  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
+  background-color: rgba(253, 253, 253, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.125);
+
 }
 
 .payment {
   height: 200px;
   margin: 0 0 0 20px;
-  background-color: #f0f0f0;
   border-radius: 25px;
-  box-shadow: 0 10px 10px grey;
+  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
+  background-color: rgba(253, 253, 253, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.125);
 }
 </style>

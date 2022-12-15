@@ -65,9 +65,10 @@ const register = () => {
   width: 500px;
   height: 300px;
   padding: 15px;
-  background-color: #f0f0f0;
   border-radius: 25px;
-  box-shadow: 0px 10px 10px 0 rgba(0, 0, 0, 0.3);
+  background-color: rgba(253, 253, 253, 0.75);
+  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.125);
 }
 
 input {
