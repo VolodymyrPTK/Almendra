@@ -1,5 +1,4 @@
 <template>
-  <Modal @close="toggleModal" :modalActive="modalActive"></Modal>
   <div class="products">
     <div class="productlist">
       <table class="fixed_headers">
@@ -32,21 +31,9 @@
 <script>
 import { dataBase } from '../main';
 import { addDoc, onSnapshot } from "firebase/firestore";
-import Modal from '../components/Modal.vue';
-import { ref } from 'vue';
 
 export default {
   name: "Products",
-  components: {
-    Modal,
-  },
-  setup() {
-    const modalActive = ref(false);
-    const toggleModal = () => {
-      modalActive.value = !modalActive.value;
-    };
-    return { modalActive, toggleModal };
-  },
   props: {
     msg: String
   },

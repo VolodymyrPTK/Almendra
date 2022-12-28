@@ -13,8 +13,6 @@ import NavBar from "./components/NavBar.vue";
 </template>
 
 <style lang="scss">
-$base-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
-
 body {
     background: linear-gradient(to right, #FFF6EB, #DFD1C5);
     font-family: 'roboto', sans-serif;
@@ -30,7 +28,7 @@ body {
 }
 
 .home {
-    margin-top: 50px;
+    margin-top: 30px;
     width: 90%;
 }
 

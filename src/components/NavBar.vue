@@ -57,7 +57,7 @@ const handSignOut = () => {
 .navBar {
   height: 80px;
   width: 90%;
-  border-radius: 50px;
+  border-radius: 25px;
   position: fixed;
   display: inline-flex;
   justify-content: space-around;
@@ -71,7 +71,7 @@ const handSignOut = () => {
 .navBar:before {
   backdrop-filter: blur(40px);
   content: "";
-  border-radius: 50px;
+  border-radius: 25px;
   height: 100%;
   width: 100%;
   position: absolute;
@@ -94,8 +94,9 @@ const handSignOut = () => {
   text-decoration: none;
   border-radius: 25px;
   background: white;
-  box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3);
-  transition: 0.1s;
+  box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3),
+    inset 0px 0px 0px rgba(0, 0, 0, 0.0);
+  transition: 0.3s;
   backdrop-filter: blur(0px);
   text-decoration: none;
   color: black;
@@ -103,13 +104,14 @@ const handSignOut = () => {
 
 .navButton:hover {
   transition: 0.3s;
-  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3),
+    inset 0px 0px 0px rgba(0, 0, 0, 0.0);
 }
 
 .navButton:active {
   box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3),
     inset 0px 3px 5px rgba(0, 0, 0, 0.3);
-  transition: 0.1s;
+  transition: 0.3s;
 }
 
 .searchInput {

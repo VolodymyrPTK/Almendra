@@ -1,5 +1,4 @@
 <template>
-  <Modal @close="toggleModal" :modalActive="modalActive"></Modal>
   <div class="products">
     <div class="addproduct">
       <div class="inputs">
@@ -23,13 +22,13 @@
             <select v-model="product.brand">
               <option disabled value="">Бренд</option>
               <option>Bebig</option>
-              <option>Holms</option>
-              <option>Gullon</option>
+              <option>Frutex</option>
+              <option>Only</option>
             </select>
             <select class="menus" v-model="product.category">
               <option disabled value="">Категорія</option>
               <option>Паста</option>
-              <option>Снеки</option>
+              <option>Каша</option>
               <option>Напої</option>
             </select>
             <div class="file-upload">
@@ -66,7 +65,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="tableline" @dblclick="toggleModal(product.id)" v-for="product in products">
+          <tr class="tableline" @dblclick="openModal(product.id)" v-for="product in products">
             <td>
               <img class="productImage" :src="product.image">
             </td>
@@ -81,6 +80,7 @@
         </tbody>
       </table>
     </div>
+    <Modal v-if="modalVisible" :visible="modalVisible" :product="currentProduct" @close="modalVisible = false" />
   </div>
 </template>
 
@@ -88,21 +88,12 @@
 import { dataBase, storage } from '../main';
 import { addDoc, deleteDoc, onSnapshot, doc } from "firebase/firestore";
 import { ref as storageReference, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import Modal from '../components/Modal.vue';
-import { ref, Teleport } from 'vue';
+import Modal from "../components/Modal.vue";
 
 export default {
   name: "Products",
   components: {
-    Modal,
-    Teleport
-  },
-  setup() {
-    const modalActive = ref(false);
-    const toggleModal = () => {
-      modalActive.value = !modalActive.value;
-    };
-    return { modalActive, toggleModal };
+    Modal
   },
   props: {
     msg: String
@@ -111,7 +102,6 @@ export default {
     return {
       products: [],
       product: {
-        madeIn: '',
         name: '',
         detail: '',
         price: '',
@@ -123,17 +113,30 @@ export default {
         fat: '',
         brand: '',
         category: '',
+        madeIn: '',
         image: '',
-        vitamins: '',
+        vitamins: [],
         freeGluten: false,
         freeSugar: false,
         freeLactosa: false,
         vegan: false,
         raw: false
-      }
+      },
+      modalVisible: false
+    }
+  },
+  computed: {
+    currentProduct() {
+      return this.products.find(product => product.id === this.currentProductId);
     }
   },
   methods: {
+
+    openModal(id) {
+      this.modalVisible = true;
+      this.currentProductId = id;
+    },
+
     saveData() {
       try {
         addDoc(dataBase, this.product).then((docRef) => {

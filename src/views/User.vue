@@ -6,10 +6,9 @@
         <div class="head">
           <img class="profilePic" src="../assets/Logo.png" alt="profilePic">
           <div class="names">
-            <h2>{{ name }}</h2>
-            <div>{{ email }}</div>
+            <h2>{{ profile.name }}</h2>
+            <div>{{ profile.email }}</div>
             <div>(068) 835 29 74</div>
-            <div>{{ uid }}</div>
           </div>
         </div>
       </div>
@@ -21,21 +20,26 @@
 
 <script>
 import { getAuth } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
 
 export default {
   name: "User",
+  props: {
+    msg: String
+  },
   data() {
     return {
-      name: null,
-      email: null
+      profiles: [],
+      profile: {
+        userName: '',
+        email: ''
+      }
     }
   },
   created() {
     const auth = getAuth();
     const user = auth.currentUser;
-    this.email = user.email;
-    this.uid = user.uid;
+    this.profile.email = user.email;
+    this.profile.uid = user.uid;
   }
 };
 </script>

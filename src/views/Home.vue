@@ -5,7 +5,9 @@
         <div class="items" id="item1">
           <h1 class="inside">SARATSELLI</h1>
         </div>
-        <div class="items" id="item2"></div>
+        <div class="items" id="item2">
+          <h1 class="inside">Bebig</h1>
+        </div>
         <div class="items" id="item3"></div>
         <div class="items" id="item4"></div>
         <div class="items" id="item5"></div>

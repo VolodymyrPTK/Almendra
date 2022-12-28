@@ -151,6 +151,7 @@ export default {
 
 .productImage {
     height: 550px;
+    filter: drop-shadow(0 55px 40px rgba(0, 0, 0, 0.75));
 }
 
 .kcal {

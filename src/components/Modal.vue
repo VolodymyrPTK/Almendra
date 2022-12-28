@@ -1,51 +1,53 @@
 <template>
-    <div v-show="modalActive" class="modal" v-for="product in products">
-        <div class="modalContent">
-            <div class="inputs">
-                <input type="text" v-model="product.name" placeholder="Назва товару">
-                <button class="productbutton" @click="editProduct()">Зберегти</button>
-                <button class="productbutton" @click="close">Закрити</button>
-            </div>
+    <div class="modal" v-if="visible">
+        <div class="modal-overlay" @click="close"></div>
+        <div class="modal-container">
+            <form @submit.prevent="updateData">
+                <label>
+                    Name:
+                    <input type="text" v-model="product.name" />
+                </label>
+                <br />
+                <label>
+                    Price:
+                    <input type="number" v-model="product.price" />
+                </label>
+                <br />
+                <button type="submit">Save</button>
+            </form>
+            <button @click="close">Close</button>
         </div>
     </div>
 </template>
 
 <script>
-import { onSnapshot, updateDoc, doc } from '@firebase/firestore';
+import { updateDoc } from '@firebase/firestore';
 import { dataBase } from '../main';
 
+
 export default {
-    props: ['modalActive'],
-    setup(props, { emit }) {
-        const close = () => {
-            emit("close");
-        };
-        return { close };
+    name: 'Modal',
+    props: {
+        visible: Boolean,
+        product: Object
     },
-    data() {
-        return {
-            products: [],
-            product: {
-                name: '',
-                id: ''
-            }
+    methods: {
+        updateData() {
+            const data = {
+                name: this.product.name,
+                price: this.product.price
+            };
+            updateDoc(dataBase, this.product.id, data).then(() => {
+                console.log('Product data updated');
+            }).catch((error) => {
+                console.error('Error updating product data:', error);
+            });
+        },
+        close() {
+            this.$emit('close');
         }
-    },
-    created() {
-        onSnapshot(dataBase, (snapshot) => {
-            snapshot.docs.forEach((doc) => {
-                this.products.push({ ...doc.data(), id: doc.id })
-            })
-        })
-    },
-    async editProduct() {
-        const docRef = doc(dataBase, this.product.id);
-        await updateDoc(docRef, { name: this.product.name });
     }
-};
-
-
-
+}
 </script>
 
 <style lang="scss" scoped>
