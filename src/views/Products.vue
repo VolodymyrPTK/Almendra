@@ -1,6 +1,6 @@
 <template>
   <div class="products">
-    <div class="addproduct">
+    <div v-if="isVisible" class="addproduct">
       <div class="inputs">
         <input type="text" v-model="product.name" placeholder="Назва товару">
         <input type="text" v-model="product.detail" placeholder="Деталі">
@@ -51,8 +51,16 @@
         <label for="checkbox">Raw</label>
       </div>
       <button class="productbutton" @click="saveData">Зберегти</button>
+      <button class="productbutton" @click="toggleModal">Закрити</button>
     </div>
     <div class="productlist">
+      <div class="list-header">
+        <button class="productbutton" @click="toggleModal">Створити продукт</button>
+        <div>
+          <input class="searchInput" placeholder="Шукати" />
+          <button class="searchButton">O</button>
+        </div>
+      </div>
       <table class="fixed_headers">
         <thead>
           <tr>
@@ -74,7 +82,7 @@
             <td>{{ product.category }}</td>
             <td>₴ {{ product.price }}</td>
             <td>
-              <button class="deleteButton" @click="deleteProduct(product.id)">⊗</button>
+              <button class="deleteButton" @click="deleteProduct(product.id)">Видалити</button>
             </td>
           </tr>
         </tbody>
@@ -122,7 +130,8 @@ export default {
         vegan: false,
         raw: false
       },
-      modalVisible: false
+      modalVisible: false,
+      isVisible: false
     }
   },
   computed: {
@@ -131,12 +140,13 @@ export default {
     }
   },
   methods: {
-
     openModal(id) {
       this.modalVisible = true;
       this.currentProductId = id;
     },
-
+    toggleModal() {
+      this.isVisible = !this.isVisible;
+    },
     saveData() {
       try {
         addDoc(dataBase, this.product).then((docRef) => {
@@ -200,7 +210,7 @@ export default {
 }
 
 .productlist {
-  width: 70%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -210,6 +220,49 @@ export default {
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.125);
   margin-left: 20px;
+}
+
+.list-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+.searchInput {
+  width: 200px;
+  border-radius: 25px 0 0 25px;
+  text-align: center;
+  box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3),
+    inset 0px 0px 0px rgba(0, 0, 0, 0.0);
+  transition: 0.5s;
+  border: none;
+  background-color: white;
+  backdrop-filter: blur(0px);
+}
+
+.searchButton {
+  border-radius: 0 25px 25px 0;
+  text-align: center;
+  box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3),
+    inset 0px 0px 0px rgba(0, 0, 0, 0.0);
+  border: none;
+  padding: 13px 13px 13px 13px;
+  background-color: white;
+  backdrop-filter: blur(0px);
+  cursor: pointer;
+}
+
+.searchButton:hover {
+  transition: 0.3s;
+  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3),
+    inset 0px 0px 0px rgba(0, 0, 0, 0.0);
+}
+
+.searchButton:active {
+  box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3),
+    inset 0px 3px 5px rgba(0, 0, 0, 0.3);
+  transition: 0.1s;
 }
 
 .productImage {
@@ -260,6 +313,7 @@ textarea {
 }
 
 .productbutton {
+  max-width: 300px;
   font-family: 'roboto', sans-serif;
   font-size: 15px;
   text-align: center;
@@ -267,11 +321,12 @@ textarea {
   border-radius: 25px;
   width: 50%;
   padding: 13px 13px 13px 13px;
-  margin: 50px;
+  margin: 10px;
   background-color: transparent;
   box-shadow: 4px 4px 4px rgb(200, 200, 200), -4px -4px 4px rgb(255, 255, 255);
   transition: 0.3s;
   text-decoration: none;
+  background-color: white;
   color: black;
   cursor: pointer;
 }
@@ -287,8 +342,8 @@ textarea {
 }
 
 .deleteButton {
-  width: 25px;
-  height: 25px;
+  width: 90px;
+  height: 30px;
   border: none;
   border-radius: 50px;
   font-size: 15px;
@@ -305,9 +360,8 @@ textarea {
 }
 
 .fixed_headers {
-  height: 90%;
   width: 90%;
-  table-layout: fixed;
+  height: 90%;
   border-collapse: collapse;
 
   th {
@@ -322,7 +376,7 @@ textarea {
 
   td:nth-child(1),
   th:nth-child(1) {
-    width: 5%;
+    width: 15%;
   }
 
   td:nth-child(2),
@@ -347,17 +401,20 @@ textarea {
 
   td:nth-child(6),
   th:nth-child(6) {
-    width: 5%;
+    width: 7%;
   }
 
   thead {
     background-color: rgb(177, 177, 177);
     color: #FDFDFD;
 
-
     tr {
-      display: block;
+      display: flex;
     }
+  }
+
+  .tableline {
+    font-size: 18px;
   }
 
   .tableline:hover {
@@ -366,9 +423,8 @@ textarea {
   }
 
   tbody {
-    display: block;
-    overflow: auto;
-    width: 100%;
+    display: flex;
+    flex-direction: column;
     height: 100%;
 
     tr:nth-child(even) {

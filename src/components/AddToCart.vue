@@ -31,19 +31,19 @@ export default {
     font-size: 24px;
     border-radius: 25px;
     background-color: rgb(255, 255, 255);
-    box-shadow: inset 0 0px 0px grey, 0 5px 10px grey;
+    box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
     border: none;
     transition: 0.3s;
     margin-bottom: 20px;
 }
 
 .buy-button:hover {
-    box-shadow: inset 0 0px 0px grey, 0 1px 5px grey;
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0.4), 0 1px 5px rgba(0, 0, 0, 0.2);
     transition: 0.3s;
 }
 
 .buy-button:active {
-    box-shadow: inset 0 5px 10px grey;
+    box-shadow: inset rgba(0, 0, 0, 0.4), 0 1px 5px rgba(0, 0, 0, 0.2);
     transition: 0.3s;
 }
 </style>
