@@ -57,8 +57,7 @@
       <div class="list-header">
         <button class="productbutton" @click="toggleModal">Створити продукт</button>
         <div>
-          <input class="searchInput" placeholder="Шукати" />
-          <button class="searchButton">O</button>
+          <input class="searchInput" v-model="searchTerm" placeholder="Шукати" />
         </div>
       </div>
       <table class="fixed_headers">
@@ -73,7 +72,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="tableline" @dblclick="openModal(product.id)" v-for="product in products" :key="product.id">
+          <tr class="tableline" @dblclick="openModal(product.id)" v-for="product in filteredProducts" :key="product.id">
             <td>
               <img class="productImage" :src="product.image">
             </td>
@@ -131,12 +130,16 @@ export default {
         raw: false
       },
       modalVisible: false,
-      isVisible: false
+      isVisible: false,
+      searchTerm: ''
     }
   },
   computed: {
     currentProduct() {
       return this.products.find(product => product.id === this.currentProductId);
+    },
+    filteredProducts() {
+      return this.products.filter(product => product.name.toLowerCase().includes(this.searchTerm.toLowerCase()));
     }
   },
   methods: {
@@ -228,8 +231,8 @@ export default {
 }
 
 .searchInput {
-  width: 200px;
-  border-radius: 25px 0 0 25px;
+  width: 400px;
+  border-radius: 25px;
   text-align: center;
   box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3),
     inset 0px 0px 0px rgba(0, 0, 0, 0.0);
