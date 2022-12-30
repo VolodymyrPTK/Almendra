@@ -73,14 +73,14 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="tableline" @dblclick="openModal(product.id)" v-for="product in products">
+          <tr class="tableline" @dblclick="openModal(product.id)" v-for="product in products" :key="product.id">
             <td>
               <img class="productImage" :src="product.image">
             </td>
-            <td>{{ product.name }}</td>
-            <td>{{ product.brand }}</td>
-            <td>{{ product.category }}</td>
-            <td>₴ {{ product.price }}</td>
+            <td v-bind:title="product.name">{{ product.name }}</td>
+            <td v-bind:title="product.brand">{{ product.brand }}</td>
+            <td v-bind:title="product.category">{{ product.category }}</td>
+            <td v-bind:title="product.price">{{ product.price }}</td>
             <td>
               <button class="deleteButton" @click="deleteProduct(product.id)">Видалити</button>
             </td>
@@ -147,22 +147,19 @@ export default {
     toggleModal() {
       this.isVisible = !this.isVisible;
     },
-    saveData() {
+    async saveData() {
       try {
-        addDoc(dataBase, this.product).then((docRef) => {
-          console.log("Document written with ID: ", docRef.id);
-          location.reload();
-        })
+        await addDoc(dataBase, this.product);
       } catch (e) {
         console.error("Error adding document: ", e);
+      } this.product = {
       }
     },
     async deleteProduct(id) {
       if (confirm('Видалити ?')) {
         await deleteDoc(doc(dataBase, id));
-        location.reload();
+        this.products = this.products.filter(product => product.id !== id);
       } else {
-
       }
     },
     uploadImage(e) {
@@ -181,8 +178,9 @@ export default {
       );
     }
   },
-  created() {
+  async created() {
     onSnapshot(dataBase, (snapshot) => {
+      this.products = [];
       snapshot.docs.forEach((doc) => {
         this.products.push({ ...doc.data(), id: doc.id })
       })

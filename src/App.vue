@@ -14,7 +14,7 @@ import NavBar from "./components/NavBar.vue";
 
 <style lang="scss">
 body {
-    background: linear-gradient(to right, #FFF6EB, #DFD1C5);
+    background: linear-gradient(to right, #fff6eb, #DFD1C5);
     font-family: 'roboto', sans-serif;
     box-sizing: border-box;
     margin: 0;
