@@ -18,16 +18,10 @@ const firebaseConfig = {
 };
 
 initializeApp(firebaseConfig);
-const db = getFirestore();
-const dataBase = collection(getFirestore(), "products");
-const profileReg = collection(getFirestore(), "profiles");
-const storage = getStorage();
-
-
-export {dataBase};
-export {profileReg};
-export {db};
-export {storage};
+export const db = getFirestore();
+export const dataBase = collection(getFirestore(), "products");
+export const profileReg = collection(getFirestore(), "profiles");
+export const storage = getStorage();
 
 const app = createApp(App);
 

@@ -2,7 +2,10 @@
   <div class="login-body">
     <div class="login-container">
       <h2>Створити логін</h2>
-      <input type="string" v-model="name" placeholder="Ваше ім'я" />
+      <div class="name">
+        <input type="string" v-model="firstName" placeholder="Ваше ім'я" />
+        <input type="string" v-model="secondName" placeholder="Ваше Призвіще" />
+      </div>
       <input type="email" v-model="email" placeholder="Електронна пошта" />
       <input type="password" @keyup.enter="register" v-model="password" placeholder="Пароль" />
       <p v-if="errMsg">{{ errMsg }}</p>
@@ -22,7 +25,8 @@ import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "vue-router";
 import { db } from '../main';
 
-const name = ref("");
+const firstName = ref("");
+const secondName = ref("");
 const email = ref("");
 const password = ref("");
 const errMsg = ref();
@@ -32,7 +36,9 @@ const register = () => {
   createUserWithEmailAndPassword(getAuth(), email.value, password.value)
     .then((data) => {
       setDoc(doc(db, "profiles", (data.user.uid)), {
-        name: name.value
+        firstName: firstName.value,
+        secondName: secondName.value,
+        email: email.value
       });
       router.push("/");
     })
@@ -137,5 +143,9 @@ input {
   border: none;
   box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.25);
   transition: 0.35s;
+}
+
+.name {
+  display: flex;
 }
 </style>
