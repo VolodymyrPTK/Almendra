@@ -21,15 +21,11 @@
                         <input type="text" v-model="product.madeIn" placeholder="країна">
                         <select v-model="product.brand">
                             <option disabled value="">Бренд</option>
-                            <option>Bebig</option>
-                            <option>Frutex</option>
-                            <option>Only</option>
+                            <option v-for="brand in brands">{{ brand.id }}</option>
                         </select>
                         <select class="menus" v-model="product.category">
                             <option disabled value="">Категорія</option>
-                            <option>Паста</option>
-                            <option>Каша</option>
-                            <option>Напої</option>
+                            <option v-for="category in categories">{{ category.id }}</option>
                         </select>
                         <div class="file-upload">
                             <input type="file" @change="uploadImage" />
@@ -66,7 +62,15 @@ export default {
     name: 'Modal',
     props: {
         visible: Boolean,
-        product: Object
+        product: Object,
+        brands: Array,
+        categories: Array
+    },
+    data() {
+        return {
+            brands: this.brands,
+            categories: this.categories
+        }
     },
     methods: {
         async updateData() {
@@ -83,7 +87,7 @@ export default {
                     carbo: this.product.carbo,
                     fat: this.product.fat,
                     brand: this.product.brand,
-                    category: this.product.category,
+                    categories: this.categories,
                     madeIn: this.product.madeIn,
                     image: this.product.image,
                     vitamins: this.product.vitamins,

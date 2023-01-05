@@ -85,7 +85,8 @@
         </tbody>
       </table>
     </div>
-    <Modal v-if="modalVisible" :visible="modalVisible" :product="currentProduct" @close="modalVisible = false" />
+    <Modal v-if="modalVisible" :visible="modalVisible" :product="currentProduct" :categories="categories"
+      :brands="brands" @close="modalVisible = false" />
   </div>
 </template>
 
