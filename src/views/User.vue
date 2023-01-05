@@ -31,9 +31,11 @@
         <h3>{{ profile.city }}</h3>
         <input type="text" v-model="search" @input="searchCities" @focus="showDropdown = true"
           @blur="showDropdown = false" />
-        <ul v-if="showDropdown && !isSearchEmpty">
+        <ul v-if="showDropdown">
           <li v-for="city in cities" @click="selectCity(city)">{{ city.Description }}</li>
         </ul>
+
+
         <button @click="updateUserData">Update Data</button>
       </div>
     </div>
@@ -45,6 +47,9 @@ import { getAuth } from "firebase/auth";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { profileReg, db } from "../main";
 
+const apiKey = '0fe8dfcca7f61242d252e83fd715eaf2';
+const endpointRef = 'https://api.novaposhta.ua/v2.0/json/';
+
 export default {
   name: "User",
   props: {
@@ -53,10 +58,6 @@ export default {
   data() {
     return {
       showModalFlag: false,
-      showDropdown: false,
-      loading: false,
-      search: '',
-      cities: [],
       profiles: [],
       profile: {
         firstName: '',
@@ -64,6 +65,9 @@ export default {
         phone: '',
         city: ''
       },
+      loading: false,
+      search: '',
+      cities: []
     }
   },
   methods: {
@@ -87,9 +91,7 @@ export default {
       this.loading = false;
     },
     async searchCities() {
-      const apiKey = '0fe8dfcca7f61242d252e83fd715eaf2';
-      const endpoint = 'https://api.novaposhta.ua/v2.0/json/';
-
+      const endpoint = endpointRef;
       const body = {
         apiKey: apiKey,
         modelName: 'Address',

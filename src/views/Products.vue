@@ -21,15 +21,11 @@
             <input type="text" v-model="product.madeIn" placeholder="країна">
             <select v-model="product.brand">
               <option disabled value="">Бренд</option>
-              <option>Bebig</option>
-              <option>Frutex</option>
-              <option>Only</option>
+              <option v-for="brand in brands">{{ brand.id }}</option>
             </select>
             <select class="menus" v-model="product.category">
               <option disabled value="">Категорія</option>
-              <option>Паста</option>
-              <option>Каша</option>
-              <option>Напої</option>
+              <option v-for="category in categories">{{ category.id }}</option>
             </select>
             <div class="file-upload">
               <input type="file" @change="uploadImage" />
@@ -38,7 +34,7 @@
           </div>
         </div>
       </div>
-      <div class="chekBoxes">
+      <div class="center-flex">
         <input type="checkbox" class="checkbox" v-model="product.freeGluten" />
         <label for="checkbox">Free gluten</label>
         <input type="checkbox" class="checkbox" v-model="product.freeSugar" />
@@ -56,8 +52,10 @@
     <div class="productlist">
       <div class="list-header">
         <button class="productbutton" @click="toggleModal">Створити продукт</button>
-        <div>
+        <div class="center-flex">
           <input class="searchInput" v-model="searchTerm" placeholder="Шукати" />
+          <input type="text" v-model="category" @keyup.enter="saveCategory()" placeholder="Нова Категорія">
+          <input type="text" v-model="brand" @keyup.enter="saveBrand()" placeholder="Новий Бренд">
         </div>
       </div>
       <table class="fixed_headers">
@@ -92,8 +90,8 @@
 </template>
 
 <script>
-import { dataBase, storage } from '../main';
-import { addDoc, deleteDoc, onSnapshot, doc } from "firebase/firestore";
+import { dataBase, storage, categoryReg, brandReg } from '../main';
+import { addDoc, deleteDoc, onSnapshot, doc, setDoc } from "firebase/firestore";
 import { ref as storageReference, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import Modal from "../components/Modal.vue";
 
@@ -107,6 +105,10 @@ export default {
   },
   data() {
     return {
+      categories: [],
+      category: '',
+      brands: [],
+      brand: '',
       products: [],
       product: {
         name: '',
@@ -158,6 +160,22 @@ export default {
       } this.product = {
       }
     },
+    async saveCategory() {
+      try {
+        await setDoc(doc(categoryReg, this.category), { name: this.category });
+        this.category = '';
+      } catch (e) {
+        console.error("Error adding document: ", e);
+      }
+    },
+    async saveBrand() {
+      try {
+        await setDoc(doc(brandReg, this.brand), { name: this.brand });
+        this.brand = '';
+      } catch (e) {
+        console.error("Error adding document: ", e);
+      }
+    },
     async deleteProduct(id) {
       if (confirm('Видалити ?')) {
         await deleteDoc(doc(dataBase, id));
@@ -186,6 +204,18 @@ export default {
       this.products = [];
       snapshot.docs.forEach((doc) => {
         this.products.push({ ...doc.data(), id: doc.id })
+      })
+    });
+    onSnapshot(categoryReg, (snapshot) => {
+      this.categories = [];
+      snapshot.docs.forEach((doc) => {
+        this.categories.push({ ...doc.data(), id: doc.id })
+      })
+    });
+    onSnapshot(brandReg, (snapshot) => {
+      this.brands = [];
+      snapshot.docs.forEach((doc) => {
+        this.brands.push({ ...doc.data(), id: doc.id })
       })
     })
   }
@@ -280,7 +310,7 @@ export default {
 input {
   text-align: center;
   height: 40px;
-  width: 30%;
+  width: 40%;
   border-radius: 25px;
   border: none;
   box-shadow: 4px 4px 4px rgb(200, 200, 200) inset, -4px -4px 4px rgb(255, 255, 255) inset;
@@ -434,8 +464,9 @@ textarea {
   }
 }
 
-.chekBoxes {
+.center-flex {
   display: flex;
+  align-items: center;
 }
 
 .checkbox {

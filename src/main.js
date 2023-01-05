@@ -19,8 +19,10 @@ const firebaseConfig = {
 
 initializeApp(firebaseConfig);
 export const db = getFirestore();
-export const dataBase = collection(getFirestore(), "products");
-export const profileReg = collection(getFirestore(), "profiles");
+export const dataBase = collection(db, "products");
+export const profileReg = collection(db, "profiles");
+export const categoryReg = collection(db, "categories");
+export const brandReg = collection(db, "brands");
 export const storage = getStorage();
 
 const app = createApp(App);

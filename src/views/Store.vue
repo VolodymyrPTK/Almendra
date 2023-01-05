@@ -19,10 +19,8 @@
 </template>
 
 <script>
-import { dataBase, storage } from '../main';
-import { addDoc, deleteDoc, onSnapshot, doc } from "firebase/firestore";
-import { ref as storageReference, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { ref } from 'vue';
+import { dataBase } from '../main';
+import { onSnapshot } from "firebase/firestore";
 import AddToCart from '../components/AddToCart.vue';
 import { RouterLink } from 'vue-router';
 
