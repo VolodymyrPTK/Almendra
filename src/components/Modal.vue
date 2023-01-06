@@ -18,14 +18,17 @@
                         <input type="text" v-model="product.vitamins" placeholder="вітаміни">
                     </div>
                     <div class="kcal">
-                        <input type="text" v-model="product.madeIn" placeholder="країна">
+                        <select v-model="product.country">
+                            <option disabled value="">Країна</option>
+                            <option v-for="country in countries" :value="country.id">{{ country.id }}</option>
+                        </select>
                         <select v-model="product.brand">
                             <option disabled value="">Бренд</option>
-                            <option v-for="brand in brands">{{ brand.id }}</option>
+                            <option v-for="brand in brands" :value="brand.id">{{ brand.id }}</option>
                         </select>
                         <select class="menus" v-model="product.category">
                             <option disabled value="">Категорія</option>
-                            <option v-for="category in categories">{{ category.id }}</option>
+                            <option v-for="category in categories" :value="category.id">{{ category.id }}</option>
                         </select>
                         <div class="file-upload">
                             <input type="file" @change="uploadImage" />
@@ -64,13 +67,8 @@ export default {
         visible: Boolean,
         product: Object,
         brands: Array,
-        categories: Array
-    },
-    data() {
-        return {
-            brands: this.brands,
-            categories: this.categories
-        }
+        categories: Array,
+        countries: Array
     },
     methods: {
         async updateData() {
@@ -87,8 +85,8 @@ export default {
                     carbo: this.product.carbo,
                     fat: this.product.fat,
                     brand: this.product.brand,
-                    categories: this.categories,
-                    madeIn: this.product.madeIn,
+                    category: this.product.category,
+                    country: this.product.country,
                     image: this.product.image,
                     vitamins: this.product.vitamins,
                     freeGluten: this.product.freeGluten,

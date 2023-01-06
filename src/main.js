@@ -23,6 +23,7 @@ export const dataBase = collection(db, "products");
 export const profileReg = collection(db, "profiles");
 export const categoryReg = collection(db, "categories");
 export const brandReg = collection(db, "brands");
+export const countryReg = collection(db, "countries");
 export const storage = getStorage();
 
 const app = createApp(App);

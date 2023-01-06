@@ -18,7 +18,10 @@
             <input type="text" v-model="product.vitamins" placeholder="вітаміни">
           </div>
           <div class="kcal">
-            <input type="text" v-model="product.madeIn" placeholder="країна">
+            <select v-model="product.country">
+              <option disabled value="">Країна</option>
+              <option v-for="country in countries">{{ country.id }}</option>
+            </select>
             <select v-model="product.brand">
               <option disabled value="">Бренд</option>
               <option v-for="brand in brands">{{ brand.id }}</option>
@@ -56,6 +59,7 @@
           <input class="searchInput" v-model="searchTerm" placeholder="Шукати" />
           <input type="text" v-model="category" @keyup.enter="saveCategory()" placeholder="Нова Категорія">
           <input type="text" v-model="brand" @keyup.enter="saveBrand()" placeholder="Новий Бренд">
+          <input type="text" v-model="country" @keyup.enter="saveCountry()" placeholder="Новий Країна">
         </div>
       </div>
       <table class="fixed_headers">
@@ -86,12 +90,12 @@
       </table>
     </div>
     <Modal v-if="modalVisible" :visible="modalVisible" :product="currentProduct" :categories="categories"
-      :brands="brands" @close="modalVisible = false" />
+      :brands="brands" :countries="countries" @close="modalVisible = false" />
   </div>
 </template>
 
 <script>
-import { dataBase, storage, categoryReg, brandReg } from '../main';
+import { dataBase, storage, categoryReg, brandReg, countryReg } from '../main';
 import { addDoc, deleteDoc, onSnapshot, doc, setDoc } from "firebase/firestore";
 import { ref as storageReference, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import Modal from "../components/Modal.vue";
@@ -108,6 +112,8 @@ export default {
     return {
       categories: [],
       category: '',
+      countries: [],
+      country: '',
       brands: [],
       brand: '',
       products: [],
@@ -123,7 +129,7 @@ export default {
         fat: '',
         brand: '',
         category: '',
-        madeIn: '',
+        country: '',
         image: '',
         vitamins: [],
         freeGluten: false,
@@ -177,6 +183,14 @@ export default {
         console.error("Error adding document: ", e);
       }
     },
+    async saveCountry() {
+      try {
+        await setDoc(doc(countryReg, this.country), { name: this.country });
+        this.country = '';
+      } catch (e) {
+        console.error("Error adding document: ", e);
+      }
+    },
     async deleteProduct(id) {
       if (confirm('Видалити ?')) {
         await deleteDoc(doc(dataBase, id));
@@ -217,6 +231,12 @@ export default {
       this.brands = [];
       snapshot.docs.forEach((doc) => {
         this.brands.push({ ...doc.data(), id: doc.id })
+      })
+    });
+    onSnapshot(countryReg, (snapshot) => {
+      this.countries = [];
+      snapshot.docs.forEach((doc) => {
+        this.countries.push({ ...doc.data(), id: doc.id })
       })
     })
   }
