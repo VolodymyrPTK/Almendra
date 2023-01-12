@@ -4,7 +4,8 @@
       <div class="inputs">
         <input type="text" v-model="product.name" placeholder="Назва товару">
         <input type="text" v-model="product.detail" placeholder="Деталі">
-        <input type="number" v-model="product.price" placeholder="Ціна">
+        <input type="number" v-model="product.buyPrice" placeholder="Ціна Купівлі">
+        <input type="number" v-model="product.sellPrice" placeholder="Ціна Продажу">
       </div>
       <textarea type="text" v-model="product.description" placeholder="Опис"></textarea>
       <textarea type="text" v-model="product.sklad" placeholder="Склад"></textarea>
@@ -38,16 +39,22 @@
         </div>
       </div>
       <div class="center-flex">
-        <input type="checkbox" class="checkbox" v-model="product.freeGluten" />
-        <label for="checkbox">Free gluten</label>
-        <input type="checkbox" class="checkbox" v-model="product.freeSugar" />
-        <label for="checkbox">Free sugar</label>
-        <input type="checkbox" class="checkbox" v-model="product.freeLactosa" />
-        <label for="checkbox">Free lactosa</label>
-        <input type="checkbox" class="checkbox" v-model="product.vegan" />
-        <label for="checkbox">Vegan</label>
-        <input type="checkbox" class="checkbox" v-model="product.raw" />
-        <label for="checkbox">Raw</label>
+        <div>
+          <input type="checkbox" class="checkbox" v-model="product.freeGluten" />
+          <label for="checkbox">Free gluten</label>
+          <input type="checkbox" class="checkbox" v-model="product.freeSugar" />
+          <label for="checkbox">Free sugar</label>
+
+          <input type="checkbox" class="checkbox" v-model="product.freeLactosa" />
+          <label for="checkbox">Free lactosa</label>
+          <input type="checkbox" class="checkbox" v-model="product.vegan" />
+          <label for="checkbox">Vegan</label>
+
+          <input type="checkbox" class="checkbox" v-model="product.raw" />
+          <label for="checkbox">Raw</label>
+          <input type="checkbox" class="checkbox" v-model="product.protein" />
+          <label for="checkbox">Protein</label>
+        </div>
       </div>
       <button class="productbutton" @click="saveData">Зберегти</button>
       <button class="productbutton" @click="toggleModal">Закрити</button>
@@ -81,7 +88,7 @@
             <td v-bind:title="product.name">{{ product.name }}</td>
             <td v-bind:title="product.brand">{{ product.brand }}</td>
             <td v-bind:title="product.category">{{ product.category }}</td>
-            <td v-bind:title="product.price">{{ product.price }}</td>
+            <td v-bind:title="product.sellPrice">{{ product.sellPrice }}</td>
             <td>
               <button class="deleteButton" @click="deleteProduct(product.id)">Видалити</button>
             </td>
@@ -120,7 +127,8 @@ export default {
       product: {
         name: '',
         detail: '',
-        price: '',
+        sellPrice: 0,
+        buyPrice: 0,
         description: '',
         sklad: '',
         kcal: '',
@@ -136,7 +144,8 @@ export default {
         freeSugar: false,
         freeLactosa: false,
         vegan: false,
-        raw: false
+        raw: false,
+        protein: false
       },
       modalVisible: false,
       isVisible: false,
@@ -219,7 +228,7 @@ export default {
       this.products = [];
       snapshot.docs.forEach((doc) => {
         this.products.push({ ...doc.data(), id: doc.id })
-      })
+      });
     });
     onSnapshot(categoryReg, (snapshot) => {
       this.categories = [];
@@ -293,29 +302,6 @@ export default {
   backdrop-filter: blur(0px);
 }
 
-.searchButton {
-  border-radius: 0 25px 25px 0;
-  text-align: center;
-  box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3),
-    inset 0px 0px 0px rgba(0, 0, 0, 0.0);
-  border: none;
-  padding: 13px 13px 13px 13px;
-  background-color: white;
-  backdrop-filter: blur(0px);
-  cursor: pointer;
-}
-
-.searchButton:hover {
-  transition: 0.3s;
-  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3),
-    inset 0px 0px 0px rgba(0, 0, 0, 0.0);
-}
-
-.searchButton:active {
-  box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3),
-    inset 0px 3px 5px rgba(0, 0, 0, 0.3);
-  transition: 0.1s;
-}
 
 .productImage {
   width: 40px;
@@ -525,7 +511,8 @@ textarea {
 }
 
 label {
-  width: 60px;
+  width: 50px;
+  margin-right: 5px;
 }
 
 .kcal {

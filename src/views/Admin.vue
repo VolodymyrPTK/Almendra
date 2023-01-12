@@ -12,6 +12,9 @@ import { RouterView } from "vue-router";
         <RouterLink class="navButton" to="/admin/products">Продукти</RouterLink>
       </li>
       <li>
+        <RouterLink class="navButton" to="/admin/inventory">Iнвентар</RouterLink>
+      </li>
+      <li>
         <RouterLink class="navButton" to="/admin/clients">Кліенти</RouterLink>
       </li>
       <li>

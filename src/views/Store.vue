@@ -1,43 +1,49 @@
 <template>
-  <div class="products">
-    <RouterLink class="productCard" :to="('/product/' + product.id)" v-for="product in products">
-      <div>
-        <img class="productImage" :src="product.image">
+  <div>
+    <div class="filter-buttons">
+      <button @click="resetFilter(category.id)">
+        Всі товари
+      </button>
+      <button v-for="category in categories" :key="category" @click="filterProducts(category.id)">
+        {{ category.id }}
+      </button>
+    </div>
+    <section class="products" v-if="products.length > 0">
+      <div class="productCard" v-for="product in products" :key="product.id">
+        <RouterLink :to="('/product/' + product.id)">
+          <img class="productImage" :src="product.image">
+          <h3>{{ product.name }}</h3>
+          <h3>₴ {{ product.sellPrice }}.00</h3>
+        </RouterLink>
+        <AddToCart :product-id="product.id" :price="product.sellPrice" :name="product.name">
+        </AddToCart>
       </div>
-      <h3>{{ product.name }}</h3>
-      <div class="details">
-        <h5>{{ product.detail }}</h5>
-        <h5>{{ product.brand }}</h5>
-      </div>
-      <div class="buy">
-        <h2 class="price">₴{{ product.price }}.00</h2>
-      </div>
-      <AddToCart :product-id="product.id" :price="product.price" :name="product.name">
-      </AddToCart>
-    </RouterLink>
+    </section>
   </div>
 </template>
 
 <script>
-import { dataBase } from '../main';
+import { dataBase, categoryReg } from '../main';
 import { onSnapshot } from "firebase/firestore";
-import AddToCart from '../components/AddToCart.vue';
 import { RouterLink } from 'vue-router';
+import AddToCart from '../components/AddToCart.vue';
 
 export default {
-  name: "Products",
+  name: "Store",
   props: {
     msg: String
   },
+  components: { AddToCart, RouterLink },
   data() {
     return {
+      originalProducts: [],
+      categories: [],
+      category: {},
       products: [],
       product: {
         name: "",
         detail: "",
-        price: "",
-        description: "",
-        kcal: "",
+        sellPrice: 0,
         brand: "",
         category: "",
         image: "",
@@ -49,22 +55,66 @@ export default {
       }
     };
   },
+  methods: {
+    filterProducts(category) {
+      this.products = this.originalProducts;
+      this.products = this.products.filter(product => product.category === category);
+    },
+    resetFilter() {
+      this.products = this.originalProducts;
+    },
+    filteredProducts() {
+
+    }
+  },
   created() {
     onSnapshot(dataBase, (snapshot) => {
       snapshot.docs.forEach((doc) => {
         this.products.push({ ...doc.data(), id: doc.id });
       });
     });
-  },
-  components: { AddToCart, RouterLink }
+    onSnapshot(categoryReg, (snapshot) => {
+      this.categories = [];
+      snapshot.docs.forEach((doc) => {
+        this.categories.push({ ...doc.data(), id: doc.id })
+      })
+    });
+    this.originalProducts = this.products;
+  }
 };
 </script>
 
 <style scoped lang="scss">
 .products {
   display: flex;
+  flex-wrap: wrap;
   width: 100%;
   justify-content: center;
+}
+
+.filter-buttons {
+  display: flex;
+  widows: 90%;
+  height: 50px;
+  margin-bottom: 15px;
+}
+
+button {
+  width: 15%;
+  background-color: transparent;
+  border-top: none;
+  border-bottom: none;
+  border-right: 1px solid rgba(73, 73, 73, 0.795);
+  border-left: 1px solid rgba(73, 73, 73, 0.795);
+  transition: 1s;
+  font-size: 20px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 -2px 3px rgba(255, 255, 255, 1);
+}
+
+button:hover {
+  width: 25%;
+  transition: 0.5s;
+  font-size: 25px;
 }
 
 .productCard {
@@ -72,40 +122,30 @@ export default {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  width: 300px;
-  height: 450px;
-  margin: 10px;
-  background-color: #f0f0f0;
+  text-decoration: none;
+  width: 290px;
+  height: 325px;
+  margin: 40px 10px 50px 10px;
+  background: #f0f0f0;
   border-radius: 25px;
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.125);
+  border: 2px solid rgba(22, 10, 10, 0.25);
+  transition: 0.5s;
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+}
+
+.productCard:hover {
+  box-shadow: 0 15px 55px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
+  transition: 1s;
 }
 
 .productImage {
-  height: 250px;
-}
-
-h3 {
-  height: 44px;
-  width: 300px;
-  margin-bottom: 0;
-}
-
-.buy {
-  width: 90%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.price {
-  margin: 0 0 0 25px;
-}
-
-.details {
-  width: 70%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  height: 280px;
+  filter: drop-shadow(0 25px 20px rgba(0, 0, 0, 0.5));
+  margin-top: -50px;
 }
 </style>

@@ -4,7 +4,7 @@
             <div class="inputs">
                 <input type="text" v-model="product.name" placeholder="Назва товару">
                 <input type="text" v-model="product.detail" placeholder="Деталі">
-                <input type="number" v-model="product.price" placeholder="Ціна">
+                <input type="number" v-model="product.sellPrice" placeholder="Ціна">
             </div>
             <textarea type="text" v-model="product.description" placeholder="Опис"></textarea>
             <textarea type="text" v-model="product.sklad" placeholder="Склад"></textarea>
@@ -48,6 +48,8 @@
                 <label for="checkbox">Vegan</label>
                 <input type="checkbox" class="checkbox" v-model="product.raw" />
                 <label for="checkbox">Raw</label>
+                <input type="checkbox" class="checkbox" v-model="product.protein" />
+                <label for="checkbox">Protein</label>
             </div>
             <div class="modal-buttons">
                 <button class="productbutton" @click="updateData()">Зберегти</button>
@@ -77,7 +79,7 @@ export default {
                 await updateDoc(refDoc, {
                     name: this.product.name,
                     detail: this.product.detail,
-                    price: this.product.price,
+                    sellPrice: this.product.sellPrice,
                     description: this.product.description,
                     sklad: this.product.sklad,
                     kcal: this.product.kcal,
@@ -93,7 +95,8 @@ export default {
                     freeSugar: this.product.freeSugar,
                     freeLactosa: this.product.freeLactosa,
                     vegan: this.product.vegan,
-                    raw: this.product.raw
+                    raw: this.product.raw,
+                    protein: this.product.protein
                 });
             } catch (error) {
                 console.error(error);

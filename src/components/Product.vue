@@ -1,10 +1,17 @@
 <template>
     <div class="container" v-for="product in products">
-        <div class="cards">
-            <img class="productImage" :src="product.image">
-            <h2> {{ product.price }} грн </h2>
-            <AddToCart :product-id="product.id" :price="product.price" :name="product.name">
-            </AddToCart>
+        <div style="display: flex; flex-direction: column; align-items: center;">
+            <div class="cards">
+                <img class="productImage" :src="product.image">
+                <h2> {{ product.sellPrice }} грн </h2>
+            </div>
+            <div style="display: flex;">
+                <AddToCart :product-id="product.id" :price="product.sellPrice" :name="product.name">
+                </AddToCart>
+                <div class="like-btn">
+                    <img src="../assets/imgs/icons/like.png" alt="" style="width: 30px;">
+                </div>
+            </div>
         </div>
         <div id="card-2" class="cards">
             <div>
@@ -29,6 +36,9 @@
                     <img class="diet-lable" v-if="product.raw == true"
                         src="https://firebasestorage.googleapis.com/v0/b/almendra-a411d.appspot.com/o/icons%2Fraw.png?alt=media&token=6c35501b-5854-4f0f-8155-e3a7d08f8740"
                         alt="raw">
+                    <img class="diet-lable" v-if="product.protein == true"
+                        src="https://firebasestorage.googleapis.com/v0/b/almendra-a411d.appspot.com/o/icons%2Fraw.png?alt=media&token=6c35501b-5854-4f0f-8155-e3a7d08f8740"
+                        alt="protein">
                 </div>
             </div>
         </div>
@@ -85,7 +95,7 @@ export default {
                 name: '',
                 id: this.$route.params.id,
                 detail: '',
-                price: '',
+                sellPrice: 0,
                 description: '',
                 sklad: '',
                 kcal: '',
@@ -100,7 +110,8 @@ export default {
                 freeSugar: false,
                 freeLactosa: false,
                 vegan: false,
-                raw: false
+                raw: false,
+                protein: false
             }
         };
     },
@@ -135,12 +146,13 @@ export default {
 }
 
 #card-1 {
-    width: 30%;
+    width: 360px;
 }
 
 #card-2 {
     padding: 0 50px 0 50px;
     width: 50%;
+    height: 677px;
 }
 
 #card-3 {
@@ -179,5 +191,27 @@ p {
     font-family: Arial, Helvetica, sans-serif;
     margin: 10px;
     color: rgba(40, 72, 49, 1);
+}
+
+.like-btn {
+    background-color: rgb(255, 255, 255);
+    border-radius: 50px;
+    height: 50px;
+    width: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 0 rgba(0, 0, 0, 0.4), 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
+    margin-left: 10px;
+}
+
+.like-btn:hover {
+    box-shadow: inset 0 0 0 rgba(0, 0, 0, 0.4), 0 0 0 rgba(0, 0, 0, 0.4), 0 1px 5px rgba(0, 0, 0, 0.2);
+    transition: 0.3s;
+}
+
+.like-btn:active {
+    box-shadow: inset 0 7px 10px rgba(0, 0, 0, 0.4), 0 1px 5px rgba(0, 0, 0, 0.2);
+    transition: 0.3s;
 }
 </style>

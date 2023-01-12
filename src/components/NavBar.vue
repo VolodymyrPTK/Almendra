@@ -85,20 +85,21 @@ const handSignOut = () => {
 }
 
 .navButton {
-  text-align: center;
-  width: 70px;
+  width: 80px;
   border: none;
   padding: 13px 13px 13px 13px;
   margin: 0 0.5em 0 0.5rem;
   display: inline-block;
+  text-align: center;
   text-decoration: none;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 -2px 3px rgba(255, 255, 255, 1);
   border-radius: 25px;
   background: white;
   box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3),
     inset 0px 0px 0px rgba(0, 0, 0, 0.0);
   transition: 0.3s;
   backdrop-filter: blur(0px);
-  text-decoration: none;
   color: black;
 }
 

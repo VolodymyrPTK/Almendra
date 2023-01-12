@@ -36,6 +36,6 @@ h1,
 h2,
 h3,
 h4 {
-    color: rgba(40, 72, 49, 1);
+    color: rgb(1, 37, 46);
 }
 </style>

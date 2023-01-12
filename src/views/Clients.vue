@@ -39,7 +39,7 @@
         <tbody>
           <tr class="tableline" v-for="profile in profiles">
             <td>{{ profile.firstName }}</td>
-            <td>{{ profile.sureName }}</td>
+            <td>{{ profile.secondName }}</td>
             <td>{{ profile.email }}</td>
             <td>{{ profile.phone }}</td>
             <td>{{ profile.city }}</td>
@@ -66,7 +66,7 @@ export default {
       profiles: [],
       profile: {
         firstName: '',
-        sureName: '',
+        secondName: '',
         email: '',
         phone: '',
         profileImage: '',
