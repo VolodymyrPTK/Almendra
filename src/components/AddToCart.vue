@@ -7,7 +7,7 @@
 <script>
 import { getAuth } from "firebase/auth";
 import { cartReg, db, profileReg } from '../main';
-import { addDoc, deleteDoc, onSnapshot, doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
+import { addDoc, deleteDoc, onSnapshot, doc, setDoc, getDoc, updateDoc, query, where, getDocs } from "firebase/firestore";
 
 export default {
     name: "AddToCart",
@@ -44,10 +44,22 @@ export default {
                     finalized: false,
                     time: time
                 };
-                const cart = await addDoc(cartReg, cartInfo);
-                const cartId = cart.id;
-                await setDoc(doc(db, "carts", cartId, "cartProducts", this.productName), product);
-                console.log('Product added to cart successfully')
+                const q = query(cartReg, where("userId", "==", this.profile.uid), where("finalized", "==", false));
+                const querySnapshot = await getDocs(q);
+                if (querySnapshot.size > 0) {
+                    let cartId;
+                    querySnapshot.forEach(doc => {
+                        if (doc.data().finalized === false) {
+                            cartId = doc.id;
+                        }
+                    });
+                    await setDoc(doc(db, "carts", cartId, "cartProducts", this.productName), product);
+                } else {
+                    const cart = await addDoc(cartReg, cartInfo);
+                    const cartId = cart.id;
+                    await setDoc(doc(db, "carts", cartId, "cartProducts", this.productName), product);
+                    console.log('Product added to cart successfully')
+                }
             } catch (error) {
                 console.error('Error adding product to cart: ', error)
             }
