@@ -1,10 +1,10 @@
 <template>
   <div>
     <div class="filter-buttons">
-      <button @click="resetFilter(category.id)">
+      <button class="filter-button" @click="resetFilter(category.id)">
         Всі товари
       </button>
-      <button v-for="category in categories" :key="category" @click="filterProducts(category.id)">
+      <button class="filter-button" v-for="category in categories" :key="category" @click="filterProducts(category.id)">
         {{ category.id }}
       </button>
     </div>
@@ -15,7 +15,7 @@
           <h3>{{ product.name }}</h3>
           <h3>₴ {{ product.sellPrice }}.00</h3>
         </RouterLink>
-        <AddToCart :product-id="product.id" :price="product.sellPrice" :name="product.name">
+        <AddToCart :product-id="product.id" :sellPrice="product.sellPrice" :name="product.name">
         </AddToCart>
       </div>
     </section>
@@ -41,6 +41,7 @@ export default {
       category: {},
       products: [],
       product: {
+        productId: "",
         name: "",
         detail: "",
         sellPrice: 0,
@@ -99,7 +100,7 @@ export default {
   margin-bottom: 15px;
 }
 
-button {
+.filter-button {
   width: 15%;
   background-color: transparent;
   border-top: none;
@@ -111,7 +112,7 @@ button {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 -2px 3px rgba(255, 255, 255, 1);
 }
 
-button:hover {
+.filter-button:hover {
   width: 25%;
   transition: 0.5s;
   font-size: 25px;

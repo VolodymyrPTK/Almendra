@@ -1,24 +1,67 @@
 <template>
     <div>
-        <button class="buy-button">Купити</button>
+        <button class="buy-button" @click="addToCart">{{ product_id }}</button>
     </div>
 </template>
-
-
+  
 <script>
+import { getAuth } from "firebase/auth";
+import { cartReg, db, profileReg } from '../main';
+import { addDoc, deleteDoc, onSnapshot, doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
+
 export default {
-    name: "add-to-cart",
+    name: "AddToCart",
     props: {
+        product: Array,
+        sellPrice: Number,
         name: String,
-        price: String,
         productId: String
     },
     data() {
         return {
+            profiles: [],
+            profile: {},
             productName: this.name,
-            productPrice: this.price,
-            product_id: this.id
+            productPrice: this.sellPrice,
+            product_id: this.productId,
+            quantity: 1,
+
         }
+    },
+    methods: {
+        async addToCart() {
+            try {
+                const product = {
+                    name: this.productName,
+                    price: this.productPrice,
+                    id: this.product_id,
+                    quantity: this.quantity,
+                };
+                const time = new Date().toLocaleString('en-US',
+                    { day: '2-digit', month: '2-digit', year: '2-digit', hour12: false, hour: '2-digit', minute: '2-digit' });
+                const cartInfo = {
+                    userId: this.profile.uid,
+                    finalized: false,
+                    time: time
+                };
+                const cart = await addDoc(cartReg, cartInfo);
+                const cartId = cart.id;
+                await setDoc(doc(db, "carts", cartId, "cartProducts", this.productName), product);
+                console.log('Product added to cart successfully')
+            } catch (error) {
+                console.error('Error adding product to cart: ', error)
+            }
+        }
+    },
+    async created() {
+        const auth = getAuth();
+        const user = auth.currentUser;
+        this.profile.uid = user.uid;
+        const docRef = doc(profileReg, this.profile.uid);
+        getDoc(docRef)
+            .then((doc) => {
+                this.profiles.push({ ...doc.data(), id: doc.id });
+            })
     }
 };
 </script>

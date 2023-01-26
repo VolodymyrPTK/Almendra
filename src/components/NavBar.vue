@@ -43,6 +43,8 @@ const handSignOut = () => {
     router.push("/");
   });
 };
+
+
 </script>
 
 <style scoped>

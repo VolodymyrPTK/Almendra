@@ -1,13 +1,12 @@
 <template>
-    <div class="container" v-for="product in products">
-        <div style="display: flex; flex-direction: column; align-items: center;">
+    <div class="container" v-for="product in products" :key="product.id">
+        <div id="card-1">
             <div class="cards">
                 <img class="productImage" :src="product.image">
                 <h2> {{ product.sellPrice }} грн </h2>
             </div>
-            <div style="display: flex;">
-                <AddToCart :product-id="product.id" :price="product.sellPrice" :name="product.name">
-                </AddToCart>
+            <div style="display: flex; justify-content: center;">
+                <AddToCart :product-id="product.id" :sellPrice="product.sellPrice" :name="product.name" />
                 <div class="like-btn">
                     <img src="../assets/imgs/icons/like.png" alt="" style="width: 30px;">
                 </div>
@@ -146,7 +145,7 @@ export default {
 }
 
 #card-1 {
-    width: 360px;
+    width: 30%;
 }
 
 #card-2 {

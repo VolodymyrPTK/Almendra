@@ -1,8 +1,41 @@
 <template>
   <div class="overview">
-    <h1>Overview</h1>
+
+    <div>Total Value: {{ totalValue }}</div>
   </div>
 </template>
+
+<script>
+import { dataBase } from '../main';
+import { onSnapshot } from "firebase/firestore";
+
+export default {
+  name: "Overwiev",
+  props: {
+    msg: String
+  },
+  data() {
+    return {
+      products: []
+    }
+  },
+  async created() {
+    onSnapshot(dataBase, (snapshot) => {
+      this.products = [];
+      snapshot.docs.forEach((doc) => {
+        this.products.push({ ...doc.data(), id: doc.id })
+      });
+    });
+  },
+  computed: {
+    totalValue() {
+      return this.products.reduce((total, product) => {
+        return total + (product.sellPrice * product.quantity || 0);
+      }, 0);
+    }
+  }
+};
+</script>
 
 <style scoped>
 .overview {
