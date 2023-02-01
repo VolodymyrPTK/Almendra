@@ -1,6 +1,10 @@
 <template>
   <div class="body">
-    <div class="orders"></div>
+    <div class="orders">
+
+
+      
+    </div>
     <div class="user">
       <div class="profile">
         <img class="profilePic" src="../assets/Logo.png" alt="profilePic">
@@ -29,6 +33,7 @@
       <div class="adress">
         <label for="city">Місто</label>
         <h3>{{ profile.city }}</h3>
+        <h2>{{ this.profile.uid }}</h2>
         <input type="text" v-model="search" @input="searchCities" @focus="showDropdown = true"
           @blur="showDropdown = false" />
         <ul v-if="showDropdown">

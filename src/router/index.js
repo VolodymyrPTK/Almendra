@@ -5,6 +5,7 @@ import Store from "../views/Store.vue";
 import Login from "../views/Login.vue";
 import Register from "../views/Register.vue";
 import User from "../views/User.vue";
+import Cart from "../components/Cart.vue";
 import Admin from "../views/Admin.vue";
 import Overview from "../views/Overview.vue";
 import Products from "../views/Products.vue";
@@ -45,6 +46,14 @@ const router = createRouter({
       path: "/user",
       name: "user",
       component: User,
+      meta: {
+        requiresAuth: true,
+      }
+    },
+    {
+      path: "/cart",
+      name: "cart",
+      component: Cart,
       meta: {
         requiresAuth: true,
       }

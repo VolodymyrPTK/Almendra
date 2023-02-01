@@ -22,6 +22,7 @@
 import { RouterLink, useRouter } from "vue-router";
 import { onMounted, ref } from "vue";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import Cart from '../components/Cart.vue';
 
 const router = useRouter();
 const isLoggedIn = ref(false);

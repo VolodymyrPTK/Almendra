@@ -40,12 +40,13 @@ export default {
                 const time = new Date().toLocaleString('en-US',
                     { day: '2-digit', month: '2-digit', year: '2-digit', hour12: false, hour: '2-digit', minute: '2-digit' });
                 const cartInfo = {
-                    userId: this.profile.uid,
+                    uid: this.profile.uid,
                     finalized: false,
                     time: time
                 };
-                const q = query(cartReg, where("userId", "==", this.profile.uid), where("finalized", "==", false));
+                const q = query(cartReg, where("uid", "==", this.profile.uid), where("finalized", "==", false));
                 const querySnapshot = await getDocs(q);
+
                 if (querySnapshot.size > 0) {
                     let cartId;
                     querySnapshot.forEach(doc => {
@@ -53,7 +54,15 @@ export default {
                             cartId = doc.id;
                         }
                     });
-                    await setDoc(doc(db, "carts", cartId, "cartProducts", this.productName), product);
+                    const productRef = doc(db, "carts", cartId, "cartProducts", this.productName);
+                    const productDoc = await getDoc(productRef);
+                    if (productDoc.exists) {
+                        const productQuantity = productDoc.data().quantity;
+                        await updateDoc(productRef, { quantity: productQuantity + 1 });
+                    } else {
+                        await setDoc(productRef, product);
+                    }
+
                 } else {
                     const cart = await addDoc(cartReg, cartInfo);
                     const cartId = cart.id;

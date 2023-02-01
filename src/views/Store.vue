@@ -129,7 +129,7 @@ export default {
   margin: 40px 10px 50px 10px;
   background: #f0f0f0;
   border-radius: 25px;
-  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 25px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
   border: 2px solid rgba(22, 10, 10, 0.25);
   transition: 0.5s;
 
