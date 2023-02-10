@@ -7,7 +7,7 @@
 <script>
 import { getAuth } from "firebase/auth";
 import { cartReg, db, profileReg } from '../main';
-import { addDoc, deleteDoc, onSnapshot, doc, setDoc, getDoc, updateDoc, query, where, getDocs } from "firebase/firestore";
+import { collection, addDoc, deleteDoc, onSnapshot, doc, setDoc, getDoc, updateDoc, query, where, getDocs, runTransaction, Transaction } from "firebase/firestore";
 
 export default {
     name: "AddToCart",
@@ -15,7 +15,8 @@ export default {
         product: Array,
         sellPrice: Number,
         name: String,
-        productId: String
+        productId: String,
+        image: String,
     },
     data() {
         return {
@@ -24,6 +25,7 @@ export default {
             productName: this.name,
             productPrice: this.sellPrice,
             product_id: this.productId,
+            productImage: this.image,
             quantity: 1,
 
         }
@@ -34,9 +36,11 @@ export default {
                 const product = {
                     name: this.productName,
                     price: this.productPrice,
-                    id: this.product_id,
+                    itemId: this.product_id,
                     quantity: this.quantity,
+                    itemImage: this.productImage
                 };
+
                 const time = new Date().toLocaleString('en-US',
                     { day: '2-digit', month: '2-digit', year: '2-digit', hour12: false, hour: '2-digit', minute: '2-digit' });
                 const cartInfo = {
@@ -46,7 +50,6 @@ export default {
                 };
                 const q = query(cartReg, where("uid", "==", this.profile.uid), where("finalized", "==", false));
                 const querySnapshot = await getDocs(q);
-
                 if (querySnapshot.size > 0) {
                     let cartId;
                     querySnapshot.forEach(doc => {
@@ -55,14 +58,19 @@ export default {
                         }
                     });
                     const productRef = doc(db, "carts", cartId, "cartProducts", this.productName);
-                    const productDoc = await getDoc(productRef);
-                    if (productDoc.exists) {
-                        const productQuantity = productDoc.data().quantity;
-                        await updateDoc(productRef, { quantity: productQuantity + 1 });
-                    } else {
-                        await setDoc(productRef, product);
+                    try {
+                        await runTransaction(db, async (transaction) => {
+                            const newQ = await transaction.get(productRef);
+                            if (!newQ.exists()) {
+                                await setDoc(productRef, product);
+                            }
+                            const newQuant = newQ.data().quantity + 1;
+                            transaction.update(productRef, { quantity: newQuant });
+                        });
+                        console.log("Transaction successfully committed!");
+                    } catch (e) {
+                        console.log("Transaction failed: ", e);
                     }
-
                 } else {
                     const cart = await addDoc(cartReg, cartInfo);
                     const cartId = cart.id;

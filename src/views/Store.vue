@@ -15,7 +15,11 @@
           <h3>{{ product.name }}</h3>
           <h3>₴ {{ product.sellPrice }}.00</h3>
         </RouterLink>
-        <AddToCart :product-id="product.id" :sellPrice="product.sellPrice" :name="product.name">
+        <AddToCart 
+        :product-id="product.id" 
+        :sellPrice="product.sellPrice"
+        :image="product.image"
+        :name="product.name">
         </AddToCart>
       </div>
     </section>

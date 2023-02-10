@@ -12,7 +12,9 @@
         <RouterLink class="navButton" to="/store">Крамниця</RouterLink>
         <RouterLink class="navButton" to="/user">User</RouterLink>
         <RouterLink class="navButton" to="/admin/overview">Admin</RouterLink>
+        <RouterLink class="navButton" to="/cart">Cart</RouterLink>
         <RouterLink class="navButton" to="/" @click="handSignOut" v-if="isLoggedIn">Вийти</RouterLink>
+    
       </div>
     </div>
   </div>
@@ -22,7 +24,6 @@
 import { RouterLink, useRouter } from "vue-router";
 import { onMounted, ref } from "vue";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-import Cart from '../components/Cart.vue';
 
 const router = useRouter();
 const isLoggedIn = ref(false);
@@ -44,7 +45,6 @@ const handSignOut = () => {
     router.push("/");
   });
 };
-
 
 </script>
 

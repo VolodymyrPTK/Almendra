@@ -55,14 +55,8 @@ export default {
         }
     },
     computed: {
-        markup() {
-            return ((this.product.sellPrice - this.product.buyPrice) / this.product.buyPrice * 100).toFixed(2)
-        },
         value() {
             return this.product.sellPrice * this.product.quantity.toFixed(2)
-        },
-        spent() {
-            return this.product.buyPrice * this.product.quantity.toFixed(2)
         }
     }
 };

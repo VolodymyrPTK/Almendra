@@ -1,8 +1,3 @@
-<script setup>
-import { RouterView } from "vue-router";
-import NavBar from "./components/NavBar.vue";
-</script>
-
 <template>
     <div class="mainPage">
         <NavBar />
@@ -11,6 +6,21 @@ import NavBar from "./components/NavBar.vue";
         </div>
     </div>
 </template>
+
+<script>
+import { RouterView } from "vue-router";
+import NavBar from "./components/NavBar.vue";
+import Cart from "./components/Cart.vue";
+
+export default {
+
+    components: {
+        RouterView,
+        NavBar,
+        Cart
+    }
+};
+</script>
 
 <style lang="scss">
 body {
