@@ -1,6 +1,6 @@
 <template>
     <div>
-        <button class="buy-button" @click="addToCart">{{ product_id }}</button>
+        <button class="buy-button" @click="addToCart">Купити</button>
     </div>
 </template>
   

@@ -4,7 +4,8 @@
         <div class="home">
             <RouterView />
         </div>
-    </div>
+        <Cart class="cart-comp" />
+</div>
 </template>
 
 <script>
@@ -13,7 +14,11 @@ import NavBar from "./components/NavBar.vue";
 import Cart from "./components/Cart.vue";
 
 export default {
-
+    data() {
+        return {
+            showMenu: true,
+        };
+    },
     components: {
         RouterView,
         NavBar,
@@ -29,6 +34,10 @@ body {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+}
+
+.cart-comp {
+    margin-top: 120px;
 }
 
 .mainPage {
@@ -47,5 +56,19 @@ h2,
 h3,
 h4 {
     color: rgb(1, 37, 46);
+}
+
+.main-cart {
+    margin-top: 150px;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.5s;
+}
+
+.fade-enter,
+.fade-leave-to {
+    opacity: 0;
 }
 </style>

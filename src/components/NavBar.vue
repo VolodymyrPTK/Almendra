@@ -14,7 +14,7 @@
         <RouterLink class="navButton" to="/admin/overview">Admin</RouterLink>
         <RouterLink class="navButton" to="/cart">Cart</RouterLink>
         <RouterLink class="navButton" to="/" @click="handSignOut" v-if="isLoggedIn">Вийти</RouterLink>
-    
+
       </div>
     </div>
   </div>
