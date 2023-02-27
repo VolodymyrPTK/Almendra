@@ -3,13 +3,10 @@
         <div id="card-1">
             <div class="cards">
                 <img class="productImage" :src="product.image">
-                <h2> {{ product.sellPrice }} грн </h2>
+                <h1> {{ product.sellPrice }} грн </h1>
             </div>
-            <div style="display: flex; justify-content: center;">
+            <div style="display: flex; justify-content: center; margin-top: 10px;">
                 <AddToCart :product-id="product.id" :sellPrice="product.sellPrice" :name="product.name" />
-                <div class="like-btn">
-                    <img src="../assets/imgs/icons/like.png" alt="" style="width: 30px;">
-                </div>
             </div>
         </div>
         <div id="card-2" class="cards">
@@ -129,6 +126,7 @@ export default {
 .container {
     display: flex;
     align-items: stretch;
+    padding: 15px;
 }
 
 .cards {
@@ -138,7 +136,6 @@ export default {
     align-items: center;
     background-color: #f0f0f0;
     border-radius: 25px;
-    margin: 10px;
     box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
     background-color: rgba(253, 253, 253, 0.75);
     border: 1px solid rgba(255, 255, 255, 0.125);
@@ -146,12 +143,13 @@ export default {
 
 #card-1 {
     width: 30%;
+    margin-right: 15px;
 }
 
 #card-2 {
     padding: 0 50px 0 50px;
     width: 50%;
-    height: 677px;
+    margin-right: 15px;
 }
 
 #card-3 {

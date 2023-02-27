@@ -50,7 +50,6 @@
     flex: 5;
     transform: rotate(5deg);
     box-shadow: 15px 25px 35px rgba(0, 0, 0, 0.7);
-    //filter: blur(4px);
   }
 }
 

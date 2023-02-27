@@ -1,28 +1,21 @@
 <template>
     <div class="mainPage">
-        <NavBar />
+        <NavBar class="navbar-comp" />
         <div class="home">
-            <RouterView />
+            <RouterView :key="$route.fullPath" />
         </div>
-        <Cart class="cart-comp" />
-</div>
+    </div>
 </template>
 
 <script>
 import { RouterView } from "vue-router";
 import NavBar from "./components/NavBar.vue";
-import Cart from "./components/Cart.vue";
+
 
 export default {
-    data() {
-        return {
-            showMenu: true,
-        };
-    },
     components: {
         RouterView,
-        NavBar,
-        Cart
+        NavBar
     }
 };
 </script>
@@ -34,10 +27,11 @@ body {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    overflow: hidden;
 }
 
-.cart-comp {
-    margin-top: 120px;
+.navbar-comp {
+    z-index: 1;
 }
 
 .mainPage {
@@ -47,7 +41,7 @@ body {
 }
 
 .home {
-    margin-top: 30px;
+    margin-top: 40px;
     width: 90%;
 }
 

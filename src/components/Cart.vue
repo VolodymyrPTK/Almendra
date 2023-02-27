@@ -1,8 +1,6 @@
 <template>
   <div class="cart">
     <div class="cart-name"><b>Кошик</b></div>
-    <div>{{ this.cartId }}</div>
-
     <div class="item-container">
       <div class="cart-items" v-for="item in items" :key="item.id">
         <img class="productImage" :src="item.itemImage">
@@ -15,25 +13,27 @@
               <div>{{ item.quantity }} шт</div>
               <button class="round-btn" @click="addQuantity(item.id)">+</button>
             </div>
+
           </div>
         </div>
         <div style="font-size: 18px; width: 20%;"><b>{{ item.price * item.quantity }} грн</b></div>
         <button class="round-btn" @click="deleteProduct(item.id)">X</button>
       </div>
     </div>
-
     <div style="display: flex; flex-direction: column; align-items: center;">
       <h3 style="display: flex; justify-content: end; margin-right: 25px;">Сума {{ total }} грн</h3>
-      <button>Оформити</button>
+      <div style="display: flex; width: 70%;">
+        <button @click="saveCart()">Оформити</button>
+        <button @click="closeCart()">Закрити</button>
+      </div>
     </div>
-
-</div>
+  </div>
 </template>
 
 <script>
 import { getAuth } from "firebase/auth";
 import { doc, getDoc, getDocs, query, where, onSnapshot, increment, collection, deleteDoc, updateDoc } from "firebase/firestore";
-import { profileReg, cartReg, dataBase, db } from "../main";
+import { profileReg, cartReg, dataBase } from "../main";
 
 export default {
   name: "Cart",
@@ -51,21 +51,24 @@ export default {
       items: [],
       item: {
         itemId: ''
-      }
+      },
+      cartId: ''
     }
   },
   methods: {
+    async saveCart() {
+      this.$emit('close');
+    },
+    async closeCart() {
+      this.$emit('close');
+    },
     async addQuantity(id) {
       try {
         const auth = getAuth();
         const user = auth.currentUser;
         if (user) {
           this.profile.uid = user.uid;
-          const q = query(cartReg, where("uid", "==", this.profile.uid), where("finalized", "==", false));
-          const querySnapshot = await getDocs(q);
-          const cartId = querySnapshot.docs[0].id;
-          const cartData = collection(cartReg, cartId, "cartProducts");
-          const docRef = doc(cartData, id);
+          const docRef = doc(cartReg, this.cartId, 'cartProducts', id);
           await updateDoc(docRef, { quantity: increment(1) });
         }
       } catch (error) {
@@ -78,29 +81,20 @@ export default {
         const user = auth.currentUser;
         if (user) {
           this.profile.uid = user.uid;
-          const q = query(cartReg, where("uid", "==", this.profile.uid), where("finalized", "==", false));
-          const querySnapshot = await getDocs(q);
-          const cartId = querySnapshot.docs[0].id;
-          const cartData = collection(cartReg, cartId, "cartProducts");
-          const docRef = doc(cartData, id);
+          const docRef = doc(cartReg, this.cartId, 'cartProducts', id);
           await updateDoc(docRef, { quantity: increment(-1) });
         }
       } catch (error) {
         console.error("Error reducing product quantity", error);
       }
     },
-
     async deleteProduct(id) {
       try {
         const auth = getAuth();
         const user = auth.currentUser;
         if (user) {
           this.profile.uid = user.uid;
-          const q = query(cartReg, where("uid", "==", this.profile.uid), where("finalized", "==", false));
-          const querySnapshot = await getDocs(q);
-          const cartId = querySnapshot.docs[0].id;
-          const cartData = collection(cartReg, cartId, "cartProducts");
-          const docRef = doc(cartData, id);
+          const docRef = doc(cartReg, this.cartId, 'cartProducts', id);
           await deleteDoc(docRef);
         }
       } catch (error) {
@@ -123,11 +117,10 @@ export default {
         .then((doc) => {
           this.profiles.push({ ...doc.data(), id: doc.id });
         });
-      // get cart
       const q = query(cartReg, where("uid", "==", this.profile.uid), where("finalized", "==", false));
       const querySnapshot = await getDocs(q);
-      const cartId = querySnapshot.docs[0].id;
-      const cartData = collection(cartReg, cartId, "cartProducts");
+      this.cartId = querySnapshot.docs[0].id;
+      const cartData = collection(cartReg, this.cartId, "cartProducts");
       onSnapshot(cartData, (snapshot) => {
         this.items = [];
         snapshot.docs.forEach((doc) => {
@@ -136,7 +129,6 @@ export default {
       });
     }
   },
-
   computed: {
     total() {
       let total = 0;
@@ -144,7 +136,6 @@ export default {
         total += item.price * item.quantity;
       });
       return total;
-
     }
   }
 };
@@ -231,6 +222,8 @@ export default {
 
 button {
   width: 80%;
+  height: 44px;
+  margin: 10px;
   border: none;
   font-size: 18px;
   font-family: Verdana, Geneva, Tahoma, sans-serif;

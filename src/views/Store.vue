@@ -12,14 +12,10 @@
       <div class="productCard" v-for="product in products" :key="product.id">
         <RouterLink :to="('/product/' + product.id)">
           <img class="productImage" :src="product.image">
-          <h3>{{ product.name }}</h3>
+          <h3 style="height: 44px;">{{ product.name }}</h3>
           <h3>₴ {{ product.sellPrice }}.00</h3>
         </RouterLink>
-        <AddToCart 
-        :product-id="product.id" 
-        :sellPrice="product.sellPrice"
-        :image="product.image"
-        :name="product.name">
+        <AddToCart :product-id="product.id" :sellPrice="product.sellPrice" :image="product.image" :name="product.name">
         </AddToCart>
       </div>
     </section>
@@ -129,7 +125,7 @@ export default {
   text-align: center;
   text-decoration: none;
   width: 290px;
-  height: 325px;
+  height: 350px;
   margin: 40px 10px 50px 10px;
   background: #f0f0f0;
   border-radius: 25px;

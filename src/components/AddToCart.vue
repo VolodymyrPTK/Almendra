@@ -7,7 +7,7 @@
 <script>
 import { getAuth } from "firebase/auth";
 import { cartReg, db, profileReg } from '../main';
-import { collection, addDoc, deleteDoc, onSnapshot, doc, setDoc, getDoc, updateDoc, query, where, getDocs, runTransaction, Transaction } from "firebase/firestore";
+import { addDoc, doc, setDoc, getDoc, query, where, getDocs, runTransaction } from "firebase/firestore";
 
 export default {
     name: "AddToCart",
@@ -98,6 +98,7 @@ export default {
 
 <style scoped lang="scss">
 .buy-button {
+    margin-top: 5px;
     height: 50px;
     width: 290px;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
