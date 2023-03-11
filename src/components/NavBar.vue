@@ -15,7 +15,24 @@
         </div>
       </div>
       <div class="buttons">
-        <RouterLink class="navButton" to="/store">Крамниця</RouterLink>
+        <div class="navButton dropdown-hover">
+
+          <div class="button-store">
+
+            <div class="default-btn">
+              <div>Крамниця</div>
+            </div>
+            <div class="hover-btn">
+              <RouterLink to="/store">Всі продукти</RouterLink>
+            </div>
+          </div>
+
+          <div class="dropdown-inner">
+            <RouterLink class="span" to="/store/free-sugar">Без Цукру</RouterLink>
+            <RouterLink class="span" to="/store/free-gluten">Без Глютену</RouterLink>
+            <RouterLink class="span" to="/store/vegan">Веган</RouterLink>
+          </div>
+        </div>
         <RouterLink class="navButton" to="/user">User</RouterLink>
         <RouterLink class="navButton" to="/admin/overview">Admin</RouterLink>
         <div v-if="isLoggedIn" class="navButton" @click="toggleModal">
@@ -109,6 +126,90 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.button-store {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.default-btn,
+.hover-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .3s ease;
+  padding-bottom: 10px;
+  width: 120px;
+  height: 25px;
+}
+
+.hover-btn {
+  position: absolute;
+  inset: 0;
+  transform: translate(0%, 100%);
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+}
+
+.button-store:hover .default-btn {
+  transform: translate(0%, -100%);
+}
+
+.button-store:hover .hover-btn {
+  transform: translate(0%, 0%);
+}
+
+.dropdown-inner {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  visibility: hidden;
+  z-index: 2;
+  padding: 7px;
+  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(35px);
+  background-color: rgba(253, 253, 253, 0.90);
+  border-radius: 25px;
+  transition: opacity .3s, visibility .3s;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 5px;
+}
+
+.dropdown-hover {
+  display: flex;
+}
+
+.dropdown-hover:hover .dropdown-inner,
+.dropdown-open:checked~.dropdown-inner {
+  visibility: visible;
+}
+
+.span {
+  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(35px);
+  background-color: rgba(253, 253, 253, 0.5);
+  border-radius: 25px;
+  padding: 13px 13px 13px 13px;
+  width: 120px;
+  height: 25px;
+  margin: 3px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: box-shadow 0.5s, background-color 0.5s;
+  text-decoration: none;
+  color: inherit;
+}
+
+.span:hover {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
+  background-color: rgba(206, 206, 206, 0.5);
+}
+
 .productImage {
   width: 40px;
 }
@@ -116,7 +217,6 @@ export default {
 .search-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
 }
 
 .searchResults {
@@ -125,7 +225,6 @@ export default {
   display: flex;
   flex-direction: column;
   width: 350px;
-  background-color: white;
   max-height: 500px;
   overflow-y: scroll;
   border-radius: 25px;
@@ -171,7 +270,7 @@ export default {
 
 .slide-enter-from,
 .slide-leave-to {
-  transform: translateX(100%);
+  transform: translateX(110%);
 }
 
 .navbar-body {
@@ -223,11 +322,11 @@ export default {
 }
 
 .navButton {
-  width: 80px;
-  max-height: 45px;
+  width: 120px;
+  height: 25px;
   border: none;
   padding: 13px 13px 13px 13px;
-  margin: 0 0.5em 0 0.5rem;
+  margin: 0 0.25em 0 0.25rem;
   display: inline-block;
   text-align: center;
   text-decoration: none;
@@ -263,27 +362,5 @@ export default {
   border: none;
   padding: 13px 13px 13px 13px;
   backdrop-filter: blur(0px);
-}
-
-.searchButton {
-  border-radius: 0 25px 25px 0;
-  text-align: center;
-  box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.3);
-  border: none;
-  padding: 13px 13px 13px 13px;
-  background-color: white;
-  backdrop-filter: blur(0px);
-  cursor: pointer;
-}
-
-.searchButton:hover {
-  transition: 0.3s;
-  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3);
-}
-
-.searchButton:active {
-  box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3),
-    inset 0px 3px 5px rgba(0, 0, 0, 0.3);
-  transition: 0.1s;
 }
 </style>

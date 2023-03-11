@@ -174,7 +174,7 @@ export default {
 }
 
 .diet-lable {
-    height: 200px;
+    height: 150px;
     margin: 10px;
 }
 

@@ -106,18 +106,18 @@ export default {
     font-size: 24px;
     border-radius: 25px;
     background-color: rgb(255, 255, 255);
-    box-shadow: inset 0 0 0 rgba(0, 0, 0, 0.4), 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 5px 10px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
     border: none;
     transition: 0.3s;
 }
 
 .buy-button:hover {
-    box-shadow: inset 0 0 0 rgba(0, 0, 0, 0.4), 0 0 0 rgba(0, 0, 0, 0.4), 0 1px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 15px 15px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
     transition: 0.3s;
 }
 
 .buy-button:active {
-    box-shadow: inset 0 7px 10px rgba(0, 0, 0, 0.4), 0 1px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 5px 5px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
     transition: 0.3s;
 }
 </style>

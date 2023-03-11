@@ -1,7 +1,9 @@
 <template>
   <div>
     <div class="filter-buttons">
-      <button class="filter-button" @click="resetFilter(category.id)">Всі товари</button>
+      <button class="filter-button" @click="resetFilter(category.id)">
+        Всі товари
+      </button>
       <button class="filter-button" v-for="category in categories" :key="category" @click="filterProducts(category.id)">
         {{ category.id }}
       </button>
@@ -25,10 +27,10 @@
 import { dataBase, categoryReg } from '../main';
 import { onSnapshot } from "firebase/firestore";
 import { RouterLink } from 'vue-router';
-import AddToCart from '../components/AddToCart.vue';
+import AddToCart from './AddToCart.vue';
 
 export default {
-  name: "Store",
+  name: "Vegan",
   props: {
     msg: String
   },
@@ -67,7 +69,10 @@ export default {
   created() {
     onSnapshot(dataBase, (snapshot) => {
       snapshot.docs.forEach((doc) => {
-        this.products.push({ ...doc.data(), id: doc.id });
+        const product = doc.data();
+        if (product.vegan === true) {
+          this.products.push({ ...product, id: doc.id });
+        }
       });
     });
     onSnapshot(categoryReg, (snapshot) => {
@@ -114,12 +119,6 @@ export default {
   font-size: 25px;
 }
 
-.filter-button:active {
-  width: 25%;
-  transition: 0.5s;
-  font-size: 25px;
-}
-
 .productCard {
   display: flex;
   flex-direction: column;
@@ -132,6 +131,7 @@ export default {
   background: #f0f0f0;
   border-radius: 25px;
   box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+  // border: 2px solid rgba(22, 10, 10, 0.25);
   transition: 0.5s;
 
   a {

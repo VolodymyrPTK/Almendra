@@ -1,6 +1,7 @@
 <template>
   <div class="cart">
     <div class="cart-name"><b>Кошик</b></div>
+
     <div class="item-container">
       <div class="cart-items" v-for="item in items" :key="item.id">
         <img class="productImage" :src="item.itemImage">
@@ -13,13 +14,13 @@
               <div>{{ item.quantity }} шт</div>
               <button class="round-btn" @click="addQuantity(item.id)">+</button>
             </div>
-
           </div>
         </div>
         <div style="font-size: 18px; width: 20%;"><b>{{ item.price * item.quantity }} грн</b></div>
         <button class="round-btn" @click="deleteProduct(item.id)">X</button>
       </div>
     </div>
+
     <div style="display: flex; flex-direction: column; align-items: center;">
       <h3 style="display: flex; justify-content: end; margin-right: 25px;">Сума {{ total }} грн</h3>
       <div style="display: flex; width: 70%;">
@@ -27,6 +28,17 @@
         <button @click="closeCart()">Закрити</button>
       </div>
     </div>
+
+    <div class="confirmation">
+
+      <div class="payment">
+      </div>
+
+      <div class="shipping">
+      </div>
+
+    </div>
+
   </div>
 </template>
 
@@ -142,6 +154,18 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.confirmation {
+
+}
+
+.payment {
+
+}
+
+.shipping {
+
+}
+
 .cart {
   display: flex;
   flex-direction: column;
