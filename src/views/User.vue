@@ -1,27 +1,25 @@
 <template>
   <div class="body">
-    <div class="orders">
-
-
-      
-    </div>
+    <div class="orders"></div>
     <div class="user">
       <div class="profile">
-        <img class="profilePic" src="../assets/Logo.png" alt="profilePic">
+        <img class="profilePic" src="../assets/Logo.png" alt="profilePic" />
         <div class="names">
           <h2 v-if="!showModalFlag">{{ profile.firstName }}&nbsp;</h2>
           <h2 v-if="!showModalFlag">{{ profile.secondName }}</h2>
         </div>
         <h3 v-if="!showModalFlag">{{ profile.email }}</h3>
         <h3 v-if="!showModalFlag">{{ profile.phone }}</h3>
-        <button v-if="!showModalFlag" class="btn" v-on:click="showModal()">Редагувати</button>
+        <button v-if="!showModalFlag" class="btn" v-on:click="showModal()">
+          Редагувати
+        </button>
         <div class="edit-modal" v-if="showModalFlag">
           <label for="name">Призвіще</label>
-          <input type="text" id="name" v-model="profile.secondName">
+          <input type="text" id="name" v-model="profile.secondName" />
           <label for="name">Ім'я</label>
-          <input type="text" id="name" v-model="profile.firstName">
+          <input type="text" id="name" v-model="profile.firstName" />
           <label for="phone">Телефон</label>
-          <input type="text" id="phone" v-model="profile.phone">
+          <input type="text" id="phone" v-model="profile.phone" />
           <button class="btn" @click="updateData()" :disabled="loading">
             <div class="spinner-container" v-if="loading">
               <div class="spinner-border" role="status"></div>
@@ -34,12 +32,18 @@
         <label for="city">Місто</label>
         <h3>{{ profile.city }}</h3>
         <h2>{{ this.profile.uid }}</h2>
-        <input type="text" v-model="search" @input="searchCities" @focus="showDropdown = true"
-          @blur="showDropdown = false" />
+        <input
+          type="text"
+          v-model="search"
+          @input="searchCities"
+          @focus="showDropdown = true"
+          @blur="showDropdown = false"
+        />
         <ul v-if="showDropdown">
-          <li v-for="city in cities" @click="selectCity(city)">{{ city.Description }}</li>
+          <li v-for="city in cities" @click="selectCity(city)">
+            {{ city.Description }}
+          </li>
         </ul>
-
 
         <button @click="updateUserData">Update Data</button>
       </div>
@@ -52,28 +56,28 @@ import { getAuth } from "firebase/auth";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { profileReg, db } from "../main";
 
-const apiKey = '0fe8dfcca7f61242d252e83fd715eaf2';
-const endpointRef = 'https://api.novaposhta.ua/v2.0/json/';
+const apiKey = "0fe8dfcca7f61242d252e83fd715eaf2";
+const endpointRef = "https://api.novaposhta.ua/v2.0/json/";
 
 export default {
   name: "User",
   props: {
-    msg: String
+    msg: String,
   },
   data() {
     return {
       showModalFlag: false,
       profiles: [],
       profile: {
-        firstName: '',
-        secondName: '',
-        phone: '',
-        city: ''
+        firstName: "",
+        secondName: "",
+        phone: "",
+        city: "",
       },
       loading: false,
-      search: '',
-      cities: []
-    }
+      search: "",
+      cities: [],
+    };
   },
   methods: {
     showModal() {
@@ -86,9 +90,9 @@ export default {
         await updateDoc(docRef, {
           firstName: this.profile.firstName,
           secondName: this.profile.secondName,
-          phone: this.profile.phone
+          phone: this.profile.phone,
         });
-        console.log('Data updated successfully');
+        console.log("Data updated successfully");
         this.showModalFlag = false;
       } catch (error) {
         console.error(error);
@@ -99,24 +103,24 @@ export default {
       const endpoint = endpointRef;
       const body = {
         apiKey: apiKey,
-        modelName: 'Address',
-        calledMethod: 'getCities',
+        modelName: "Address",
+        calledMethod: "getCities",
         methodProperties: {
-          FindByString: this.search
-        }
+          FindByString: this.search,
+        },
       };
       await fetch(endpoint, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
       })
-        .then(response => response.json())
-        .then(data => {
+        .then((response) => response.json())
+        .then((data) => {
           this.cities = data.data;
         })
-        .catch(error => {
+        .catch((error) => {
           // handle error
         });
     },
@@ -128,9 +132,9 @@ export default {
     async updateUserData() {
       const userRef = doc(db, "profiles", this.profile.uid);
       await updateDoc(userRef, {
-        city: this.selectedCity.Description
+        city: this.selectedCity.Description,
       });
-    }
+    },
   },
   async created() {
     const auth = getAuth();
@@ -138,15 +142,14 @@ export default {
     this.profile.email = user.email;
     this.profile.uid = user.uid;
     const docRef = doc(profileReg, this.profile.uid);
-    getDoc(docRef)
-      .then((doc) => {
-        this.profiles.push({ ...doc.data(), id: doc.id });
-        this.profile.firstName = doc.data().firstName;
-        this.profile.secondName = doc.data().secondName;
-        this.profile.city = doc.data().city;
-        this.profile.phone = doc.data().phone;
-      })
-  }
+    getDoc(docRef).then((doc) => {
+      this.profiles.push({ ...doc.data(), id: doc.id });
+      this.profile.firstName = doc.data().firstName;
+      this.profile.secondName = doc.data().secondName;
+      this.profile.city = doc.data().city;
+      this.profile.phone = doc.data().phone;
+    });
+  },
 };
 </script>
 

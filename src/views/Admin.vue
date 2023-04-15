@@ -12,7 +12,9 @@ import { RouterView } from "vue-router";
         <RouterLink class="navButton" to="/admin/products">Продукти</RouterLink>
       </li>
       <li>
-        <RouterLink class="navButton" to="/admin/inventory">Iнвентар</RouterLink>
+        <RouterLink class="navButton" to="/admin/inventory"
+          >Iнвентар</RouterLink
+        >
       </li>
       <li>
         <RouterLink class="navButton" to="/admin/clients">Кліенти</RouterLink>
@@ -25,7 +27,6 @@ import { RouterView } from "vue-router";
       <RouterView />
     </div>
   </div>
-
 </template>
 
 <style scoped>

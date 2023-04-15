@@ -5,20 +5,35 @@
         <input class="searchInput" placeholder="Шукати" />
         <button class="productbutton">O</button>
       </div>
-      <button class="productbutton" @click="toggle = !toggle">Новий Користувач</button>
+      <button class="productbutton" @click="toggle = !toggle">
+        Новий Користувач
+      </button>
     </div>
     <div v-if="toggle" to="body" class="modal">
       <div class="modalContent">
         <div>
-          <input type="text" v-model="profile.firstName" placeholder="ім'я">
-          <input type="text" v-model="profile.sureName" placeholder="Призвіще">
+          <input type="text" v-model="profile.firstName" placeholder="ім'я" />
+          <input
+            type="text"
+            v-model="profile.sureName"
+            placeholder="Призвіще"
+          />
         </div>
-        <input type="mail" v-model="profile.email" placeholder="Електрона пошта">
-        <input type="text" v-model="profile.phone" placeholder="Телефон">
+        <input
+          type="mail"
+          v-model="profile.email"
+          placeholder="Електрона пошта"
+        />
+        <input type="text" v-model="profile.phone" placeholder="Телефон" />
         <div>
-          <input type="text" v-model="profile.city" placeholder="Місто">
-          <input type="text" v-model="profile.province" placeholder="Область">
-          <input class="np" type="number" v-model="profile.delivery" placeholder="Вітділ пошти">
+          <input type="text" v-model="profile.city" placeholder="Місто" />
+          <input type="text" v-model="profile.province" placeholder="Область" />
+          <input
+            class="np"
+            type="number"
+            v-model="profile.delivery"
+            placeholder="Вітділ пошти"
+          />
         </div>
         <button class="productbutton" @click="saveData">Зберегти</button>
         <button class="productbutton" @click="toggle = !toggle">Закрити</button>
@@ -52,9 +67,9 @@
 </template>
 
 <script>
-import { profileReg } from '../main';
+import { profileReg } from "../main";
 import { addDoc, onSnapshot } from "firebase/firestore";
-import { ref } from 'vue';
+import { ref } from "vue";
 
 export default {
   name: "Clients",
@@ -65,17 +80,16 @@ export default {
     return {
       profiles: [],
       profile: {
-        firstName: '',
-        secondName: '',
-        email: '',
-        phone: '',
-        profileImage: '',
-        city: '',
-        province: '',
-        delivery: ''
-
-      }
-    }
+        firstName: "",
+        secondName: "",
+        email: "",
+        phone: "",
+        profileImage: "",
+        city: "",
+        province: "",
+        delivery: "",
+      },
+    };
   },
   methods: {
     saveData() {
@@ -83,19 +97,19 @@ export default {
         addDoc(profileReg, this.profile).then((docRef) => {
           console.log("Document written with ID: ", docRef.id);
           location.reload();
-        })
+        });
       } catch (e) {
         console.error("Error adding document: ", e);
       }
-    }
+    },
   },
   created() {
     onSnapshot(profileReg, (snapshot) => {
       snapshot.docs.forEach((doc) => {
-        this.profiles.push({ ...doc.data(), id: doc.id })
-      })
-    })
-  }
+        this.profiles.push({ ...doc.data(), id: doc.id });
+      });
+    });
+  },
 };
 </script>
 
@@ -140,7 +154,8 @@ input {
   height: 40px;
   border-radius: 25px;
   border: none;
-  box-shadow: 4px 4px 4px rgb(200, 200, 200) inset, -4px -4px 4px rgb(255, 255, 255) inset;
+  box-shadow: 4px 4px 4px rgb(200, 200, 200) inset,
+    -4px -4px 4px rgb(255, 255, 255) inset;
   background-color: transparent;
   margin: 10px;
 }
@@ -161,12 +176,13 @@ textarea {
   min-height: 300px;
   border-radius: 25px;
   border: none;
-  box-shadow: 4px 4px 4px rgb(200, 200, 200) inset, -4px -4px 4px rgb(255, 255, 255) inset;
+  box-shadow: 4px 4px 4px rgb(200, 200, 200) inset,
+    -4px -4px 4px rgb(255, 255, 255) inset;
   background-color: transparent;
 }
 
 .productbutton {
-  font-family: 'roboto', sans-serif;
+  font-family: "roboto", sans-serif;
   font-size: 15px;
   text-align: center;
   border: none;
@@ -248,8 +264,7 @@ textarea {
 
   thead {
     background-color: rgb(177, 177, 177);
-    color: #FDFDFD;
-
+    color: #fdfdfd;
 
     tr {
       display: block;
@@ -269,7 +284,6 @@ textarea {
     tr:nth-child(even) {
       background-color: rgb(228, 228, 228);
     }
-
   }
 }
 

@@ -2,23 +2,21 @@
   <div class="navbar-body">
     <div class="navBar">
       <RouterLink to="/">
-        <img alt="Almendra logo" class="logo" src="@/assets/logoNav.png" />
+        <img alt="Almendra logo" class="logo" src="../assets/logoNav.png" />
       </RouterLink>
       <div class="search-container">
-        <input class="searchInput" v-model="searchTerm" @input="handleSearchInput" placeholder="Шукати" />
+        <input class="searchInput" v-model="searchTerm" @input="handleSearchInput" placeholder="Пошук" />
         <div v-if="showResults" class="searchResults">
           <RouterLink class="rlink" v-for="(product, index) in filteredProducts" :key="index"
-            :to="('/product/' + product.id)" @click="hideResults">
-            <img class="productImage" :src="product.image">
+            :to="'/product/' + product.id" @click="hideResults">
+            <img class="productImage" :src="product.image" />
             <div>{{ product.name }}</div>
           </RouterLink>
         </div>
       </div>
       <div class="buttons">
         <div class="navButton dropdown-hover">
-
           <div class="button-store">
-
             <div class="default-btn">
               <div>Крамниця</div>
             </div>
@@ -26,7 +24,6 @@
               <RouterLink to="/store">Всі продукти</RouterLink>
             </div>
           </div>
-
           <div class="dropdown-inner">
             <RouterLink class="span" to="/store/free-sugar">Без Цукру</RouterLink>
             <RouterLink class="span" to="/store/free-gluten">Без Глютену</RouterLink>
@@ -36,7 +33,7 @@
         <RouterLink class="navButton" to="/user">User</RouterLink>
         <RouterLink class="navButton" to="/admin/overview">Admin</RouterLink>
         <div v-if="isLoggedIn" class="navButton" @click="toggleModal">
-          <img style="height: 21px; margin: 0;" src="../assets/cart.png" alt="cartlogo">
+          <img style="height: 21px; margin: 0" src="../assets/cart.png" alt="cartlogo" />
         </div>
         <RouterLink class="navButton" to="/" @click="handSignOut" v-if="isLoggedIn">Вийти</RouterLink>
       </div>
@@ -50,25 +47,25 @@
 <script>
 import { RouterLink } from "vue-router";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-import Cart from "../components/Cart.vue";
 import { dataBase } from "../main";
 import { onSnapshot } from "@firebase/firestore";
+import Cart from "./Cart.vue";
 
 export default {
   components: {
-    Cart
+    Cart,
   },
   props: {
-    msg: String
+    msg: String,
   },
   data() {
     return {
       isLoggedIn: false,
       auth: null,
       isVisible: false,
-      searchTerm: '',
+      searchTerm: "",
       products: [],
-      showResults: false
+      showResults: false,
     };
   },
   methods: {
@@ -76,7 +73,7 @@ export default {
       this.isVisible = !this.isVisible;
     },
     hideResults() {
-      this.searchTerm = '';
+      this.searchTerm = "";
       this.showResults = false;
     },
     handSignOut() {
@@ -90,7 +87,7 @@ export default {
       } else {
         this.showResults = false;
       }
-    }
+    },
   },
   created() {
     this.auth = getAuth();
@@ -104,24 +101,19 @@ export default {
     onSnapshot(dataBase, (snapshot) => {
       this.products = [];
       snapshot.docs.forEach((doc) => {
-        this.products.push({ ...doc.data(), id: doc.id })
+        this.products.push({ ...doc.data(), id: doc.id });
       });
     });
   },
   computed: {
-    total() {
-      let total = 0;
-      this.items.forEach(item => {
-        total += item.price * item.quantity;
-      });
-      return total;
-    },
     filteredProducts() {
-      return this.products.filter(product => {
-        return product.name.toLowerCase().includes(this.searchTerm.toLowerCase())
-      })
-    }
-  }
+      return this.products.filter((product) => {
+        return product.name
+          .toLowerCase()
+          .includes(this.searchTerm.toLowerCase());
+      });
+    },
+  },
 };
 </script>
 
@@ -137,7 +129,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all .3s ease;
+  transition: all 0.3s ease;
   padding-bottom: 10px;
   width: 120px;
   height: 25px;
@@ -171,9 +163,9 @@ export default {
   padding: 7px;
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(35px);
-  background-color: rgba(253, 253, 253, 0.90);
+  background-color: rgba(253, 253, 253, 0.9);
   border-radius: 25px;
-  transition: opacity .3s, visibility .3s;
+  transition: opacity 0.3s, visibility 0.3s;
   left: 50%;
   transform: translateX(-50%);
   margin-top: 5px;
@@ -279,12 +271,10 @@ export default {
   display: flex;
   justify-content: center;
   align-items: flex-end;
-
 }
 
 .cart-comp {
   top: 130px;
-
 }
 
 .navBar {
@@ -296,13 +286,12 @@ export default {
   justify-content: space-around;
   align-items: center;
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
-  background-color: rgba(253, 253, 253, 0.75);
+  background-color: rgba(253, 253, 253, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.125);
-
 }
 
 .navBar:before {
-  backdrop-filter: blur(40px);
+  backdrop-filter: blur(30px);
   content: "";
   border-radius: 25px;
   height: 100%;
@@ -334,8 +323,7 @@ export default {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 -2px 3px rgba(255, 255, 255, 1);
   border-radius: 25px;
   background: white;
-  box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3),
-    inset 0px 0px 0px rgba(0, 0, 0, 0.0);
+  box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
   transition: 0.3s;
   backdrop-filter: blur(0px);
   color: black;
@@ -344,8 +332,7 @@ export default {
 
 .navButton:hover {
   transition: 0.3s;
-  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3),
-    inset 0px 0px 0px rgba(0, 0, 0, 0.0);
+  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
 }
 
 .navButton:active {

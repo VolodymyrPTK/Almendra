@@ -3,7 +3,12 @@
     <div class="login-container">
       <h2>Вхід</h2>
       <input type="email" v-model="email" placeholder="Електронна пошта" />
-      <input type="password" @keyup.enter="login" v-model="password" placeholder="Пароль" />
+      <input
+        type="password"
+        @keyup.enter="login"
+        v-model="password"
+        placeholder="Пароль"
+      />
       <p v-if="errMsg">{{ errMsg }}</p>
       <div>
         <button class="loginButton" @click="login">Увійти</button>
@@ -44,7 +49,6 @@ const login = () => {
       }
     });
 };
-
 </script>
 
 <style scoped lang="scss">
@@ -67,7 +71,6 @@ const login = () => {
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
   background-color: rgba(253, 253, 253, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.125);
-
 }
 
 input {
@@ -77,12 +80,13 @@ input {
   height: 40px;
   border-radius: 25px;
   border: none;
-  box-shadow: 4px 4px 4px rgb(200, 200, 200) inset, -4px -4px 4px rgb(255, 255, 255) inset;
+  box-shadow: 4px 4px 4px rgb(200, 200, 200) inset,
+    -4px -4px 4px rgb(255, 255, 255) inset;
   background-color: transparent;
 }
 
 .loginButton {
-  font-family: 'roboto', sans-serif;
+  font-family: "roboto", sans-serif;
   font-size: 15px;
   text-align: center;
   width: 200px;
@@ -105,7 +109,8 @@ input {
 }
 
 .loginButton:active {
-  box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3), inset 0px 3px 5px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3),
+    inset 0px 3px 5px rgba(0, 0, 0, 0.3);
   transition: 0.1s;
 }
 

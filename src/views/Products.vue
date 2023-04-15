@@ -2,21 +2,49 @@
   <div class="products">
     <div v-if="isVisible" class="addproduct">
       <div class="inputs">
-        <input type="text" v-model="product.name" placeholder="Назва товару">
-        <input type="text" v-model="product.detail" placeholder="Деталі">
-        <input type="number" v-model="product.buyPrice" placeholder="Ціна Купівлі">
-        <input type="number" v-model="product.sellPrice" placeholder="Ціна Продажу">
+        <input type="text" v-model="product.name" placeholder="Назва товару" />
+        <input type="text" v-model="product.detail" placeholder="Деталі" />
+        <input
+          type="number"
+          v-model="product.buyPrice"
+          placeholder="Ціна Купівлі"
+        />
+        <input
+          type="number"
+          v-model="product.sellPrice"
+          placeholder="Ціна Продажу"
+        />
       </div>
-      <textarea type="text" v-model="product.description" placeholder="Опис"></textarea>
-      <textarea type="text" v-model="product.sklad" placeholder="Склад"></textarea>
+      <textarea
+        type="text"
+        v-model="product.description"
+        placeholder="Опис"
+      ></textarea>
+      <textarea
+        type="text"
+        v-model="product.sklad"
+        placeholder="Склад"
+      ></textarea>
       <div class="inputs">
         <div>
           <div class="kcal">
-            <input type="number" v-model="product.kcal" placeholder="kcal">
-            <input type="number" v-model="product.fat" placeholder="жири">
-            <input type="number" v-model="product.carbo" placeholder="вуглеводи">
-            <input type="number" v-model="product.protein" placeholder="білки">
-            <input type="text" v-model="product.vitamins" placeholder="вітаміни">
+            <input type="number" v-model="product.kcal" placeholder="kcal" />
+            <input type="number" v-model="product.fat" placeholder="жири" />
+            <input
+              type="number"
+              v-model="product.carbo"
+              placeholder="вуглеводи"
+            />
+            <input
+              type="number"
+              v-model="product.protein"
+              placeholder="білки"
+            />
+            <input
+              type="text"
+              v-model="product.vitamins"
+              placeholder="вітаміни"
+            />
           </div>
           <div class="kcal">
             <select v-model="product.country">
@@ -33,19 +61,27 @@
             </select>
             <div class="file-upload">
               <input type="file" @change="uploadImage" />
-              <img class="btnimg" src="../assets/btnimg.png" alt="icon">
+              <img class="btnimg" src="../assets/btnimg.png" alt="icon" />
             </div>
           </div>
         </div>
       </div>
       <div class="center-flex">
         <div>
-          <input type="checkbox" class="checkbox" v-model="product.freeGluten" />
+          <input
+            type="checkbox"
+            class="checkbox"
+            v-model="product.freeGluten"
+          />
           <label for="checkbox">Free gluten</label>
           <input type="checkbox" class="checkbox" v-model="product.freeSugar" />
           <label for="checkbox">Free sugar</label>
 
-          <input type="checkbox" class="checkbox" v-model="product.freeLactosa" />
+          <input
+            type="checkbox"
+            class="checkbox"
+            v-model="product.freeLactosa"
+          />
           <label for="checkbox">Free lactosa</label>
           <input type="checkbox" class="checkbox" v-model="product.vegan" />
           <label for="checkbox">Vegan</label>
@@ -61,12 +97,33 @@
     </div>
     <div class="productlist">
       <div class="list-header">
-        <button class="productbutton" @click="toggleModal">Створити продукт</button>
+        <button class="productbutton" @click="toggleModal">
+          Створити продукт
+        </button>
         <div class="center-flex">
-          <input class="searchInput" v-model="searchTerm" placeholder="Шукати" />
-          <input type="text" v-model="category" @keyup.enter="saveCategory()" placeholder="Нова Категорія">
-          <input type="text" v-model="brand" @keyup.enter="saveBrand()" placeholder="Новий Бренд">
-          <input type="text" v-model="country" @keyup.enter="saveCountry()" placeholder="Новий Країна">
+          <input
+            class="searchInput"
+            v-model="searchTerm"
+            placeholder="Шукати"
+          />
+          <input
+            type="text"
+            v-model="category"
+            @keyup.enter="saveCategory()"
+            placeholder="Нова Категорія"
+          />
+          <input
+            type="text"
+            v-model="brand"
+            @keyup.enter="saveBrand()"
+            placeholder="Новий Бренд"
+          />
+          <input
+            type="text"
+            v-model="country"
+            @keyup.enter="saveCountry()"
+            placeholder="Новий Країна"
+          />
         </div>
       </div>
       <table class="fixed_headers">
@@ -81,84 +138,106 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="tableline" @dblclick="openModal(product.id)" v-for="product in filteredProducts" :key="product.id">
+          <tr
+            class="tableline"
+            @dblclick="openModal(product.id)"
+            v-for="product in filteredProducts"
+            :key="product.id"
+          >
             <td>
-              <img class="productImage" :src="product.image">
+              <img class="productImage" :src="product.image" />
             </td>
             <td v-bind:title="product.name">{{ product.name }}</td>
             <td v-bind:title="product.brand">{{ product.brand }}</td>
             <td v-bind:title="product.category">{{ product.category }}</td>
             <td v-bind:title="product.sellPrice">{{ product.sellPrice }}</td>
             <td>
-              <button class="deleteButton" @click="deleteProduct(product.id)">Видалити</button>
+              <button class="deleteButton" @click="deleteProduct(product.id)">
+                Видалити
+              </button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-    <Modal v-if="modalVisible" :visible="modalVisible" :product="currentProduct" :categories="categories"
-      :brands="brands" :countries="countries" @close="modalVisible = false" />
+    <Modal
+      v-if="modalVisible"
+      :visible="modalVisible"
+      :product="currentProduct"
+      :categories="categories"
+      :brands="brands"
+      :countries="countries"
+      @close="modalVisible = false"
+    />
   </div>
 </template>
 
 <script>
-import { dataBase, storage, categoryReg, brandReg, countryReg } from '../main';
+import { dataBase, storage, categoryReg, brandReg, countryReg } from "../main";
 import { addDoc, deleteDoc, onSnapshot, doc, setDoc } from "firebase/firestore";
-import { ref as storageReference, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import {
+  ref as storageReference,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
 import Modal from "../components/Modal.vue";
 
 export default {
   name: "Products",
   components: {
-    Modal
+    Modal,
   },
   props: {
-    msg: String
+    msg: String,
   },
   data() {
     return {
       categories: [],
-      category: '',
+      category: "",
       countries: [],
-      country: '',
+      country: "",
       brands: [],
-      brand: '',
+      brand: "",
       products: [],
       product: {
-        name: '',
-        detail: '',
+        name: "",
+        detail: "",
         sellPrice: 0,
         buyPrice: 0,
-        description: '',
-        sklad: '',
-        kcal: '',
-        protein: '',
-        carbo: '',
-        fat: '',
-        brand: '',
-        category: '',
-        country: '',
-        image: '',
+        description: "",
+        sklad: "",
+        kcal: "",
+        protein: "",
+        carbo: "",
+        fat: "",
+        brand: "",
+        category: "",
+        country: "",
+        image: "",
         vitamins: [],
         freeGluten: false,
         freeSugar: false,
         freeLactosa: false,
         vegan: false,
         raw: false,
-        protein: false
+        protein: false,
       },
       modalVisible: false,
       isVisible: false,
-      searchTerm: ''
-    }
+      searchTerm: "",
+    };
   },
   computed: {
     currentProduct() {
-      return this.products.find(product => product.id === this.currentProductId);
+      return this.products.find(
+        (product) => product.id === this.currentProductId
+      );
     },
     filteredProducts() {
-      return this.products.filter(product => product.name.toLowerCase().includes(this.searchTerm.toLowerCase()));
-    }
+      return this.products.filter((product) =>
+        product.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+    },
   },
   methods: {
     openModal(id) {
@@ -173,13 +252,13 @@ export default {
         await addDoc(dataBase, this.product);
       } catch (e) {
         console.error("Error adding document: ", e);
-      } this.product = {
       }
+      this.product = {};
     },
     async saveCategory() {
       try {
         await setDoc(doc(categoryReg, this.category), { name: this.category });
-        this.category = '';
+        this.category = "";
       } catch (e) {
         console.error("Error adding document: ", e);
       }
@@ -187,7 +266,7 @@ export default {
     async saveBrand() {
       try {
         await setDoc(doc(brandReg, this.brand), { name: this.brand });
-        this.brand = '';
+        this.brand = "";
       } catch (e) {
         console.error("Error adding document: ", e);
       }
@@ -195,15 +274,15 @@ export default {
     async saveCountry() {
       try {
         await setDoc(doc(countryReg, this.country), { name: this.country });
-        this.country = '';
+        this.country = "";
       } catch (e) {
         console.error("Error adding document: ", e);
       }
     },
     async deleteProduct(id) {
-      if (confirm('Видалити ?')) {
+      if (confirm("Видалити ?")) {
         await deleteDoc(doc(dataBase, id));
-        this.products = this.products.filter(product => product.id !== id);
+        this.products = this.products.filter((product) => product.id !== id);
       } else {
       }
     },
@@ -211,44 +290,44 @@ export default {
       const file = e.target.files[0];
       const storageRef = storageReference(storage, `products/${file.name}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
-      uploadTask.on('state_changed', (snapshot) => {
-      },
-        (error) => {
-        },
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {},
+        (error) => {},
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
             this.product.image = downloadURL;
           });
         }
       );
-    }
+    },
   },
   async created() {
     onSnapshot(dataBase, (snapshot) => {
       this.products = [];
       snapshot.docs.forEach((doc) => {
-        this.products.push({ ...doc.data(), id: doc.id })
+        this.products.push({ ...doc.data(), id: doc.id });
       });
     });
     onSnapshot(categoryReg, (snapshot) => {
       this.categories = [];
       snapshot.docs.forEach((doc) => {
-        this.categories.push({ ...doc.data(), id: doc.id })
-      })
+        this.categories.push({ ...doc.data(), id: doc.id });
+      });
     });
     onSnapshot(brandReg, (snapshot) => {
       this.brands = [];
       snapshot.docs.forEach((doc) => {
-        this.brands.push({ ...doc.data(), id: doc.id })
-      })
+        this.brands.push({ ...doc.data(), id: doc.id });
+      });
     });
     onSnapshot(countryReg, (snapshot) => {
       this.countries = [];
       snapshot.docs.forEach((doc) => {
-        this.countries.push({ ...doc.data(), id: doc.id })
-      })
-    })
-  }
+        this.countries.push({ ...doc.data(), id: doc.id });
+      });
+    });
+  },
 };
 </script>
 
@@ -294,14 +373,12 @@ export default {
   width: 400px;
   border-radius: 25px;
   text-align: center;
-  box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3),
-    inset 0px 0px 0px rgba(0, 0, 0, 0.0);
+  box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
   transition: 0.5s;
   border: none;
   background-color: white;
   backdrop-filter: blur(0px);
 }
-
 
 .productImage {
   width: 40px;
@@ -320,7 +397,8 @@ input {
   width: 40%;
   border-radius: 25px;
   border: none;
-  box-shadow: 4px 4px 4px rgb(200, 200, 200) inset, -4px -4px 4px rgb(255, 255, 255) inset;
+  box-shadow: 4px 4px 4px rgb(200, 200, 200) inset,
+    -4px -4px 4px rgb(255, 255, 255) inset;
   background-color: transparent;
   margin: 0 5px 0 5px;
 }
@@ -331,7 +409,8 @@ select {
   width: 30%;
   border-radius: 25px;
   border: none;
-  box-shadow: 4px 4px 4px rgb(200, 200, 200) inset, -4px -4px 4px rgb(255, 255, 255) inset;
+  box-shadow: 4px 4px 4px rgb(200, 200, 200) inset,
+    -4px -4px 4px rgb(255, 255, 255) inset;
   background-color: transparent;
   margin: 0 5px 0 5px;
 }
@@ -346,13 +425,14 @@ textarea {
   min-height: 200px;
   border-radius: 25px;
   border: none;
-  box-shadow: 4px 4px 4px rgb(200, 200, 200) inset, -4px -4px 4px rgb(255, 255, 255) inset;
+  box-shadow: 4px 4px 4px rgb(200, 200, 200) inset,
+    -4px -4px 4px rgb(255, 255, 255) inset;
   background-color: transparent;
 }
 
 .productbutton {
   max-width: 300px;
-  font-family: 'roboto', sans-serif;
+  font-family: "roboto", sans-serif;
   font-size: 15px;
   text-align: center;
   border: none;
@@ -371,11 +451,13 @@ textarea {
 
 .productbutton:hover {
   transition: 0.3s;
-  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3),
+    inset 0px 0px 0px rgba(0, 0, 0, 0.3);
 }
 
 .productbutton:active {
-  box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3), inset 0px 3px 5px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3),
+    inset 0px 3px 5px rgba(0, 0, 0, 0.3);
   transition: 0.1s;
 }
 
@@ -444,7 +526,7 @@ textarea {
 
   thead {
     background-color: rgb(177, 177, 177);
-    color: #FDFDFD;
+    color: #fdfdfd;
 
     tr {
       display: flex;
@@ -493,7 +575,7 @@ textarea {
   align-items: center;
   justify-content: center;
 
-  input[type='file'] {
+  input[type="file"] {
     height: 40px;
     width: 40px;
     position: absolute;

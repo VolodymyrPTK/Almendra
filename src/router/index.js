@@ -8,14 +8,13 @@ import Vegan from "../components/Vegan.vue";
 import Login from "../views/Login.vue";
 import Register from "../views/Register.vue";
 import User from "../views/User.vue";
-import Cart from "../components/Cart.vue";
 import Admin from "../views/Admin.vue";
 import Overview from "../views/Overview.vue";
 import Products from "../views/Products.vue";
 import Orders from "../views/Orders.vue";
 import Clients from "../views/Clients.vue";
-import Product from "../components/Product.vue"
-import Inventory from "../views/Inventory.vue"
+import Product from "../components/Product.vue";
+import Inventory from "../views/Inventory.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,7 +25,7 @@ const router = createRouter({
       component: Home,
       meta: {
         requiresAuth: true,
-      }
+      },
     },
     {
       path: "/store",
@@ -69,15 +68,7 @@ const router = createRouter({
       component: User,
       meta: {
         requiresAuth: true,
-      }
-    },
-    {
-      path: "/cart",
-      name: "cart",
-      component: Cart,
-      meta: {
-        requiresAuth: true,
-      }
+      },
     },
     {
       path: "/admin",
@@ -115,7 +106,7 @@ const router = createRouter({
 });
 
 const getCurrentUser = () => {
-  return new Promise((resolve, reject) =>{
+  return new Promise((resolve, reject) => {
     const removeListener = onAuthStateChanged(
       getAuth(),
       (user) => {
@@ -127,7 +118,7 @@ const getCurrentUser = () => {
   });
 };
 
-router.beforeEach(async(to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (await getCurrentUser()) {
       next();

@@ -1,6 +1,5 @@
 <template>
   <div class="products">
-
     <div class="productlist">
       <div class="list-header">
         <input class="searchInput" v-model="searchTerm" placeholder="Шукати" />
@@ -17,9 +16,14 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="tableline" @dblclick="openModal(product.id)" v-for="product in filteredProducts" :key="product.id">
+          <tr
+            class="tableline"
+            @dblclick="openModal(product.id)"
+            v-for="product in filteredProducts"
+            :key="product.id"
+          >
             <td>
-              <img class="productImage" :src="product.image">
+              <img class="productImage" :src="product.image" />
             </td>
             <td v-bind:title="product.name">{{ product.name }}</td>
             <td v-bind:title="product.brand">{{ product.brand }}</td>
@@ -30,46 +34,57 @@
         </tbody>
       </table>
     </div>
-    <InventoryModal v-if="modalVisible" :visible="modalVisible" :product="currentProduct" :categories="categories"
-      :brands="brands" :countries="countries" @close="modalVisible = false" />
+    <InventoryModal
+      v-if="modalVisible"
+      :visible="modalVisible"
+      :product="currentProduct"
+      :categories="categories"
+      :brands="brands"
+      :countries="countries"
+      @close="modalVisible = false"
+    />
   </div>
 </template>
 
 <script>
-import { dataBase, brandReg } from '../main';
+import { dataBase, brandReg } from "../main";
 import { onSnapshot } from "firebase/firestore";
 import InventoryModal from "../components/InventoryModal.vue";
 
 export default {
   name: "Inventory",
   components: {
-    InventoryModal
+    InventoryModal,
   },
   props: {
-    msg: String
+    msg: String,
   },
   data() {
     return {
       products: [],
       product: {
-        name: '',
-        brand: '',
+        name: "",
+        brand: "",
         buyPrice: 0,
         sellPrice: 0,
         quantity: 0,
       },
       modalVisible: false,
       isVisible: false,
-      searchTerm: ''
-    }
+      searchTerm: "",
+    };
   },
   computed: {
     currentProduct() {
-      return this.products.find(product => product.id === this.currentProductId);
+      return this.products.find(
+        (product) => product.id === this.currentProductId
+      );
     },
     filteredProducts() {
-      return this.products.filter(product => product.name.toLowerCase().includes(this.searchTerm.toLowerCase()));
-    }
+      return this.products.filter((product) =>
+        product.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+    },
   },
   methods: {
     openModal(id) {
@@ -78,22 +93,22 @@ export default {
     },
     toggleModal() {
       this.isVisible = !this.isVisible;
-    }
+    },
   },
   async created() {
     onSnapshot(dataBase, (snapshot) => {
       this.products = [];
       snapshot.docs.forEach((doc) => {
-        this.products.push({ ...doc.data(), id: doc.id })
+        this.products.push({ ...doc.data(), id: doc.id });
       });
     });
     onSnapshot(brandReg, (snapshot) => {
       this.brands = [];
       snapshot.docs.forEach((doc) => {
-        this.brands.push({ ...doc.data(), id: doc.id })
-      })
-    })
-  }
+        this.brands.push({ ...doc.data(), id: doc.id });
+      });
+    });
+  },
 };
 </script>
 
@@ -127,19 +142,16 @@ export default {
   width: 400px;
   border-radius: 25px;
   text-align: center;
-  box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3),
-    inset 0px 0px 0px rgba(0, 0, 0, 0.0);
+  box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
   transition: 0.5s;
   border: none;
   background-color: white;
   backdrop-filter: blur(0px);
 }
 
-
 .productImage {
   height: 45px;
 }
-
 
 input {
   text-align: center;
@@ -147,7 +159,8 @@ input {
   width: 40%;
   border-radius: 25px;
   border: none;
-  box-shadow: 4px 4px 4px rgb(200, 200, 200) inset, -4px -4px 4px rgb(255, 255, 255) inset;
+  box-shadow: 4px 4px 4px rgb(200, 200, 200) inset,
+    -4px -4px 4px rgb(255, 255, 255) inset;
   background-color: transparent;
   margin: 0 5px 0 5px;
 }
@@ -158,7 +171,8 @@ select {
   width: 30%;
   border-radius: 25px;
   border: none;
-  box-shadow: 4px 4px 4px rgb(200, 200, 200) inset, -4px -4px 4px rgb(255, 255, 255) inset;
+  box-shadow: 4px 4px 4px rgb(200, 200, 200) inset,
+    -4px -4px 4px rgb(255, 255, 255) inset;
   background-color: transparent;
   margin: 0 5px 0 5px;
 }
@@ -207,7 +221,7 @@ select {
 
   thead {
     background-color: rgb(177, 177, 177);
-    color: #FDFDFD;
+    color: #fdfdfd;
   }
 
   .tableline {

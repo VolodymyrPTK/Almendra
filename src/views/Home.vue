@@ -3,7 +3,7 @@
     <header>
       <div class="container">
         <div class="items" id="item1">
-          <img class="item-image" src="../assets/saratselli.png" alt="">
+          <img class="item-image" src="../assets/saratselli.png" alt="" />
           <h1 class="inside">SARATSELLI</h1>
         </div>
         <div class="items" id="item2">
@@ -86,7 +86,6 @@
 #item6 {
   background-image: url("../assets/slide6.jpg");
 }
-
 
 h1 {
   color: white;

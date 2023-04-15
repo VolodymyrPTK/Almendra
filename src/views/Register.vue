@@ -7,7 +7,12 @@
         <input type="string" v-model="secondName" placeholder="Ваше Призвіще" />
       </div>
       <input type="email" v-model="email" placeholder="Електронна пошта" />
-      <input type="password" @keyup.enter="register" v-model="password" placeholder="Пароль" />
+      <input
+        type="password"
+        @keyup.enter="register"
+        v-model="password"
+        placeholder="Пароль"
+      />
       <p v-if="errMsg">{{ errMsg }}</p>
       <div>
         <button class="loginButton" @click="register">Зареєструватися</button>
@@ -18,27 +23,26 @@
 </template>
 
 <script setup>
-
 import { ref } from "vue";
 import { doc, setDoc } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "vue-router";
-import { db } from '../main';
+import { db } from "../main";
 
 const firstName = ref("");
 const secondName = ref("");
 const email = ref("");
 const password = ref("");
 const errMsg = ref();
-const router = useRouter()
+const router = useRouter();
 
 const register = () => {
   createUserWithEmailAndPassword(getAuth(), email.value, password.value)
     .then((data) => {
-      setDoc(doc(db, "profiles", (data.user.uid)), {
+      setDoc(doc(db, "profiles", data.user.uid), {
         firstName: firstName.value,
         secondName: secondName.value,
-        email: email.value
+        email: email.value,
       });
       router.push("/");
     })
@@ -51,8 +55,6 @@ const register = () => {
       }
     });
 };
-
-
 </script>
 
 <style scoped lang="scss">
@@ -84,12 +86,13 @@ input {
   height: 40px;
   border-radius: 25px;
   border: none;
-  box-shadow: 4px 4px 4px rgb(200, 200, 200) inset, -4px -4px 4px rgb(255, 255, 255) inset;
+  box-shadow: 4px 4px 4px rgb(200, 200, 200) inset,
+    -4px -4px 4px rgb(255, 255, 255) inset;
   background-color: transparent;
 }
 
 .loginButton {
-  font-family: 'roboto', sans-serif;
+  font-family: "roboto", sans-serif;
   font-size: 15px;
   text-align: center;
   width: 200px;
@@ -113,7 +116,8 @@ input {
 }
 
 .loginButton:active {
-  box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3), inset 0px 3px 5px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3),
+    inset 0px 3px 5px rgba(0, 0, 0, 0.3);
   transition: 0.1s;
 }
 
