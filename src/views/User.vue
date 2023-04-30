@@ -31,14 +31,8 @@
       <div class="adress">
         <label for="city">Місто</label>
         <h3>{{ profile.city }}</h3>
-        <h2>{{ this.profile.uid }}</h2>
-        <input
-          type="text"
-          v-model="search"
-          @input="searchCities"
-          @focus="showDropdown = true"
-          @blur="showDropdown = false"
-        />
+        <input type="text" v-model="search" @input="searchCities" @focus="showDropdown = true"
+          @blur="showDropdown = false" />
         <ul v-if="showDropdown">
           <li v-for="city in cities" @click="selectCity(city)">
             {{ city.Description }}
