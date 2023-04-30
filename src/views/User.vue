@@ -29,8 +29,11 @@
         </div>
       </div>
       <div class="adress">
-        <label for="city">Місто</label>
-        <h3>{{ profile.city }}</h3>
+        <div style="display: flex;">
+          <h3>Місто</h3>
+          <h3>{{ profile.city }}</h3>
+        </div>
+
         <input type="text" v-model="search" @input="searchCities" @focus="showDropdown = true"
           @blur="showDropdown = false" />
         <ul v-if="showDropdown">
@@ -38,6 +41,21 @@
             {{ city.Description }}
           </li>
         </ul>
+
+        <div style="display: flex;">
+          <div style="display: flex;">
+            <label for="poshtomat">Поштомат</label>
+            <input id="poshtomat" name="type" type="radio" value="поштомат" v-model="deliveryOption" />
+          </div>
+          <div style="display: flex;">
+            <label for="poshtomat">Віділення</label>
+            <input name="type" type="radio" value="віділення" v-model="deliveryOption" />
+          </div>
+        </div>
+        <select v-model="selectedWarehouse">
+          <option v-for="warehouse in warehouses" :value="warehouse">{{ warehouse.Description }}
+          </option>
+        </select>
 
         <button @click="updateUserData">Update Data</button>
       </div>
@@ -71,6 +89,9 @@ export default {
       loading: false,
       search: "",
       cities: [],
+      selectedCity: null,
+      warehouses: [],
+      selectedWarehouse: null,
     };
   },
   methods: {
@@ -122,6 +143,33 @@ export default {
       this.search = city.Description;
       this.showDropdown = false;
       this.selectedCity = city;
+      this.getWarehouses(city.Ref);
+    },
+    async getWarehouses(cityRef) {
+      const endpoint = endpointRef;
+      const body = {
+        apiKey: apiKey,
+        modelName: "AddressGeneral",
+        calledMethod: "getWarehouses",
+        methodProperties: {
+          CityRef: cityRef,
+        },
+      };
+      await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          this.warehouses = data.data;
+          this.selectedWarehouse = data.data[0];
+        })
+        .catch((error) => {
+          // handle error
+        });
     },
     async updateUserData() {
       const userRef = doc(db, "profiles", this.profile.uid);
@@ -129,6 +177,7 @@ export default {
         city: this.selectedCity.Description,
       });
     },
+
   },
   async created() {
     const auth = getAuth();
@@ -148,8 +197,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-input {
-  width: 200px;
+input,
+select {
   height: 25px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -157,7 +206,8 @@ input {
   font-size: 16px;
 }
 
-ul {
+ul,
+option {
   list-style: none;
   margin: 0;
   padding: 10px;
@@ -216,6 +266,8 @@ li:hover {
 }
 
 .adress {
+  display: flex;
+  flex-direction: column;
   height: 280px;
   margin-top: 20px;
   border-radius: 25px;
