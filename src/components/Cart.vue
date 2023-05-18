@@ -74,14 +74,29 @@
               </div>
               <div class="expanded" v-if="expandedNovaPoshta">
                 <h4>Місто: {{ profile.city }}</h4>
-                <h4>Віділеня: {{ profile.city }}</h4>
+                <h4>Віділеня: {{ profile.warehouse }}</h4>
                 <button @click="reset">Volver</button>
               </div>
               <div class="box" @click="onUkrPoshtaClick" v-if="!expandedUkrPoshta && !expandedNovaPoshta">
                 <img class="cart-img" src="../assets/ukrposhta.png" alt="УкрПошта">
               </div>
               <div class="expanded" v-if="expandedUkrPoshta">
-                <input type="text" placeholder="УкрПошта" />
+                <div>
+                  <input type="text" v-model="searchQuery" placeholder="Введіть індекс міста">
+                  <button @click="search">Пошук</button>
+
+                  <div v-if="results.length">
+                    <h2>Результати:</h2>
+                    <ul>
+                      <li v-for="(result, index) in results" :key="index">
+                        <strong>{{ result.city }}</strong>: {{ result.branch }}
+                      </li>
+                    </ul>
+                  </div>
+                  <div v-else>
+                    <p>Немає результатів.</p>
+                  </div>
+                </div>
                 <button @click="reset">Volver</button>
               </div>
             </div>
@@ -158,10 +173,28 @@ export default {
       loading: false,
       search: "",
       cities: [],
-      selectedOption: null
+      selectedCity: null,
+      warehouses: [],
+      selectedWarehouse: null,
+      selectedOption: null,
+      searchQuery: '',
+      results: []
     };
   },
   methods: {
+    search() {
+      // Виклик функції апі УкрПошти для отримання даних по індексу міста
+      // Замініть URL з вашим власним ендпоінтом або джерелом даних
+      fetch(`https://your-api-endpoint.com/ukrposhta?index=${this.searchQuery}`)
+        .then(response => response.json())
+        .then(data => {
+          // Оновлення результатів пошуку
+          this.results = data;
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    },
     onNovaPoshtaClick() {
       this.selectedOption = 'novaPoshta';
       this.expandNovaPoshta();
@@ -360,6 +393,7 @@ export default {
       this.profile.secondName = profileData.secondName;
       this.profile.city = profileData.city;
       this.profile.phone = profileData.phone;
+      this.profile.warehouse = profileData.warehouse;
 
       this.profiles.push({ ...profileData, id: profileDoc.id });
 

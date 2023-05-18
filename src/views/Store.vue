@@ -5,11 +5,7 @@
         <input type="radio" name="radio" checked />
         <span>Всі товари</span>
       </label>
-      <label
-        v-for="category in categories"
-        :key="category"
-        @click="filterProducts(category.id)"
-      >
+      <label v-for="category in categories" :key="category" @click="filterProducts(category.id)">
         <input type="radio" name="radio" />
         <span>{{ category.id }}</span>
       </label>
@@ -22,12 +18,7 @@
           <h3 style="height: 44px">{{ product.name }}</h3>
           <h3>₴ {{ product.sellPrice }}.00</h3>
         </RouterLink>
-        <AddToCart
-          :product-id="product.id"
-          :sellPrice="product.sellPrice"
-          :image="product.image"
-          :name="product.name"
-        >
+        <AddToCart :product-id="product.id" :sellPrice="product.sellPrice" :image="product.image" :name="product.name">
         </AddToCart>
       </div>
     </section>
@@ -113,7 +104,7 @@ input[type="radio"] {
   white-space: nowrap;
   width: 1px;
 
-  &:checked + span {
+  &:checked+span {
     transition: 0.3s;
     color: #000000;
     font-size: 25px;
@@ -121,7 +112,7 @@ input[type="radio"] {
     text-shadow: 0 2px 5px rgba(0, 0, 0, 0.6), 0 -2px 3px rgba(255, 255, 255, 1);
   }
 
-  &:hover + span {
+  &:hover+span {
     font-size: 25px;
     transition: 0.3s;
     max-width: 250px;

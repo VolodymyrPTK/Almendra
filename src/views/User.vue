@@ -20,18 +20,29 @@
           <input type="text" id="name" v-model="profile.firstName" />
           <label for="phone">Телефон</label>
           <input type="text" id="phone" v-model="profile.phone" />
-          <button class="btn" @click="updateData()" :disabled="loading">
-            <div class="spinner-container" v-if="loading">
-              <div class="spinner-border" role="status"></div>
-            </div>
-            <div v-else>Зберегти</div>
-          </button>
+          <div style="display: flex ;">
+            <button class="btn" @click="updateData()" :disabled="loading">
+              <div class="spinner-container" v-if="loading">
+                <div class="spinner-border" role="status"></div>
+              </div>
+              <div v-else>Зберегти</div>
+            </button>
+            <button class="btn" v-on:click="hideModal()">
+              Назад
+            </button>
+          </div>
         </div>
       </div>
       <div class="adress">
-        <div style="display: flex;">
-          <h3>Місто</h3>
-          <h3>{{ profile.city }}</h3>
+        <div>
+          <div class="flex">
+            <h3>Місто:</h3>
+            <h3>{{ profile.city }}</h3>
+          </div>
+          <div class="flex">
+            <h3>Відділеня:</h3>
+            <h3>{{ profile.warehouse }}</h3>
+          </div>
         </div>
 
         <input type="text" v-model="search" @input="searchCities" @focus="showDropdown = true"
@@ -42,20 +53,13 @@
           </li>
         </ul>
 
-        <div style="display: flex;">
-          <div style="display: flex;">
-            <label for="poshtomat">Поштомат</label>
-            <input id="poshtomat" name="type" type="radio" value="поштомат" v-model="deliveryOption" />
-          </div>
-          <div style="display: flex;">
-            <label for="poshtomat">Віділення</label>
-            <input name="type" type="radio" value="віділення" v-model="deliveryOption" />
-          </div>
-        </div>
-        <select v-model="selectedWarehouse">
-          <option v-for="warehouse in warehouses" :value="warehouse">{{ warehouse.Description }}
-          </option>
-        </select>
+        <input type="text" v-model="searchWarehouse" @input="filterWarehouses" @focus="showDropdownW = true"
+          @blur="showDropdownW = false" />
+        <ul v-if="showDropdownW">
+          <li v-for="warehouse in filteredWarehouses" @click="selectWarehouse(warehouse)">
+            {{ warehouse.Description }}
+          </li>
+        </ul>
 
         <button @click="updateUserData">Update Data</button>
       </div>
@@ -85,16 +89,22 @@ export default {
         secondName: "",
         phone: "",
         city: "",
+        warehouse: ""
       },
       loading: false,
       search: "",
+      searchWarehouse: "",
       cities: [],
       selectedCity: null,
       warehouses: [],
       selectedWarehouse: null,
+      filteredWarehouses: [],
     };
   },
   methods: {
+    hideModal() {
+      this.showModalFlag = false;
+    },
     showModal() {
       this.showModalFlag = true;
     },
@@ -143,7 +153,13 @@ export default {
       this.search = city.Description;
       this.showDropdown = false;
       this.selectedCity = city;
-      this.getWarehouses(city.Ref);
+      // this.getWarehouses(city.Ref);
+      this.filterWarehouses();
+      console.log(city.Description)
+    },
+    selectWarehouse(warehouse) {
+      this.selectedWarehouse = warehouse;
+      this.searchWarehouse = warehouse.Description;
     },
     async getWarehouses(cityRef) {
       const endpoint = endpointRef;
@@ -165,19 +181,47 @@ export default {
         .then((response) => response.json())
         .then((data) => {
           this.warehouses = data.data;
+          this.filteredWarehouses = this.warehouses; // Asignar todos los depósitos inicialmente
           this.selectedWarehouse = data.data[0];
         })
         .catch((error) => {
           // handle error
         });
     },
+    async filterWarehouses() {
+      const searchNumber = parseInt(this.searchWarehouse.trim(), 10);
+      const endpoint = endpointRef;
+      const body = {
+        apiKey: apiKey,
+        modelName: "AddressGeneral",
+        calledMethod: "getWarehouses",
+        methodProperties: {
+          CityRef: this.selectedCity.Ref,
+          WarehouseId: searchNumber.toString(),
+        },
+      };
+      try {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(body),
+        });
+        const data = await response.json();
+        this.filteredWarehouses = data.data;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
     async updateUserData() {
       const userRef = doc(db, "profiles", this.profile.uid);
       await updateDoc(userRef, {
         city: this.selectedCity.Description,
+        warehouse: this.selectedWarehouse.Number,
       });
     },
-
   },
   async created() {
     const auth = getAuth();
@@ -190,6 +234,7 @@ export default {
       this.profile.firstName = doc.data().firstName;
       this.profile.secondName = doc.data().secondName;
       this.profile.city = doc.data().city;
+      this.profile.warehouse = doc.data().warehouse;
       this.profile.phone = doc.data().phone;
     });
   },
@@ -230,21 +275,26 @@ li:hover {
 
 .body {
   display: flex;
-  height: 800px;
+  height: 100%;
   justify-content: center;
 }
 
+.flex {
+  display: flex;
+  justify-content: space-between;
+}
+
 .orders {
-  width: 75%;
+  width: 100%;
   border-radius: 25px;
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
   background-color: rgba(253, 253, 253, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.125);
   margin: 10px;
+  padding: 25px;
 }
 
 .user {
-  width: 25%;
   margin: 10px;
 }
 
@@ -254,7 +304,8 @@ li:hover {
 }
 
 .profile {
-  height: 480px;
+  height: 400px;
+  width: 275px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -268,7 +319,8 @@ li:hover {
 .adress {
   display: flex;
   flex-direction: column;
-  height: 280px;
+  height: 40%;
+  width: 275px;
   margin-top: 20px;
   border-radius: 25px;
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
