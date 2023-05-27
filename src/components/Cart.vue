@@ -80,23 +80,18 @@
               <div class="box" @click="onUkrPoshtaClick" v-if="!expandedUkrPoshta && !expandedNovaPoshta">
                 <img class="cart-img" src="../assets/ukrposhta.png" alt="УкрПошта">
               </div>
-              <div class="expanded" v-if="expandedUkrPoshta">
-                <div>
-                  <input type="text" v-model="searchQuery" placeholder="Введіть індекс міста">
-                  <button @click="search">Пошук</button>
 
-                  <div v-if="results.length">
-                    <h2>Результати:</h2>
-                    <ul>
-                      <li v-for="(result, index) in results" :key="index">
-                        <strong>{{ result.city }}</strong>: {{ result.branch }}
-                      </li>
-                    </ul>
-                  </div>
-                  <div v-else>
-                    <p>Немає результатів.</p>
-                  </div>
-                </div>
+              <div class="expanded" v-if="expandedUkrPoshta">
+                <h1>Buscar ciudad por código postal</h1>
+
+                <input type="text" v-model="searchUP" @input="searchCitiesUP" @focus="showDropdownUP = true"
+                  @blur="showDropdownUP = false" />
+                <ul v-if="showDropdownUP">
+                  <li v-for="city in citiesUP" @click="selectCityUP(city)">
+                    {{ city }}
+                  </li>
+                </ul>
+
                 <button @click="reset">Volver</button>
               </div>
             </div>
@@ -177,24 +172,32 @@ export default {
       warehouses: [],
       selectedWarehouse: null,
       selectedOption: null,
-      searchQuery: '',
-      results: []
+      postIndex: '',
+      citiesUkrPoshta: [],
+      showDropdown: false,
     };
   },
   methods: {
-    search() {
-      // Виклик функції апі УкрПошти для отримання даних по індексу міста
-      // Замініть URL з вашим власним ендпоінтом або джерелом даних
-      fetch(`https://your-api-endpoint.com/ukrposhta?index=${this.searchQuery}`)
+    //Ukr Poshta
+    searchCitiesUP() {
+      // Realizar la solicitud a la API de Ukrposhta
+      fetch(`https://api.ukrposhta.ua/address/v1/pochttown?postalcode=${this.searchUP}&limit=10`)
         .then(response => response.json())
         .then(data => {
-          // Оновлення результатів пошуку
-          this.results = data;
+          // Obtener los datos de las ciudades
+          this.citiesUP = data.map(city => `${city.CITYTYPE_UA} ${city.PDCITY_UA}`);
         })
         .catch(error => {
-          console.error(error);
+          console.error('Error al buscar ciudades:', error);
         });
     },
+    selectCityUP(city) {
+      // Lógica para seleccionar la ciudad
+      console.log('Ciudad seleccionada:', city);
+    },
+
+
+    //Nova Poshta
     onNovaPoshtaClick() {
       this.selectedOption = 'novaPoshta';
       this.expandNovaPoshta();
@@ -753,5 +756,9 @@ button:active {
   to {
     transform: rotate(360deg);
   }
+}
+
+.dropdown {
+  position: relative;
 }
 </style>
