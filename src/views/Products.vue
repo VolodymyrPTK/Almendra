@@ -4,47 +4,19 @@
       <div class="inputs">
         <input type="text" v-model="product.name" placeholder="Назва товару" />
         <input type="text" v-model="product.detail" placeholder="Деталі" />
-        <input
-          type="number"
-          v-model="product.buyPrice"
-          placeholder="Ціна Купівлі"
-        />
-        <input
-          type="number"
-          v-model="product.sellPrice"
-          placeholder="Ціна Продажу"
-        />
+        <input type="number" v-model="product.buyPrice" placeholder="Ціна Купівлі" />
+        <input type="number" v-model="product.sellPrice" placeholder="Ціна Продажу" />
       </div>
-      <textarea
-        type="text"
-        v-model="product.description"
-        placeholder="Опис"
-      ></textarea>
-      <textarea
-        type="text"
-        v-model="product.sklad"
-        placeholder="Склад"
-      ></textarea>
+      <textarea type="text" v-model="product.description" placeholder="Опис"></textarea>
+      <textarea type="text" v-model="product.sklad" placeholder="Склад"></textarea>
       <div class="inputs">
         <div>
           <div class="kcal">
             <input type="number" v-model="product.kcal" placeholder="kcal" />
             <input type="number" v-model="product.fat" placeholder="жири" />
-            <input
-              type="number"
-              v-model="product.carbo"
-              placeholder="вуглеводи"
-            />
-            <input
-              type="number"
-              v-model="product.protein"
-              placeholder="білки"
-            />
-            <input
-              type="text"
-              v-model="product.vitamins"
-              placeholder="вітаміни"
-            />
+            <input type="number" v-model="product.carbo" placeholder="вуглеводи" />
+            <input type="number" v-model="product.protein" placeholder="білки" />
+            <input type="text" v-model="product.vitamins" placeholder="вітаміни" />
           </div>
           <div class="kcal">
             <select v-model="product.country">
@@ -68,20 +40,12 @@
       </div>
       <div class="center-flex">
         <div>
-          <input
-            type="checkbox"
-            class="checkbox"
-            v-model="product.freeGluten"
-          />
+          <input type="checkbox" class="checkbox" v-model="product.freeGluten" />
           <label for="checkbox">Free gluten</label>
           <input type="checkbox" class="checkbox" v-model="product.freeSugar" />
           <label for="checkbox">Free sugar</label>
 
-          <input
-            type="checkbox"
-            class="checkbox"
-            v-model="product.freeLactosa"
-          />
+          <input type="checkbox" class="checkbox" v-model="product.freeLactosa" />
           <label for="checkbox">Free lactosa</label>
           <input type="checkbox" class="checkbox" v-model="product.vegan" />
           <label for="checkbox">Vegan</label>
@@ -101,29 +65,10 @@
           Створити продукт
         </button>
         <div class="center-flex">
-          <input
-            class="searchInput"
-            v-model="searchTerm"
-            placeholder="Шукати"
-          />
-          <input
-            type="text"
-            v-model="category"
-            @keyup.enter="saveCategory()"
-            placeholder="Нова Категорія"
-          />
-          <input
-            type="text"
-            v-model="brand"
-            @keyup.enter="saveBrand()"
-            placeholder="Новий Бренд"
-          />
-          <input
-            type="text"
-            v-model="country"
-            @keyup.enter="saveCountry()"
-            placeholder="Новий Країна"
-          />
+          <input class="searchInput" v-model="searchTerm" placeholder="Шукати" />
+          <input type="text" v-model="category" @keyup.enter="saveCategory()" placeholder="Нова Категорія" />
+          <input type="text" v-model="brand" @keyup.enter="saveBrand()" placeholder="Новий Бренд" />
+          <input type="text" v-model="country" @keyup.enter="saveCountry()" placeholder="Новий Країна" />
         </div>
       </div>
       <table class="fixed_headers">
@@ -138,12 +83,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr
-            class="tableline"
-            @dblclick="openModal(product.id)"
-            v-for="product in filteredProducts"
-            :key="product.id"
-          >
+          <tr class="tableline" @dblclick="openModal(product.id)" v-for="product in filteredProducts" :key="product.id">
             <td>
               <img class="productImage" :src="product.image" />
             </td>
@@ -160,15 +100,8 @@
         </tbody>
       </table>
     </div>
-    <Modal
-      v-if="modalVisible"
-      :visible="modalVisible"
-      :product="currentProduct"
-      :categories="categories"
-      :brands="brands"
-      :countries="countries"
-      @close="modalVisible = false"
-    />
+    <Modal v-if="modalVisible" :visible="modalVisible" :product="currentProduct" :categories="categories" :brands="brands"
+      :countries="countries" @close="modalVisible = false" />
   </div>
 </template>
 
@@ -292,8 +225,8 @@ export default {
       const uploadTask = uploadBytesResumable(storageRef, file);
       uploadTask.on(
         "state_changed",
-        (snapshot) => {},
-        (error) => {},
+        (snapshot) => { },
+        (error) => { },
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
             this.product.image = downloadURL;

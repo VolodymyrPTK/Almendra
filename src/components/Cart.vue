@@ -84,13 +84,7 @@
               <div class="expanded" v-if="expandedUkrPoshta">
                 <h1>Buscar ciudad por código postal</h1>
 
-                <input type="text" v-model="searchUP" @input="searchCitiesUP" @focus="showDropdownUP = true"
-                  @blur="showDropdownUP = false" />
-                <ul v-if="showDropdownUP">
-                  <li v-for="city in citiesUP" @click="selectCityUP(city)">
-                    {{ city }}
-                  </li>
-                </ul>
+                <input type="text" v-model="searchUP" @input="searchCitiesUP" />
 
                 <button @click="reset">Volver</button>
               </div>
@@ -195,9 +189,6 @@ export default {
       // Lógica para seleccionar la ciudad
       console.log('Ciudad seleccionada:', city);
     },
-
-
-    //Nova Poshta
     onNovaPoshtaClick() {
       this.selectedOption = 'novaPoshta';
       this.expandNovaPoshta();
@@ -756,9 +747,5 @@ button:active {
   to {
     transform: rotate(360deg);
   }
-}
-
-.dropdown {
-  position: relative;
 }
 </style>
