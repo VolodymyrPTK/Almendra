@@ -1,58 +1,38 @@
 <template>
-  <div class="modal" v-if="visible">
+  <div class="modal" v-if="visible" :key="product.id">
     <div class="modal-container">
       <div class="inputs">
         <input type="text" v-model="product.name" placeholder="Назва товару" />
         <input type="text" v-model="product.detail" placeholder="Деталі" />
         <input type="number" v-model="product.sellPrice" placeholder="Ціна" />
       </div>
-      <textarea
-        type="text"
-        v-model="product.description"
-        placeholder="Опис"
-      ></textarea>
-      <textarea
-        type="text"
-        v-model="product.sklad"
-        placeholder="Склад"
-      ></textarea>
+      <textarea type="text" v-model="product.description" placeholder="Опис"></textarea>
+      <textarea type="text" v-model="product.sklad" placeholder="Склад"></textarea>
       <div class="inputs">
         <div>
           <div class="kcal">
             <input type="number" v-model="product.kcal" placeholder="kcal" />
             <input type="number" v-model="product.fat" placeholder="жири" />
-            <input
-              type="number"
-              v-model="product.carbo"
-              placeholder="вуглеводи"
-            />
-            <input
-              type="number"
-              v-model="product.protein"
-              placeholder="білки"
-            />
-            <input
-              type="text"
-              v-model="product.vitamins"
-              placeholder="вітаміни"
-            />
+            <input type="number" v-model="product.carbo" placeholder="вуглеводи" />
+            <input type="number" v-model="product.protein" placeholder="білки" />
+            <input type="text" v-model="product.vitamins" placeholder="вітаміни" />
           </div>
           <div class="kcal">
             <select v-model="product.country">
               <option disabled value="">Країна</option>
-              <option v-for="country in countries" :value="country.id">
+              <option v-for=" country  in  countries " :value="country.id">
                 {{ country.id }}
               </option>
             </select>
             <select v-model="product.brand">
               <option disabled value="">Бренд</option>
-              <option v-for="brand in brands" :value="brand.id">
+              <option v-for=" brand  in  brands " :value="brand.id">
                 {{ brand.id }}
               </option>
             </select>
             <select class="menus" v-model="product.category">
               <option disabled value="">Категорія</option>
-              <option v-for="category in categories" :value="category.id">
+              <option v-for=" category  in  categories " :value="category.id">
                 {{ category.id }}
               </option>
             </select>
@@ -98,6 +78,9 @@ export default {
     categories: Array,
     countries: Array,
   },
+  watch: {
+    visible(newVal) { if (newVal) { this.product = this.$props.product; } },
+  }, // el resto del código sigue igual };
   methods: {
     async updateData() {
       try {

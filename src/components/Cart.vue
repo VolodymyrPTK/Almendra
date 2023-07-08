@@ -2,7 +2,6 @@
   <div class="cart">
 
     <div style="margin-top: 10px;" class="cart-name"><b>Кошик</b></div>
-    <div class="cart-name">До сплати {{ total }} грн</div>
 
     <div class="item-container" :class="{ up: show }">
       <div class="cart-items" v-for="item in items" :key="item.id">
@@ -99,7 +98,7 @@
 
       </div>
     </transition>
-
+    <div class="cart-name">До сплати {{ total }} грн</div>
     <div class="button-container" :class="{ down: show }">
       <button @click="saveCart()">Сплатити</button>
       <button @click="closeCart()">Закрити</button>

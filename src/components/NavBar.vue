@@ -247,11 +247,10 @@ export default {
   background-color: white;
   box-shadow: 0 5px 7px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(35px);
-  background-color: rgba(253, 253, 253, 0.5);
 }
 
 .rlink:hover {
-  background-color: #dfdfdf;
+  background-color: #e9e9e9;
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
 }
 

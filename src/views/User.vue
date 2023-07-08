@@ -1,7 +1,10 @@
 <template>
   <div class="body">
-    <div class="orders"></div>
+    <div class="orders">
+
+    </div>
     <div class="user">
+
       <div class="profile">
         <img class="profilePic" src="../assets/Logo.png" alt="profilePic" />
         <div class="edit-modal" v-if="!showModalFlag">
@@ -11,19 +14,17 @@
             <h2>{{ profile.secondName }}</h2>
           </div>
           <h3>{{ profile.email }}</h3>
-          <h3>{{ formattedPhoneNumber }}</h3>
+          <h3 v-if="profile.phone">{{ formattedPhoneNumber }}</h3>
+          <h3 style="cursor: pointer; color: blueviolet;" v-else v-on:click="showModal()">Додати телефон</h3>
           <button class="btn" v-on:click="showModal()">
             Редагувати
           </button>
         </div>
 
         <div class="edit-modal" v-if="showModalFlag">
-          <label for="name">Призвіще</label>
-          <input type="text" id="name" v-model="profile.secondName" />
-          <label for="name">Ім'я</label>
-          <input type="text" id="name" v-model="profile.firstName" />
-          <label for="phone">Телефон</label>
-          <input type="text" id="phone" v-model="profile.phone" />
+          <input placeholder="Ім'я" type="text" id="name" v-model="profile.secondName" />
+          <input placeholder="Призвіще" type="text" id="surename" v-model="profile.firstName" />
+          <input placeholder="Телефон" type="text" id="phone" v-model="profile.phone" />
           <div style="display: flex ;">
             <button class="btn" @click="updateData()" :disabled="loading">
               <div class="spinner-container" v-if="loading">
@@ -42,13 +43,15 @@
 
         <div class="delivery-adress" v-if="!expandedNovaPoshta && !expandedUkrPoshta">
           <div class="expanded" v-if="profile.deliveryOption === 'novaPoshta'">
-            <div>Місто: {{ profile.city }}</div>
-            <div>Віділеня: {{ profile.warehouse }}</div>
+            <div style="font-weight: bold; font-size: 21px; margin-bottom: 5px;">Нова Пошта</div>
+            <div><b>Місто:</b> {{ profile.city }}</div>
+            <div><b>Віділеня:</b> {{ profile.warehouse }}</div>
           </div>
 
           <div class="expanded" v-else-if="profile.deliveryOption === 'ukrPoshta'">
-            <div>Місто: {{ profile.city }}</div>
-            <div>Індекс: {{ profile.cityIndex }}</div>
+            <div style="font-weight: bold; font-size: 21px; margin-bottom: 5px;">УкрПошта</div>
+            <div><b>Місто:</b> {{ profile.city }}</div>
+            <div><b>Індекс:</b> {{ profile.cityIndex }}</div>
           </div>
 
           <div v-else>
@@ -58,7 +61,7 @@
 
         <div style="display: flex; flex-direction: column; align-items: center;"
           v-if="!expandedNovaPoshta && !expandedUkrPoshta">
-          <h3 v-if="profile.deliveryOption === 'novaPoshta' && 'ukrPoshta'">Або виберіть іншу</h3>
+          <h3 v-if="profile.deliveryOption === 'novaPoshta' && 'ukrPoshta'">Вибрати іншу</h3>
           <div class="delivery-options">
             <div class="box" @click="onNovaPoshtaClick" v-if="!expandedNovaPoshta && !expandedUkrPoshta">
               <img class="cart-img" src="../assets/novaposhta.jpg" alt="Нова Пошта">
@@ -73,16 +76,27 @@
           <h2>Нова Пошта</h2>
           <input placeholder="Місто" type="text" v-model="search" @input="searchCities"
             @input.debounce="showDropdown = true" />
-          <ul v-if="showDropdown">
+          <ul id="ul-1" v-if="showDropdown">
             <li v-for="city in cities" @click="selectCity(city)">
               {{ city.Description }}
             </li>
           </ul>
 
-          <input placeholder="Віділення" type="text" v-model="searchWarehouse" @input="filterWarehouses"
+          <div class="radio-container">
+            <div class="radio-tabs">
+              <input type="radio" id="radio-1" name="tabs" value="Warehouse" v-model="selectedCategory">
+              <label class="tab" for="radio-1">Віділення</label>
+              <input type="radio" id="radio-2" name="tabs" value="Postomat" v-model="selectedCategory">
+              <label class="tab" for="radio-2">Поштомат</label>
+              <span class="glider"></span>
+            </div>
+          </div>
+
+          <input :placeholder="placeholderText" type="text" v-model="searchWarehouse" @input="filterWarehouses"
             @input.debounce="showDropdownW = true" />
-          <ul v-if="showDropdownW">
-            <li v-for="warehouse in filteredWarehouses" @click="selectWarehouse(warehouse)">
+          <ul id="ul-2" v-if="showDropdownW">
+            <li v-for="warehouse in filteredWarehouses.filter(warehouse => warehouse.Number.startsWith(searchWarehouse))"
+              @click="selectWarehouse(warehouse)">
               {{ warehouse.Description }}
             </li>
           </ul>
@@ -96,7 +110,7 @@
           <h2>УкрПошта</h2>
           <input placeholder="Місто" type="text" v-model="search" @input="searchCities"
             @input.debounce="showDropdown = true" />
-          <ul v-if="showDropdown">
+          <ul id="ul-1" v-if="showDropdown">
             <li v-for="city in cities" @click="selectCity(city)">
               {{ city.Description }}
             </li>
@@ -108,13 +122,14 @@
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </template>
 
 <script>
 import { getAuth } from "firebase/auth";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { profileReg, db } from "../main";
 import { ref } from 'vue';
 
@@ -148,33 +163,22 @@ export default {
       warehouses: [],
       selectedWarehouse: null,
       filteredWarehouses: [],
-      deliveryOption: ""
+      deliveryOption: "",
+      selectedCategory: "Warehouse",
+      expandedNovaPoshta: false,
+      expandedUkrPoshta: false
     };
-  },
-  setup() {
-    const expandedNovaPoshta = ref(false);
-    const expandedUkrPoshta = ref(false);
-    const expandNovaPoshta = () => {
-      expandedNovaPoshta.value = true;
-    };
-    const expandUkrPoshta = () => {
-      expandedUkrPoshta.value = true;
-    };
-    const reset = () => {
-      expandedNovaPoshta.value = false;
-      expandedUkrPoshta.value = false;
-    };
-    return { expandedNovaPoshta, expandedUkrPoshta, expandNovaPoshta, expandUkrPoshta, reset };
   },
   methods: {
     onNovaPoshtaClick() {
       this.selectedOption = 'novaPoshta';
-      this.expandNovaPoshta();
+      this.expandedNovaPoshta = true;
       console.log('novaposhta')
     },
     onUkrPoshtaClick() {
       this.selectedOption = 'ukrPoshta';
-      this.expandUkrPoshta();
+      this.expandedUkrPoshta = true;
+      this.profile.cityIndex = "";
       console.log('urkposhta')
     },
     hideModal() {
@@ -244,7 +248,6 @@ export default {
           CityRef: cityRef,
         },
       };
-
       try {
         const response = await fetch(endpoint, {
           method: 'POST',
@@ -271,7 +274,8 @@ export default {
         calledMethod: "getWarehouses",
         methodProperties: {
           CityRef: this.selectedCity.Ref,
-          FindByString: searchNumber,
+          FindByString: parseInt(searchNumber, 10),
+          CategoryOfWarehouse: this.selectedCategory
         },
       };
       try {
@@ -284,8 +288,9 @@ export default {
         });
         const data = await response.json();
         this.filteredWarehouses = data.data;
+        console.log(data.data)
       } catch (error) {
-        console.error(error);
+        console.log(error);
       }
     },
     async updateUserData() {
@@ -295,11 +300,7 @@ export default {
         deliveryOption: this.selectedOption,
         warehouse: this.selectedWarehouse.Number,
       });
-      this.reset();
-    },
-    reset() {
       this.expandedNovaPoshta = false;
-      this.expandedUkrPoshta = false;
     },
     async updateUserDataUP() {
       const userRef = doc(db, "profiles", this.profile.uid);
@@ -308,6 +309,11 @@ export default {
         deliveryOption: this.selectedOption,
         cityIndex: this.profile.cityIndex,
       });
+      this.expandedUkrPoshta = false;
+    },
+    reset() {
+      this.expandedNovaPoshta = false;
+      this.expandedUkrPoshta = false;
     },
   },
   async created() {
@@ -316,14 +322,14 @@ export default {
     this.profile.email = user.email;
     this.profile.uid = user.uid;
     const docRef = doc(profileReg, this.profile.uid);
-    getDoc(docRef).then((doc) => {
+    onSnapshot(docRef, (doc) => {
       this.profiles.push({ ...doc.data(), id: doc.id });
       this.profile.firstName = doc.data().firstName;
       this.profile.secondName = doc.data().secondName;
       this.profile.city = doc.data().city;
       this.profile.warehouse = doc.data().warehouse;
       this.profile.cityIndex = doc.data().cityIndex;
-      this.profile.phone = doc.data().phone;
+      this.profile.phone = doc.data().phone ?? "";
       this.profile.deliveryOption = doc.data().deliveryOption;
     });
   },
@@ -333,6 +339,15 @@ export default {
       const numericPhoneNumber = phoneNumber.replace(/\D/g, '');
       const formattedPhoneNumber = `(${numericPhoneNumber.slice(0, 3)})-${numericPhoneNumber.slice(3, 6)}-${numericPhoneNumber.slice(6)}`;
       return formattedPhoneNumber;
+    },
+    placeholderText() {
+      if (this.selectedCategory === "Warehouse") {
+        return "Номер віділення";
+      } else if (this.selectedCategory === "Postomat") {
+        return "Номер поштомату";
+      } else {
+        return "";
+      }
     }
   }
 };
@@ -348,11 +363,11 @@ export default {
 input,
 select {
   height: 25px;
+  width: 210px;
   border: 1px solid #ccc;
   border-radius: 25px;
-  border: none;
   padding: 0 10px;
-  margin: 10px;
+  margin: 5px;
   font-size: 16px;
 }
 
@@ -370,24 +385,49 @@ option {
   position: relative;
 }
 
+ul::-webkit-scrollbar {
+  display: none;
+}
+
 li {
   cursor: pointer;
   padding: 10px;
+  margin: 7px;
+  transition: 0.75s;
+  background-color: white;
+  box-shadow: 0 5px 7px rgba(0, 0, 0, 0.2);
+  border-radius: 20px;
 }
 
 li:hover {
-  background-color: #eee;
+  transition: 0.5s;
+  background-color: #e9e9e9;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
 }
 
 ul {
+  z-index: 5;
+  padding: 5px 0 5px 0;
   position: absolute;
-  margin-top: 55px;
-  overflow-y: hidden;
+  border-radius: 25px;
+  transition: 0.75s;
+  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
+  background-color: rgba(253, 253, 253, 1);
+  border: solid 15px rgba(253, 253, 253, 1);
+}
+
+#ul-1 {
+  margin-top: 85px;
+}
+
+#ul-2 {
+  margin-top: 160px;
+  height: 150px;
 }
 
 h2,
 h3 {
-  margin: 10px 0 10px 0;
+  margin: 5px 0 5px 0;
 }
 
 .body {
@@ -445,7 +485,7 @@ h3 {
 }
 
 .profile {
-  height: 400px;
+  height: 350px;
   width: 275px;
   display: flex;
   flex-direction: column;
@@ -458,7 +498,7 @@ h3 {
 }
 
 .adress {
-  height: 300px;
+  height: 350px;
   width: 275px;
   margin-top: 20px;
   display: flex;
@@ -515,14 +555,6 @@ h3 {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-
-  input {
-    border-radius: 25px;
-    border: none;
-    margin: 5px;
-    padding: 7px;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
-  }
 }
 
 .spinner-container {
@@ -545,5 +577,76 @@ h3 {
   to {
     transform: rotate(360deg);
   }
+}
+
+///
+.radio-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.radio-tabs {
+  width: 230px;
+  display: flex;
+  position: relative;
+
+  * {
+    z-index: 2;
+  }
+}
+
+input[type="radio"] {
+  display: none;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 25px;
+  width: 200px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s ease-in;
+  color: #5f5f5f;
+}
+
+input[type="radio"] {
+  &:checked {
+    &+label {
+      color: #000000;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 -2px 3px rgba(255, 255, 255, 1);
+    }
+  }
+}
+
+input[id="radio-1"] {
+  &:checked {
+    &~.glider {
+      transform: translateX(0);
+    }
+  }
+}
+
+input[id="radio-2"] {
+  &:checked {
+    &~.glider {
+      transform: translateX(100%);
+    }
+  }
+}
+
+.glider {
+  position: absolute;
+  display: flex;
+  height: 25px;
+  width: 115px;
+  background-color: #ffffff;
+  box-shadow: 0 5px 7px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  border-radius: 20px; // just a high number to create pill effect
+  transition: 0.25s ease-out;
 }
 </style>
