@@ -31,7 +31,7 @@ body {
 }
 
 .navbar-comp {
-  z-index: 1;
+  z-index: 10;
 }
 
 .mainPage {

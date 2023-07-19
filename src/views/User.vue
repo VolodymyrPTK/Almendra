@@ -16,9 +16,7 @@
           <h3>{{ profile.email }}</h3>
           <h3 v-if="profile.phone">{{ formattedPhoneNumber }}</h3>
           <h3 style="cursor: pointer; color: blueviolet;" v-else v-on:click="showModal()">Додати телефон</h3>
-          <button class="btn" v-on:click="showModal()">
-            Редагувати
-          </button>
+          <button class="btn" v-on:click="showModal()">Редагувати</button>
         </div>
 
         <div class="edit-modal" v-if="showModalFlag">
@@ -38,8 +36,7 @@
       </div>
 
       <div class="adress">
-        <h3 v-if="!expandedNovaPoshta && !expandedUkrPoshta">Адреса Доставки
-        </h3>
+        <h3 v-if="!expandedNovaPoshta && !expandedUkrPoshta">Адреса Доставки</h3>
 
         <div class="delivery-adress" v-if="!expandedNovaPoshta && !expandedUkrPoshta">
           <div class="expanded" v-if="profile.deliveryOption === 'novaPoshta'">
@@ -64,10 +61,11 @@
           <h3 v-if="profile.deliveryOption === 'novaPoshta' && 'ukrPoshta'">Вибрати іншу</h3>
           <div class="delivery-options">
             <div class="box" @click="onNovaPoshtaClick" v-if="!expandedNovaPoshta && !expandedUkrPoshta">
-              <img class="cart-img" src="../assets/novaposhta.jpg" alt="Нова Пошта">
+              <img :title="messageNP" class="cart-img" src="../assets/novaposhta.jpg" alt="Нова Пошта">
+
             </div>
             <div class="box" @click="onUkrPoshtaClick" v-if="!expandedNovaPoshta && !expandedUkrPoshta">
-              <img class="cart-img" src="../assets/ukrposhta.png" alt="УкрПошта">
+              <img :title="messageUP" class="cart-img" src="../assets/ukrposhta.png" alt="УкрПошта">
             </div>
           </div>
         </div>
@@ -166,7 +164,9 @@ export default {
       deliveryOption: "",
       selectedCategory: "Warehouse",
       expandedNovaPoshta: false,
-      expandedUkrPoshta: false
+      expandedUkrPoshta: false,
+      messageNP: 'Нова Пошта',
+      messageUP: 'УкрПошта'
     };
   },
   methods: {
@@ -417,11 +417,11 @@ ul {
 }
 
 #ul-1 {
-  margin-top: 85px;
+  margin-top: 75px;
 }
 
 #ul-2 {
-  margin-top: 160px;
+  margin-top: 135px;
   height: 150px;
 }
 

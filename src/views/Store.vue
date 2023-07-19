@@ -179,7 +179,8 @@ label {
 
 .productCard:hover {
   box-shadow: 0 15px 55px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
-  transition: 1s;
+  transform: scale(1.03);
+  transition: 0.5s;
 }
 
 .productImage {

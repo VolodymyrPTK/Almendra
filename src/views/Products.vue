@@ -419,12 +419,14 @@ textarea {
 
   th {
     text-decoration: underline;
+
   }
 
   th,
   td {
     padding: 5px;
     text-align: left;
+    vertical-align: middle;
   }
 
   td:nth-child(1),
