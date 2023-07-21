@@ -3,7 +3,7 @@
 
     <div class="cart-name">{{ show ? 'Оформлення замовлення' : 'Кошик' }}</div>
 
-    <div v-if="!show" class="item-container">
+    <div v-if="!show" class="cart-container">
       <div class="cart-items" v-for="item in items" :key="item.id">
         <img class="productImage" :src="item.itemImage" />
         <div class="sum">
@@ -26,19 +26,20 @@
       </div>
     </div>
 
-    <div v-else="show" class="container">
+    <div v-else="show" class="data-container">
       <div class="cart-name">До сплати {{ total }} грн</div>
 
       <div class="radio-container2">
         <div class="headers">Оплата</div>
         <div class="pay-tabs">
-          <input type="radio" id="radio-p1" name="paytabs" checked />
+          <input type="radio" id="radio-p1" name="paytabs" value="payNow" v-model="payment" />
           <label class="pay-tab" for="radio-p1">За реквізитами</label>
-          <input type="radio" id="radio-p2" name="paytabs" />
+          <input type="radio" id="radio-p2" name="paytabs" value="payLater" v-model="payment" />
           <label class="pay-tab" for="radio-p2">Післяплата</label>
           <span class="glider"></span>
         </div>
       </div>
+
       <div class="profile">
         <div class="user-name" v-if="!showModalFlag">
           <div class="headers">Дані для відправки</div>
@@ -87,14 +88,17 @@
           </div>
 
           <div v-else>
-            <div>Виберіть перевізника</div>
+            <div style="font-size: 20px; font-weight: bold; margin: 5px">Виберіть перевізника</div>
           </div>
         </div>
 
         <div style="display: flex; flex-direction: column; align-items: center;"
           v-if="!expandedNovaPoshta && !expandedUkrPoshta">
+
           <div style="font-weight: bold; font-size: 21px; margin: 5px 0;"
-            v-if="profile.deliveryOption === 'novaPoshta' && 'ukrPoshta'">Вибрати іншу адресу</div>
+            v-if="profile.deliveryOption === 'ukrPoshta' || profile.deliveryOption === 'novaPoshta'">Вибрати іншу адресу
+          </div>
+
           <div class="delivery-options">
             <div class="box" @click="onNovaPoshtaClick" v-if="!expandedNovaPoshta && !expandedUkrPoshta">
               <img :title="messageNP" class="cart-img" src="../assets/novaposhta.jpg" alt="Нова Пошта">
@@ -158,7 +162,7 @@
       </div>
 
       <div class="button-container">
-        <button style="width: 50%;" class="btn-primary" @click="confirmPurchase()">Оформити</button>
+        <button style="width: 50%;" class="btn-primary" @click="createOrder()">Оформити</button>
         <button class="btn-secondary" @click="closeConfirm()">Назад</button>
       </div>
     </div>
@@ -168,16 +172,22 @@
       <button class="btn-primary" @click="saveCart()">Сплатити</button>
       <button class="btn-secondary" @click="closeCart()">Закрити</button>
     </div>
+
+    <div class="order-confiramtion" v-if="orderConfirmed">
+      <img src="../assets/imgs/icons/done.png" alt="">
+      <h2>Дякуємо за замовлення</h2>
+      <RouterLink class="view-order" to="/user" @click="closeCart()">Переглянути замовлення</RouterLink>
+    </div>
   </div>
 </template>
 
 <script>
+import { RouterLink } from "vue-router";
 import { getAuth } from "firebase/auth";
 import {
-  doc, getDoc, getDocs, query, where, onSnapshot, increment, collection, deleteDoc, updateDoc,
+  setDoc, addDoc, doc, getDoc, getDocs, query, where, onSnapshot, increment, collection, deleteDoc, updateDoc,
 } from "firebase/firestore";
-import { profileReg, cartReg, dataBase, db } from "../main";
-import { ref } from 'vue';
+import { profileReg, cartReg, dataBase, db, orderReg } from "../main";
 
 const apiKey = "0fe8dfcca7f61242d252e83fd715eaf2";
 const endpointRef = "https://api.novaposhta.ua/v2.0/json/";
@@ -226,7 +236,9 @@ export default {
       expandedNovaPoshta: false,
       expandedUkrPoshta: false,
       messageNP: 'Нова Пошта',
-      messageUP: 'УкрПошта'
+      messageUP: 'УкрПошта',
+      orderConfirmed: false,
+      payment: "payLater",
     };
   },
   methods: {
@@ -429,27 +441,58 @@ export default {
         console.error("Error deleting product", error);
       }
     },
-  },
-  showModal() {
-    this.showModalFlag = true;
-  },
-  async updateData() {
-    this.loading = true;
-    try {
-      const docRef = doc(db, "profiles", this.profile.uid);
-      await updateDoc(docRef, {
-        firstName: this.profile.firstName,
-        secondName: this.profile.secondName,
-        phone: this.profile.phone,
+    showModal() {
+      this.showModalFlag = true;
+    },
+    async updateData() {
+      this.loading = true;
+      try {
+        const docRef = doc(db, "profiles", this.profile.uid);
+        await updateDoc(docRef, {
+          firstName: this.profile.firstName,
+          secondName: this.profile.secondName,
+          phone: this.profile.phone,
+        });
+        console.log("Data updated successfully");
+        this.showModalFlag = false;
+      } catch (error) {
+        console.error(error);
+      }
+      this.loading = false;
+    },
+    async createOrder() {
+      const cartId = this.cartId;
+      console.log(cartId)
+      const items = this.items;
+      const userData = this.profile;
+      const time = new Date().toLocaleString("en-US", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "2-digit",
+        hour12: false,
+        hour: "2-digit",
+        minute: "2-digit",
       });
-      console.log("Data updated successfully");
-      this.showModalFlag = false;
-    } catch (error) {
-      console.error(error);
-    }
-    this.loading = false;
-  },
 
+      // Create a new order document
+      const order = {
+        uid: this.profile.uid,
+        items,
+        userData,
+        orderStatus: "Processing",
+        time: time,
+        payment: this.payment,
+        total: this.total
+      };
+      const orderRef = doc(orderReg);
+      await setDoc(orderRef, order);
+
+      // Mark the cart as finalized
+      const cartRef = doc(cartReg, cartId);
+      await setDoc(cartRef, { finalized: true });
+      this.orderConfirmed = true;
+    },
+  },
   async created() {
     const auth = getAuth();
     const user = auth.currentUser;
@@ -471,7 +514,6 @@ export default {
           this.profile.deliveryOption = doc.data().deliveryOption;
         }
       });
-
       // Fetch cart
       const q = query(
         cartReg,
@@ -528,17 +570,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-input,
-select {
-  height: 25px;
-  width: 210px;
-  border: 1px solid #ccc;
-  border-radius: 25px;
-  padding: 0 10px;
-  margin: 5px;
-  font-size: 16px;
-}
-
 li {
   cursor: pointer;
   padding: 10px;
@@ -607,10 +638,10 @@ h3 {
   width: 500px;
   height: 80%;
   backdrop-filter: blur(35px);
+  -webkit-backdrop-filter: blur(35px);
   background-color: rgba(253, 253, 253, 0.1);
   border-radius: 25px;
   box-shadow: -15px 0 25px rgba(0, 0, 0, 0.6);
-  border: 4px solid rgba(255, 255, 255, 0.25);
   right: 25px;
   transition: 0.5s;
 }
@@ -648,6 +679,7 @@ h3 {
   border-radius: 25px;
   box-shadow: 0 5px 7px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(35px);
+  -webkit-backdrop-filter: blur(35px);
   background-color: rgba(253, 253, 253, 0.5);
 }
 
@@ -701,6 +733,7 @@ h3 {
   border-radius: 25px;
   box-shadow: 0 5px 7px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(35px);
+  -webkit-backdrop-filter: blur(35px);
   background-color: rgba(253, 253, 253, 0.5);
 
 }
@@ -747,7 +780,7 @@ input[type="radio"] {
   transition: 0.25s ease-out;
 }
 
-.item-container {
+.cart-container {
   height: 100%;
   overflow: scroll;
   overflow-y: scroll;
@@ -755,18 +788,18 @@ input[type="radio"] {
   transform: scale(1.00);
 }
 
-.item-container>div:hover {
+.cart-container>div:hover {
   transform: scale(1.02);
   transition: 0.5s;
 }
 
 
-.item-container::-webkit-scrollbar {
+.cart-container::-webkit-scrollbar {
   display: none;
 }
 
 
-.container {
+.data-container {
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -842,6 +875,7 @@ input[type="radio"] {
   border: none;
   border-radius: 25px;
   backdrop-filter: blur(35px);
+  -webkit-backdrop-filter: blur(35px);
   background-color: rgba(253, 253, 253, 0.8);
   box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.75), inset 0px 0px 0px rgba(0, 0, 0, 0);
   font-size: 20px;
@@ -885,6 +919,7 @@ input[type="radio"] {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   border-radius: 25px;
   backdrop-filter: blur(35px);
+  -webkit-backdrop-filter: blur(35px);
   background-color: rgba(253, 253, 253, 0.8);
   box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
   transition: 0.3s;
@@ -898,7 +933,7 @@ input[type="radio"] {
 .btn-primary:active {
   box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3),
     inset 0px 3px 5px rgba(0, 0, 0, 0.3);
-  transition: 0.3s;
+  transition: 0.1s;
 }
 
 .btn-secondary {
@@ -910,6 +945,7 @@ input[type="radio"] {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   border-radius: 25px;
   backdrop-filter: blur(35px);
+  -webkit-backdrop-filter: blur(35px);
   background-color: rgba(253, 253, 253, 0.2);
   box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
   transition: 0.3s;
@@ -923,7 +959,7 @@ input[type="radio"] {
 .btn-secondary:active {
   box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3),
     inset 0px 3px 5px rgba(0, 0, 0, 0.3);
-  transition: 0.3s;
+  transition: 0.1s;
 }
 
 .user-name {
@@ -991,7 +1027,6 @@ input[type="radio"] {
   position: relative;
 }
 
-
 .pay-tab {
   z-index: 3;
   display: flex;
@@ -1058,5 +1093,42 @@ input[id="radio-p2"] {
       transform: translateX(100%);
     }
   }
+}
+
+.order-confiramtion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  z-index: 100;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(255, 255, 255);
+
+  img {
+    height: 12vw;
+  }
+}
+
+.view-order {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 17vw;
+  height: 4vw;
+  border: none;
+  font-size: 20px;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  border-radius: 10vw;
+  background-color: rgba(253, 253, 253, 0.8);
+  box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.3), 0px -1px 5px rgba(0, 0, 0, 0.1), inset 0px 0px 0px rgba(0, 0, 0, 0);
+  transition: 0.3s;
+  margin-top: 2vw;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
 }
 </style>

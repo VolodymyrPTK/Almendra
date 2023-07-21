@@ -419,7 +419,6 @@ textarea {
 
   th {
     text-decoration: underline;
-
   }
 
   th,

@@ -1,6 +1,43 @@
 <template>
   <div class="body">
     <div class="orders">
+      <div class="order-container" v-for="order in orders" :key="order.id">
+        <div @click="showDetails(order)" class="order-row">
+          <div>{{ order.time }}</div>
+          <div>{{ order.orderStatus }}</div>
+          <div>{{ order.total }}</div>
+          <div class="status-line">
+            <div class="status-point"
+              :class="{ active: order.orderStatus === 'Processing' || order.orderStatus === 'Received' || order.orderStatus === 'Shipped' }">
+            </div>
+            <div class="status-line-segment"
+              :class="{ active: order.orderStatus === 'Shipped' || order.orderStatus === 'Received' }">
+            </div>
+            <div class="status-point"
+              :class="{ active: order.orderStatus === 'Shipped' || order.orderStatus === 'Received' }"></div>
+            <div class="status-line-segment" :class="{ active: order.orderStatus === 'Received' }"></div>
+            <div class="status-point" :class="{ active: order.orderStatus === 'Received' }"></div>
+          </div>
+        </div>
+        <table v-if="orderDetails === order.id">
+          <thead>
+            <tr>
+              <th>Назва</th>
+              <th>Ціна</th>
+              <th>Кількість</th>
+              <th>Сума</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in order.items">
+              <td>{{ item.id }}</td>
+              <td>{{ item.price }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>{{ item.quantity * item.price }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
     </div>
     <div class="user">
@@ -52,13 +89,15 @@
           </div>
 
           <div v-else>
-            <div>Виберіть перевізника</div>
+            <div style="font-size: 20px; font-weight: bold; margin: 5px">Виберіть перевізника</div>
           </div>
         </div>
 
         <div style="display: flex; flex-direction: column; align-items: center;"
           v-if="!expandedNovaPoshta && !expandedUkrPoshta">
-          <h3 v-if="profile.deliveryOption === 'novaPoshta' && 'ukrPoshta'">Вибрати іншу</h3>
+          <div style="font-weight: bold; font-size: 21px; margin: 5px 0;"
+            v-if="profile.deliveryOption === 'ukrPoshta' || profile.deliveryOption === 'novaPoshta'">Вибрати іншу адресу
+          </div>
           <div class="delivery-options">
             <div class="box" @click="onNovaPoshtaClick" v-if="!expandedNovaPoshta && !expandedUkrPoshta">
               <img :title="messageNP" class="cart-img" src="../assets/novaposhta.jpg" alt="Нова Пошта">
@@ -127,8 +166,10 @@
 
 <script>
 import { getAuth } from "firebase/auth";
-import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
-import { profileReg, db } from "../main";
+import {
+  setDoc, addDoc, doc, getDoc, getDocs, query, where, onSnapshot, increment, collection, deleteDoc, updateDoc,
+} from "firebase/firestore";
+import { orderReg, profileReg, db } from "../main";
 import { ref } from 'vue';
 
 const apiKey = "0fe8dfcca7f61242d252e83fd715eaf2";
@@ -150,6 +191,10 @@ export default {
         warehouse: "",
         cityIndex: ""
       },
+      orders: [],
+      order: {
+        orderId: ""
+      },
       loading: false,
       search: "",
       searchWarehouse: "",
@@ -166,10 +211,20 @@ export default {
       expandedNovaPoshta: false,
       expandedUkrPoshta: false,
       messageNP: 'Нова Пошта',
-      messageUP: 'УкрПошта'
+      messageUP: 'УкрПошта',
+      orderDetails: null
     };
   },
   methods: {
+    showDetails(order) {
+      // If the clicked order is already expanded, then collapse it
+      if (this.orderDetails === order.id) {
+        this.orderDetails = null;
+      } else {
+        // Otherwise, show the details of the clicked order
+        this.orderDetails = order.id;
+      }
+    },
     onNovaPoshtaClick() {
       this.selectedOption = 'novaPoshta';
       this.expandedNovaPoshta = true;
@@ -332,7 +387,22 @@ export default {
       this.profile.phone = doc.data().phone ?? "";
       this.profile.deliveryOption = doc.data().deliveryOption;
     });
+    const q = query(
+      orderReg,
+      where('uid', '==', this.profile.uid),
+    );
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      this.orderId = querySnapshot.docs[0].id;
+      onSnapshot(orderReg, (snapshot) => {
+        this.orders = [];
+        snapshot.docs.forEach((doc) => {
+          this.orders.push({ ...doc.data(), id: doc.id });
+        });
+      });
+    }
   },
+
   computed: {
     formattedPhoneNumber() {
       const phoneNumber = this.profile.phone;
@@ -648,5 +718,62 @@ input[id="radio-2"] {
   z-index: 1;
   border-radius: 20px; // just a high number to create pill effect
   transition: 0.25s ease-out;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th,
+td {
+  padding: 8px;
+  border: 1px solid black;
+}
+
+.order-container {
+  border-radius: 25px;
+  box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
+  padding: 1vw;
+  cursor: pointer;
+  margin: 1vw;
+}
+
+.order-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+tr,
+th,
+td {
+  border: none;
+}
+
+.status-line {
+  display: flex;
+  align-items: center;
+}
+
+.status-point {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #ccc;
+}
+
+.status-point.active {
+  background-color: green;
+}
+
+.status-line-segment {
+  margin: 0 0.1vw;
+  width: 5vh;
+  height: 0.2vw;
+  background-color: #ccc;
+}
+
+.status-line-segment.active {
+  background-color: green;
 }
 </style>

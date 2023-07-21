@@ -9,16 +9,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.2.47",
     "firebase": "^9.8.3",
     "novaposhta": "^1.1.1",
     "pinia": "^2.0.29",
     "vite": "^4.2.1",
+    "vue": "^3.2.47",
     "vue-router": "^4.0.15"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^4.1.0",
     "@rushstack/eslint-patch": "^1.1.0",
+    "@vitejs/plugin-vue": "^4.1.0",
     "@vue/eslint-config-prettier": "^7.0.0",
     "eslint": "^8.5.0",
     "eslint-plugin-vue": "^8.2.0",

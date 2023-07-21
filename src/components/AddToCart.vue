@@ -7,16 +7,7 @@
 <script>
 import { getAuth } from "firebase/auth";
 import { cartReg, db, profileReg } from "../main";
-import {
-  addDoc,
-  doc,
-  setDoc,
-  getDoc,
-  query,
-  where,
-  getDocs,
-  runTransaction,
-} from "firebase/firestore";
+import { addDoc, doc, setDoc, getDoc, query, where, getDocs, runTransaction } from "firebase/firestore";
 
 export default {
   name: "AddToCart",
@@ -48,7 +39,6 @@ export default {
           quantity: this.quantity,
           itemImage: this.productImage,
         };
-
         const time = new Date().toLocaleString("en-US", {
           day: "2-digit",
           month: "2-digit",
@@ -62,11 +52,7 @@ export default {
           finalized: false,
           time: time,
         };
-        const q = query(
-          cartReg,
-          where("uid", "==", this.profile.uid),
-          where("finalized", "==", false)
-        );
+        const q = query(cartReg, where("uid", "==", this.profile.uid), where("finalized", "==", false));
         const querySnapshot = await getDocs(q);
         if (querySnapshot.size > 0) {
           let cartId;
@@ -75,13 +61,7 @@ export default {
               cartId = doc.id;
             }
           });
-          const productRef = doc(
-            db,
-            "carts",
-            cartId,
-            "cartProducts",
-            this.productName
-          );
+          const productRef = doc(db, "carts", cartId, "cartProducts", this.productName);
           try {
             await runTransaction(db, async (transaction) => {
               const newQ = await transaction.get(productRef);

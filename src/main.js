@@ -26,6 +26,7 @@ export const categoryReg = collection(db, "categories");
 export const brandReg = collection(db, "brands");
 export const countryReg = collection(db, "countries");
 export const cartReg = collection(db, "carts");
+export const orderReg = collection(db, "orders");
 export const storage = getStorage();
 
 const app = createApp(App);

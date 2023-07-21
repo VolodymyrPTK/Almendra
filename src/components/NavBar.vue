@@ -118,6 +118,41 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.cart-comp {
+  top: 130px;
+}
+
+.navbar-body {
+  height: 100px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5vh;
+}
+
+
+.navBar {
+  height: 8vh;
+  width: 90%;
+  border-radius: 20px;
+  position: fixed;
+  display: inline-flex;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 255, 255, 0.3);
+  -webkit-backdrop-filter: blur(25px);
+  backdrop-filter: blur(25px);
+}
+
+.logo {
+  height: 7vh;
+}
+
+.buttons {
+  display: flex;
+}
+
 .button-store {
   position: relative;
   overflow: hidden;
@@ -223,6 +258,7 @@ export default {
   padding: 10px;
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(35px);
+  -webkit-backdrop-filter: blur(35px);
   background-color: rgba(253, 253, 253, 0.5);
 
   a {
@@ -247,6 +283,7 @@ export default {
   background-color: white;
   box-shadow: 0 5px 7px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(35px);
+  -webkit-backdrop-filter: blur(35px);
 }
 
 .rlink:hover {
@@ -262,51 +299,6 @@ export default {
 .slide-enter-from,
 .slide-leave-to {
   transform: translateX(110%);
-}
-
-.navbar-body {
-  height: 100px;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-}
-
-.cart-comp {
-  top: 130px;
-}
-
-.navBar {
-  height: 80px;
-  width: 90%;
-  border-radius: 25px;
-  position: fixed;
-  display: inline-flex;
-  justify-content: space-around;
-  align-items: center;
-  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
-  background-color: rgba(253, 253, 253, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.125);
-}
-
-.navBar:before {
-  backdrop-filter: blur(30px);
-  content: "";
-  border-radius: 25px;
-  height: 100%;
-  width: 100%;
-  position: absolute;
-  left: 0;
-  top: 0;
-}
-
-.logo {
-  height: 75px;
-  backdrop-filter: blur(0px);
-}
-
-.buttons {
-  display: flex;
 }
 
 .navButton {
@@ -347,6 +339,5 @@ export default {
   transition: 0.5s;
   border: none;
   padding: 13px 13px 13px 13px;
-  backdrop-filter: blur(0px);
 }
 </style>
