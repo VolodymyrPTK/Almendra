@@ -9,14 +9,17 @@
           <div class="status-line">
             <div class="status-point"
               :class="{ active: order.orderStatus === 'Processing' || order.orderStatus === 'Received' || order.orderStatus === 'Shipped' }">
+              <img style="height: 1vw;" src="../assets/imgs/icons/done.svg" alt="">
             </div>
             <div class="status-line-segment"
               :class="{ active: order.orderStatus === 'Shipped' || order.orderStatus === 'Received' }">
             </div>
             <div class="status-point"
-              :class="{ active: order.orderStatus === 'Shipped' || order.orderStatus === 'Received' }"></div>
+              :class="{ active: order.orderStatus === 'Shipped' || order.orderStatus === 'Received' }"><img
+                style="height: 1vw;" src="../assets/imgs/icons/done.svg" alt=""></div>
             <div class="status-line-segment" :class="{ active: order.orderStatus === 'Received' }"></div>
-            <div class="status-point" :class="{ active: order.orderStatus === 'Received' }"></div>
+            <div class="status-point" :class="{ active: order.orderStatus === 'Received' }"><img style="height: 1vw;"
+                src="../assets/imgs/icons/done.svg" alt=""></div>
           </div>
         </div>
         <table v-if="orderDetails === order.id">
@@ -38,8 +41,8 @@
           </tbody>
         </table>
       </div>
-
     </div>
+
     <div class="user">
 
       <div class="profile">
@@ -170,7 +173,6 @@ import {
   setDoc, addDoc, doc, getDoc, getDocs, query, where, onSnapshot, increment, collection, deleteDoc, updateDoc,
 } from "firebase/firestore";
 import { orderReg, profileReg, db } from "../main";
-import { ref } from 'vue';
 
 const apiKey = "0fe8dfcca7f61242d252e83fd715eaf2";
 const endpointRef = "https://api.novaposhta.ua/v2.0/json/";
@@ -393,12 +395,9 @@ export default {
     );
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
-      this.orderId = querySnapshot.docs[0].id;
-      onSnapshot(orderReg, (snapshot) => {
-        this.orders = [];
-        snapshot.docs.forEach((doc) => {
-          this.orders.push({ ...doc.data(), id: doc.id });
-        });
+      this.orders = [];
+      querySnapshot.docs.forEach((doc) => {
+        this.orders.push({ ...doc.data(), id: doc.id });
       });
     }
   },
@@ -756,8 +755,11 @@ td {
 }
 
 .status-point {
-  width: 10px;
-  height: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5vw;
+  height: 1.5vw;
   border-radius: 50%;
   background-color: #ccc;
 }

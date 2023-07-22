@@ -184,9 +184,7 @@
 <script>
 import { RouterLink } from "vue-router";
 import { getAuth } from "firebase/auth";
-import {
-  setDoc, addDoc, doc, getDoc, getDocs, query, where, onSnapshot, increment, collection, deleteDoc, updateDoc,
-} from "firebase/firestore";
+import { setDoc, doc, getDoc, getDocs, query, where, onSnapshot, increment, collection, deleteDoc, updateDoc, orderBy, limit } from "firebase/firestore";
 import { profileReg, cartReg, dataBase, db, orderReg } from "../main";
 
 const apiKey = "0fe8dfcca7f61242d252e83fd715eaf2";
@@ -201,7 +199,6 @@ export default {
     return {
       products: [],
       product: {},
-      profiles: [],
       profile: {},
       cartProducts: [],
       items: [],
@@ -464,7 +461,7 @@ export default {
       const cartId = this.cartId;
       console.log(cartId)
       const items = this.items;
-      const userData = this.profile;
+      const userData = this.profiles;
       const time = new Date().toLocaleString("en-US", {
         day: "2-digit",
         month: "2-digit",
@@ -474,8 +471,17 @@ export default {
         minute: "2-digit",
       });
 
-      // Create a new order document
+      // Get the last order document
+      const queryD = query(orderReg, orderBy("orderId", "desc"), limit(1));
+      const querySnapshot = await getDocs(queryD);
+      let lastId = 0;
+      querySnapshot.forEach((doc) => {
+        // Get the id of the last order
+        lastId = doc.data().orderId;
+      });
+      // Create a new order document with id = lastId + 1
       const order = {
+        orderId: lastId + 1,
         uid: this.profile.uid,
         items,
         userData,
