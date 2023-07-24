@@ -104,28 +104,27 @@ export default {
 <style scoped lang="scss">
 .buy-button {
   margin-top: 5px;
-  height: 50px;
-  width: 290px;
+  height: 2.5vw;
+  width: 15vw;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 -2px 3px rgba(255, 255, 255, 1);
-  font-size: 24px;
+  font-size: 1.4vw;
   border-radius: 25px;
   background-color: rgb(255, 255, 255);
-  box-shadow: rgba(0, 0, 0, 0.4) 0px 5px 10px,
-    rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.4);
   border: none;
-  transition: 0.3s;
+  transition: 0.2s;
 }
 
 .buy-button:hover {
   box-shadow: rgba(0, 0, 0, 0.4) 0px 15px 15px,
     rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
-  transition: 0.3s;
+  transition: 0.2s;
 }
 
 .buy-button:active {
   box-shadow: rgba(0, 0, 0, 0.4) 0px 5px 5px,
     rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
-  transition: 0.3s;
+  transition: 0.2s;
 }
 </style>

@@ -3,23 +3,50 @@
     <div class="orders">
       <div class="order-container" v-for="order in orders" :key="order.id">
         <div @click="showDetails(order)" class="order-row">
-          <div>{{ order.time }}</div>
-          <div>{{ order.orderStatus }}</div>
-          <div>{{ order.total }}</div>
+
+
+          <div><b>Замовлення:</b> {{ order.orderId }}</div>
+          <div><b>Дата:</b> {{ order.time }}</div>
+          <div><b>Сума:</b> {{ order.total }}</div>
           <div class="status-line">
-            <div class="status-point"
-              :class="{ active: order.orderStatus === 'Processing' || order.orderStatus === 'Received' || order.orderStatus === 'Shipped' }">
-              <img style="height: 1vw;" src="../assets/imgs/icons/done.svg" alt="">
+            <!-- Processing -->
+            <div class="status-point-container">
+              <div class="status-point"
+                :class="{ active: order.orderStatus === 'Processing' || order.orderStatus === 'Preparing' || order.orderStatus === 'Received' || order.orderStatus === 'Shipped' }">
+              </div>
+              <div class="status-text">Обробка</div>
             </div>
+
+            <!-- Preparing -->
+            <div class="status-point-container">
+              <div class="status-point"
+                :class="{ active: order.orderStatus === 'Preparing' || order.orderStatus === 'Shipped' || order.orderStatus === 'Received' }">
+              </div>
+              <div class="status-text">Пакування</div>
+            </div>
+
+            <!-- Shipped -->
             <div class="status-line-segment"
-              :class="{ active: order.orderStatus === 'Shipped' || order.orderStatus === 'Received' }">
+              :class="{ active: order.orderStatus === 'Shipped' || order.orderStatus === 'Received' }"></div>
+            <div class="status-point-container">
+              <div class="status-point"
+                :class="{ active: order.orderStatus === 'Shipped' || order.orderStatus === 'Received' }">
+              </div>
+              <div class="status-text">Відправлено</div>
             </div>
-            <div class="status-point"
-              :class="{ active: order.orderStatus === 'Shipped' || order.orderStatus === 'Received' }"><img
-                style="height: 1vw;" src="../assets/imgs/icons/done.svg" alt=""></div>
+
+            <!-- Delivered -->
             <div class="status-line-segment" :class="{ active: order.orderStatus === 'Received' }"></div>
-            <div class="status-point" :class="{ active: order.orderStatus === 'Received' }"><img style="height: 1vw;"
-                src="../assets/imgs/icons/done.svg" alt=""></div>
+            <div class="status-point-container">
+              <div class="status-point" :class="{ active: order.orderStatus === 'Received' }">
+                <img style="height: 0.7vw;" src="../assets/imgs/icons/done.svg" alt="">
+              </div>
+              <div class="status-text">Доставлено</div>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: center;">
+            <div style="font-size: 0.8vw;">Розгорнути</div>
+            <img src="../assets/imgs/icons/expand.svg" alt="">
           </div>
         </div>
         <table v-if="orderDetails === order.id">
@@ -40,6 +67,7 @@
             </tr>
           </tbody>
         </table>
+
       </div>
     </div>
 
@@ -80,13 +108,13 @@
 
         <div class="delivery-adress" v-if="!expandedNovaPoshta && !expandedUkrPoshta">
           <div class="expanded" v-if="profile.deliveryOption === 'novaPoshta'">
-            <div style="font-weight: bold; font-size: 21px; margin-bottom: 5px;">Нова Пошта</div>
+            <div style="font-weight: bold; font-size: 1vw; margin-bottom: 5px;">Нова Пошта</div>
             <div><b>Місто:</b> {{ profile.city }}</div>
             <div><b>Віділеня:</b> {{ profile.warehouse }}</div>
           </div>
 
           <div class="expanded" v-else-if="profile.deliveryOption === 'ukrPoshta'">
-            <div style="font-weight: bold; font-size: 21px; margin-bottom: 5px;">УкрПошта</div>
+            <div style="font-weight: bold; font-size: 1.3vw; margin-bottom: 5px;">УкрПошта</div>
             <div><b>Місто:</b> {{ profile.city }}</div>
             <div><b>Індекс:</b> {{ profile.cityIndex }}</div>
           </div>
@@ -98,7 +126,7 @@
 
         <div style="display: flex; flex-direction: column; align-items: center;"
           v-if="!expandedNovaPoshta && !expandedUkrPoshta">
-          <div style="font-weight: bold; font-size: 21px; margin: 5px 0;"
+          <div style="font-weight: bold; font-size: 1.1vw; margin: 5px 0;"
             v-if="profile.deliveryOption === 'ukrPoshta' || profile.deliveryOption === 'novaPoshta'">Вибрати іншу адресу
           </div>
           <div class="delivery-options">
@@ -528,20 +556,30 @@ h3 {
 }
 
 .cart-img {
-  height: 100px;
+  height: 7vw;
   border-radius: 25px;
   cursor: pointer;
   box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3), 0 -1px 20px rgba(0, 0, 0, 0.2);
 }
 
 .orders {
+  display: flex;
+  flex-direction: column;
+
   width: 100%;
+  overflow: scroll;
+  overflow-y: scroll;
+  scroll-behavior: smooth;
   border-radius: 25px;
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
   background-color: rgba(253, 253, 253, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.125);
   margin: 10px;
   padding: 25px;
+}
+
+.orders::-webkit-scrollbar {
+  display: none;
 }
 
 .user {
@@ -554,8 +592,8 @@ h3 {
 }
 
 .profile {
-  height: 350px;
-  width: 275px;
+  height: 20vw;
+  width: 20vw;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -564,11 +602,12 @@ h3 {
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
   background-color: rgba(253, 253, 253, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.125);
+  font-size: 1vw;
 }
 
 .adress {
-  height: 350px;
-  width: 275px;
+  height: 20vw;
+  width: 20vw;
   margin-top: 20px;
   display: flex;
   flex-direction: column;
@@ -577,18 +616,19 @@ h3 {
   border-radius: 25px;
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
   background-color: rgba(253, 253, 253, 0.75);
+  font-size: 1vw;
 }
 
 .delivery-adress {
   background-color: #fff;
   border-radius: 25px;
   border: 2px solid rgba(78, 78, 78, 0.15);
-  font-size: 18px;
+  font-size: 1.1vw;
 }
 
 .profilePic {
-  height: 100px;
-  width: 100px;
+  height: 5vw;
+  width: 5vw;
   border-radius: 100px;
   border: 5px solid white;
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4);
@@ -600,7 +640,7 @@ h3 {
   border: none;
   border-radius: 25px;
   width: 100px;
-  padding: 13px 13px 13px 13px;
+  padding: 0.5vw;
   margin: 10px;
   box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
   background-color: white;
@@ -719,17 +759,6 @@ input[id="radio-2"] {
   transition: 0.25s ease-out;
 }
 
-table {
-  border-collapse: collapse;
-  width: 100%;
-}
-
-th,
-td {
-  padding: 8px;
-  border: 1px solid black;
-}
-
 .order-container {
   border-radius: 25px;
   box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
@@ -741,41 +770,83 @@ td {
 .order-row {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+}
+
+table td:nth-child(1) {
+  text-align: left;
+}
+
+table td:nth-child(2) {
+  text-align: center;
+  width: 20%;
+}
+
+table td:nth-child(3) {
+  text-align: center;
+  width: 20%;
+}
+
+table td:nth-child(4) {
+  text-align: center;
+  width: 20%;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1vw 0 1vw 0;
+}
+
+th {
+  background-color: rgb(231, 231, 231);
 }
 
 tr,
 th,
 td {
   border: none;
+  padding: 0.2vw;
+  text-align: center;
+}
+
+tr:nth-child(even) {
+  background-color: rgb(231, 231, 231);
 }
 
 .status-line {
   display: flex;
+  align-items: flex-start;
+}
+
+.status-point-container {
+  width: 4.5vw;
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  margin: 0 1vw;
 }
 
 .status-point {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.5vw;
-  height: 1.5vw;
+  width: 1.3vw;
+  height: 1.3vw;
   border-radius: 50%;
   background-color: #ccc;
+  box-shadow: inset 0 3px 4px rgba(0, 0, 0, 0.3);
 }
 
 .status-point.active {
-  background-color: green;
+  background-color: rgb(27, 233, 0);
+  box-shadow: inset 0 3px 4px rgba(0, 0, 0, 0.3);
 }
 
-.status-line-segment {
-  margin: 0 0.1vw;
-  width: 5vh;
-  height: 0.2vw;
-  background-color: #ccc;
-}
 
-.status-line-segment.active {
-  background-color: green;
+.status-text {
+  margin-top: 0.5vw;
+  font-size: 0.8vw;
+  text-align: center;
 }
 </style>

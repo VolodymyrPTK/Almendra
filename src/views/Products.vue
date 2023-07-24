@@ -1,44 +1,45 @@
 <template>
   <div class="products">
     <div v-if="isVisible" class="addproduct">
-      <div class="inputs">
+      <div class="top-inputs">
         <input type="text" v-model="product.name" placeholder="Назва товару" />
-        <input type="text" v-model="product.detail" placeholder="Деталі" />
+        <input type="text" v-model="product.detail" placeholder="Опис" />
+
+        <div class="file-upload">
+          <input type="file" @change="uploadImage" />
+          <img class="btnimg" src="../assets/btnimg.png" alt="icon" />
+        </div>
         <input type="number" v-model="product.buyPrice" placeholder="Ціна Купівлі" />
         <input type="number" v-model="product.sellPrice" placeholder="Ціна Продажу" />
+        <div class="markUp"> Націнка: {{ markUpPercent }}%</div>
       </div>
-      <textarea type="text" v-model="product.description" placeholder="Опис"></textarea>
-      <textarea type="text" v-model="product.sklad" placeholder="Склад"></textarea>
-      <div class="inputs">
-        <div>
-          <div class="kcal">
-            <input type="number" v-model="product.kcal" placeholder="kcal" />
-            <input type="number" v-model="product.fat" placeholder="жири" />
-            <input type="number" v-model="product.carbo" placeholder="вуглеводи" />
-            <input type="number" v-model="product.protein" placeholder="білки" />
-            <input type="text" v-model="product.vitamins" placeholder="вітаміни" />
-          </div>
-          <div class="kcal">
-            <select v-model="product.country">
-              <option disabled value="">Країна</option>
-              <option v-for="country in countries">{{ country.id }}</option>
-            </select>
-            <select v-model="product.brand">
-              <option disabled value="">Бренд</option>
-              <option v-for="brand in brands">{{ brand.id }}</option>
-            </select>
-            <select class="menus" v-model="product.category">
-              <option disabled value="">Категорія</option>
-              <option v-for="category in categories">{{ category.id }}</option>
-            </select>
-            <div class="file-upload">
-              <input type="file" @change="uploadImage" />
-              <img class="btnimg" src="../assets/btnimg.png" alt="icon" />
-            </div>
-          </div>
-        </div>
+      <div style="display: flex;">
+        <textarea type="text" v-model="product.description" placeholder="Опис"></textarea>
+        <textarea type="text" v-model="product.sklad" placeholder="Склад"></textarea>
       </div>
-      <div class="center-flex">
+      <div class="midle-inputs">
+        <input type="text" v-model="product.weight" placeholder="Вага" />
+        <input type="number" v-model="product.kcal" placeholder="Kcal" />
+        <input type="number" v-model="product.fat" placeholder="Жири" />
+        <input type="number" v-model="product.carbo" placeholder="Вуглеводи" />
+        <input type="number" v-model="product.protein" placeholder="Білки" />
+      </div>
+      <input style="width: 50vw;" type="text" v-model="product.vitamins" placeholder="Вітаміни" />
+      <div>
+        <select v-model="product.country">
+          <option disabled value="">Країна</option>
+          <option v-for="country in countries">{{ country.id }}</option>
+        </select>
+        <select v-model="product.brand">
+          <option disabled value="">Бренд</option>
+          <option v-for="brand in brands">{{ brand.id }}</option>
+        </select>
+        <select class="menus" v-model="product.category">
+          <option disabled value="">Категорія</option>
+          <option v-for="category in categories">{{ category.id }}</option>
+        </select>
+      </div>
+      <div>
         <div>
           <input type="checkbox" class="checkbox" v-model="product.freeGluten" />
           <label for="checkbox">Free gluten</label>
@@ -56,16 +57,17 @@
           <label for="checkbox">Protein</label>
         </div>
       </div>
-      <button class="productbutton" @click="saveData">Зберегти</button>
-      <button class="productbutton" @click="toggleModal">Закрити</button>
+      <div>
+        <button @click="saveData">Зберегти</button>
+        <button @click="toggleModal">Закрити</button>
+      </div>
     </div>
+
     <div class="productlist">
       <div class="list-header">
-        <button class="productbutton" @click="toggleModal">
-          Створити продукт
-        </button>
+        <button @click="toggleModal"> Створити продукт </button>
         <div class="center-flex">
-          <input class="searchInput" v-model="searchTerm" placeholder="Шукати" />
+          <input class="searchInput" v-model="searchTerm" placeholder="Пошук" />
           <input type="text" v-model="category" @keyup.enter="saveCategory()" placeholder="Нова Категорія" />
           <input type="text" v-model="brand" @keyup.enter="saveBrand()" placeholder="Новий Бренд" />
           <input type="text" v-model="country" @keyup.enter="saveCountry()" placeholder="Новий Країна" />
@@ -93,7 +95,7 @@
             <td v-bind:title="product.sellPrice">{{ product.sellPrice }}</td>
             <td>
               <button class="deleteButton" @click="deleteProduct(product.id)">
-                Видалити
+                <img src="../assets/imgs/icons/delete.svg" alt="">
               </button>
             </td>
           </tr>
@@ -135,8 +137,8 @@ export default {
       product: {
         name: "",
         detail: "",
-        sellPrice: 0,
-        buyPrice: 0,
+        sellPrice: "  ",
+        buyPrice: "",
         description: "",
         sklad: "",
         kcal: "",
@@ -154,23 +156,12 @@ export default {
         vegan: false,
         raw: false,
         protein: false,
+        weight: ""
       },
       modalVisible: false,
       isVisible: false,
       searchTerm: "",
     };
-  },
-  computed: {
-    currentProduct() {
-      return this.products.find(
-        (product) => product.id === this.currentProductId
-      );
-    },
-    filteredProducts() {
-      return this.products.filter((product) =>
-        product.name.toLowerCase().includes(this.searchTerm.toLowerCase())
-      );
-    },
   },
   methods: {
     openModal(id) {
@@ -261,6 +252,22 @@ export default {
       });
     });
   },
+  computed: {
+    currentProduct() {
+      return this.products.find(
+        (product) => product.id === this.currentProductId
+      );
+    },
+    filteredProducts() {
+      return this.products.filter((product) =>
+        product.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+    },
+    markUpPercent() {
+      const markupPercent = ((this.product.sellPrice - this.product.buyPrice) / this.product.buyPrice) * 100;
+      return markupPercent.toFixed(2);
+    },
+  },
 };
 </script>
 
@@ -271,15 +278,20 @@ export default {
 }
 
 .addproduct {
-  width: 30%;
+  align-self: center;
+  position: absolute;
+  padding: 1vw;
+  margin: 1.5vw;
+  width: 75%;
+  height: 75%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-around;
   border-radius: 25px;
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
-  background-color: rgba(253, 253, 253, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.125);
+  background-color: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(15px);
 }
 
 .productlist {
@@ -292,7 +304,6 @@ export default {
   background-color: rgba(253, 253, 253, 0.75);
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.125);
-  margin-left: 20px;
 }
 
 .list-header {
@@ -310,180 +321,92 @@ export default {
   transition: 0.5s;
   border: none;
   background-color: white;
-  backdrop-filter: blur(0px);
 }
 
 .productImage {
   width: 40px;
 }
 
-.inputs {
-  justify-content: space-around;
+.top-inputs {
   display: flex;
-  width: 95%;
-  margin: 20px 0 20px 0;
+  justify-content: space-around;
+  align-items: center;
+
+  input {
+    &:first-child {
+      width: 20vw;
+    }
+  }
 }
 
-input {
-  text-align: center;
-  height: 40px;
-  width: 40%;
-  border-radius: 25px;
-  border: none;
-  box-shadow: 4px 4px 4px rgb(200, 200, 200) inset,
-    -4px -4px 4px rgb(255, 255, 255) inset;
-  background-color: transparent;
-  margin: 0 5px 0 5px;
-}
+.midle-inputs {
+  display: flex;
 
-select {
-  text-align: center;
-  height: 40px;
-  width: 30%;
-  border-radius: 25px;
-  border: none;
-  box-shadow: 4px 4px 4px rgb(200, 200, 200) inset,
-    -4px -4px 4px rgb(255, 255, 255) inset;
-  background-color: transparent;
-  margin: 0 5px 0 5px;
+  input {
+    width: 10vw;
+  }
 }
 
 textarea {
-  text-align: center;
-  width: 90%;
-  max-width: 90%;
-  min-width: 50%;
-  height: 200px;
-  max-height: 300px;
-  min-height: 200px;
-  border-radius: 25px;
-  border: none;
-  box-shadow: 4px 4px 4px rgb(200, 200, 200) inset,
-    -4px -4px 4px rgb(255, 255, 255) inset;
-  background-color: transparent;
+  width: 35vw;
+  height: 30vh;
 }
 
-.productbutton {
-  max-width: 300px;
-  font-family: "roboto", sans-serif;
-  font-size: 15px;
-  text-align: center;
+input,
+textarea {
   border: none;
-  border-radius: 25px;
-  width: 50%;
-  padding: 13px 13px 13px 13px;
-  margin: 10px;
-  background-color: transparent;
-  box-shadow: 4px 4px 4px rgb(200, 200, 200), -4px -4px 4px rgb(255, 255, 255);
-  transition: 0.3s;
-  text-decoration: none;
-  background-color: white;
+  padding: 0.5vw;
+  margin: 0.5vw;
   color: black;
-  cursor: pointer;
+  font-size: 1vw;
+  text-decoration: none;
+  text-align: center;
+  border-radius: 25px;
+  box-shadow: inset 0px 5px 5px rgba(0, 0, 0, 0.3);
+  background-color: rgb(255, 255, 255);
 }
 
-.productbutton:hover {
-  transition: 0.3s;
-  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3),
-    inset 0px 0px 0px rgba(0, 0, 0, 0.3);
-}
+button,
+select {
+  border: none;
+  padding: 0.5vw;
+  margin: 0.5vw;
+  color: black;
+  font-size: 1vw;
+  text-decoration: none;
+  text-align: center;
+  border-radius: 25px;
+  box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.3), inset 0 0 0 rgba(0, 0, 0, 0.3);
+  background-color: rgb(255, 255, 255);
 
-.productbutton:active {
-  box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3),
-    inset 0px 3px 5px rgba(0, 0, 0, 0.3);
-  transition: 0.1s;
+  :hover {
+    box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3), inset 0 0 0 rgba(0, 0, 0, 0.3);
+    transition: 0.3s;
+  }
+
+  :active {
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0.3), inset 0 3px 3px rgba(0, 0, 0, 0.3);
+    transition: 0.3s;
+  }
 }
 
 .deleteButton {
-  width: 90px;
-  height: 30px;
+  width: 2vw;
+  height: 2vw;
   border: none;
   border-radius: 50px;
-  font-size: 15px;
-}
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-.deleteButton:hover {
-  background-color: rgb(250, 108, 108);
-  transition: 0.5s;
-}
-
-.deleteButton:active {
-  background-color: rgb(255, 42, 42);
-  transition: 0.5s;
-}
-
-.fixed_headers {
-  width: 90%;
-  height: 90%;
-  border-collapse: collapse;
-
-  th {
-    text-decoration: underline;
+  :hover {
+    background-color: rgb(250, 108, 108);
+    transition: 0.5s;
   }
 
-  th,
-  td {
-    padding: 5px;
-    text-align: left;
-    vertical-align: middle;
-  }
-
-  td:nth-child(1),
-  th:nth-child(1) {
-    width: 15%;
-  }
-
-  td:nth-child(2),
-  th:nth-child(2) {
-    width: 35%;
-  }
-
-  td:nth-child(3),
-  th:nth-child(3) {
-    width: 25%;
-  }
-
-  td:nth-child(4),
-  th:nth-child(4) {
-    width: 10%;
-  }
-
-  td:nth-child(5),
-  th:nth-child(5) {
-    width: 10%;
-  }
-
-  td:nth-child(6),
-  th:nth-child(6) {
-    width: 7%;
-  }
-
-  thead {
-    background-color: rgb(177, 177, 177);
-    color: #fdfdfd;
-
-    tr {
-      display: flex;
-    }
-  }
-
-  .tableline {
-    font-size: 18px;
-  }
-
-  .tableline:hover {
-    transition: 0.1s;
-    background-color: rgb(212, 212, 212);
-  }
-
-  tbody {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-
-    tr:nth-child(even) {
-      background-color: rgb(228, 228, 228);
-    }
+  :active {
+    background-color: rgb(255, 42, 42);
+    transition: 0.5s;
   }
 }
 
@@ -531,10 +454,91 @@ label {
   margin-right: 5px;
 }
 
-.kcal {
+.markUp {
   display: flex;
-  justify-content: center;
   align-items: center;
-  margin-top: 10px;
+  justify-content: center;
+  text-align: center;
+  background-color: rgb(255, 255, 255);
+  padding: 0.5vw;
+  width: 5vw;
+  border-radius: 25px;
+}
+
+//table
+
+.fixed_headers {
+  width: 90%;
+  height: 90%;
+  border-collapse: collapse;
+
+  th {
+    text-decoration: underline;
+  }
+
+  th,
+  td {
+    padding: 5px;
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  td:nth-child(1),
+  th:nth-child(1) {
+    width: 15%;
+  }
+
+  td:nth-child(2),
+  th:nth-child(2) {
+    width: 35%;
+  }
+
+  td:nth-child(3),
+  th:nth-child(3) {
+    width: 25%;
+  }
+
+  td:nth-child(4),
+  th:nth-child(4) {
+    width: 10%;
+  }
+
+  td:nth-child(5),
+  th:nth-child(5) {
+    width: 10%;
+  }
+
+  td:nth-child(6),
+  th:nth-child(6) {
+    width: 5vw;
+  }
+
+  thead {
+    background-color: rgb(177, 177, 177);
+    color: #fdfdfd;
+
+    tr {
+      display: flex;
+    }
+  }
+
+  .tableline {
+    font-size: 18px;
+  }
+
+  .tableline:hover {
+    transition: 0.1s;
+    background-color: rgb(212, 212, 212);
+  }
+
+  tbody {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    tr:nth-child(even) {
+      background-color: rgb(228, 228, 228);
+    }
+  }
 }
 </style>

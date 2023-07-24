@@ -6,27 +6,12 @@
         <h5>Загальні затрати: {{ spent }}</h5>
         <h5>Загальна вартість: {{ value }}</h5>
         <label for="buy">Ціна Купівлі</label>
-        <input
-          id="buy"
-          type="number"
-          v-model="product.buyPrice"
-          placeholder="Ціна Купівлі"
-        /><br />
+        <input id="buy" type="number" v-model="product.buyPrice" placeholder="Ціна Купівлі" /><br />
         <label for="sell">Ціна Продажу</label>
-        <input
-          id="sell"
-          type="number"
-          v-model="product.sellPrice"
-          placeholder="Ціна Продажу"
-        /><br />
+        <input id="sell" type="number" v-model="product.sellPrice" placeholder="Ціна Продажу" /><br />
         <h3>Націнка: {{ markup }} %</h3>
         <label for="quantity">Кількість</label>
-        <input
-          id="quantity"
-          type="number"
-          v-model="product.quantity"
-          placeholder="Кількість"
-        /><br />
+        <input id="quantity" type="number" v-model="product.quantity" placeholder="Кількість" /><br />
       </div>
       <div class="modal-buttons">
         <button class="productbutton" @click="updateData()">Зберегти</button>
@@ -70,9 +55,7 @@ export default {
     },
   },
   computed: {
-    value() {
-      return this.product.sellPrice * this.product.quantity.toFixed(2);
-    },
+
   },
 };
 </script>

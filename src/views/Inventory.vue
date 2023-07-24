@@ -16,12 +16,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr
-            class="tableline"
-            @dblclick="openModal(product.id)"
-            v-for="product in filteredProducts"
-            :key="product.id"
-          >
+          <tr class="tableline" @click="openModal(product.id)" v-for="product in filteredProducts" :key="product.id">
             <td>
               <img class="productImage" :src="product.image" />
             </td>
@@ -34,15 +29,8 @@
         </tbody>
       </table>
     </div>
-    <InventoryModal
-      v-if="modalVisible"
-      :visible="modalVisible"
-      :product="currentProduct"
-      :categories="categories"
-      :brands="brands"
-      :countries="countries"
-      @close="modalVisible = false"
-    />
+    <InventoryModal v-if="modalVisible" :visible="modalVisible" :product="currentProduct" :categories="categories"
+      :brands="brands" :countries="countries" @close="modalVisible = false" />
   </div>
 </template>
 

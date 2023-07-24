@@ -12,9 +12,7 @@ import { RouterView } from "vue-router";
         <RouterLink class="navButton" to="/admin/products">Продукти</RouterLink>
       </li>
       <li>
-        <RouterLink class="navButton" to="/admin/inventory"
-          >Iнвентар</RouterLink
-        >
+        <RouterLink class="navButton" to="/admin/inventory">Iнвентар</RouterLink>
       </li>
       <li>
         <RouterLink class="navButton" to="/admin/clients">Кліенти</RouterLink>
@@ -32,53 +30,50 @@ import { RouterView } from "vue-router";
 <style scoped>
 .admin {
   display: flex;
-  border-radius: 25px;
 }
 
 .menu {
-  text-align: center;
   display: flex;
   flex-direction: column;
-  height: 800px;
-  width: 12%;
+  height: 43vw;
+  width: 10%;
+  margin: 0;
+  padding: 0.2vw;
+  text-align: center;
   border-radius: 25px;
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
   background-color: rgba(253, 253, 253, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.125);
-  margin: 0;
 }
 
 .admincontent {
   display: flex;
   justify-content: center;
   width: 90%;
-  height: 800px;
-  margin-left: 20px;
+  height: 43vw;
+  margin-left: 15px;
 }
 
 .navButton {
-  text-align: center;
-  width: 75%;
-  border: none;
-  padding: 13px 13px 13px 13px;
-  margin: 15px 0 0 0;
   display: inline-block;
+  width: 75%;
+  padding: 0.5vw;
+  margin: 0.5vw;
+  color: black;
+  font-size: 1vw;
   text-decoration: none;
   border-radius: 25px;
-  background: linear-gradient(white, rgb(233, 233, 233));
-  box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.3);
-  text-decoration: none;
-  color: black;
-  transition: ease-in-out 0.5s;
+  box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.3), inset 0 0 0 rgba(0, 0, 0, 0.3);
+  transition: 0.3s;
 }
 
 .navButton:hover {
-  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3), inset 0 0 0 rgba(0, 0, 0, 0.3);
+  transition: 0.3s;
 }
 
 .navButton:active {
-  box-shadow: inset 0 3px 3px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(rgb(233, 233, 233), white);
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0.3), inset 0 3px 3px rgba(0, 0, 0, 0.3);
+  transition: 0.3s;
 }
 
 ul {

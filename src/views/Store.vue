@@ -13,15 +13,20 @@
 
     <section class="products" v-if="products.length > 0">
       <div class="productCard" v-for="product in products" :key="product.id">
+
         <RouterLink :to="'/product/' + product.id">
           <img class="productImage" :src="product.image" />
-          <h3 style="height: 44px">{{ product.name }}</h3>
+          <h3>{{ product.name }}</h3>
           <h3>₴ {{ product.sellPrice }}.00</h3>
         </RouterLink>
-        <AddToCart :product-id="product.id" :sellPrice="product.sellPrice" :image="product.image" :name="product.name">
+
+        <AddToCart class="add-to-cart" :product-id="product.id" :sellPrice="product.sellPrice" :image="product.image"
+          :name="product.name">
         </AddToCart>
+
       </div>
     </section>
+
   </div>
 </template>
 
@@ -161,10 +166,11 @@ label {
   align-items: center;
   text-align: center;
   text-decoration: none;
-  width: 290px;
-  height: 350px;
-  margin: 40px 10px 50px 10px;
-  background: #f0f0f0;
+  font-size: 1vw;
+  width: 15vw;
+  height: 20vw;
+  margin: 0vw 0.5vw 5.6vw 0.5vw;
+  background: #ffffff;
   border-radius: 25px;
   box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px,
     rgba(0, 0, 0, 0.3) 0px 7px 13px -3px,
@@ -184,8 +190,16 @@ label {
 }
 
 .productImage {
-  height: 280px;
-  filter: drop-shadow(0 25px 20px rgba(0, 0, 0, 0.5));
-  margin-top: -50px;
+  height: 18vw;
+  filter: drop-shadow(0 0.7vw 0.5vw rgba(0, 0, 0, 0.7));
+  margin-top: -2vw;
+}
+
+h3 {
+  margin: 0.2vw;
+}
+
+.add-to-cart {
+  margin-top: 0.6vw;
 }
 </style>

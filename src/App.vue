@@ -40,28 +40,6 @@ body {
 }
 
 .home {
-  margin-top: 40px;
   width: 90%;
-}
-
-h1,
-h2,
-h3,
-h4 {
-  color: rgb(1, 37, 46);
-}
-
-.main-cart {
-  margin-top: 150px;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s;
-}
-
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
 }
 </style>
