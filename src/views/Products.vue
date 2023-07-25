@@ -94,9 +94,9 @@
             <td v-bind:title="product.category">{{ product.category }}</td>
             <td v-bind:title="product.sellPrice">{{ product.sellPrice }}</td>
             <td>
-              <button class="deleteButton" @click="deleteProduct(product.id)">
+              <div class="deleteButton" @click="deleteProduct(product.id)">
                 <img src="../assets/imgs/icons/delete.svg" alt="">
-              </button>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -167,6 +167,18 @@ export default {
     openModal(id) {
       this.modalVisible = true;
       this.currentProductId = id;
+      this.product = {};
+      this.fetchData(id);
+    },
+    async fetchData(id) {
+      const productRef = doc(dataBase, id);
+      if (!productRef.exists) {
+        this.product = {};
+        return;
+      }
+
+      const product = await productRef.get();
+      this.product = product.data() || {};
     },
     toggleModal() {
       this.isVisible = !this.isVisible;
@@ -399,12 +411,12 @@ select {
   align-items: center;
   justify-content: center;
 
-  :hover {
+  &:hover {
     background-color: rgb(250, 108, 108);
     transition: 0.5s;
   }
 
-  :active {
+  &:active {
     background-color: rgb(255, 42, 42);
     transition: 0.5s;
   }

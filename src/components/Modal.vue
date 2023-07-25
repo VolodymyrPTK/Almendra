@@ -1,66 +1,64 @@
 <template>
   <div class="modal" v-if="visible" :key="product.id">
-    <div class="modal-container">
-      <div class="inputs">
-        <input type="text" v-model="product.name" placeholder="Назва товару" />
-        <input type="text" v-model="product.detail" placeholder="Деталі" />
-        <input type="number" v-model="product.sellPrice" placeholder="Ціна" />
+    <div class="top-inputs">
+      <input type="text" v-model="product.name" placeholder="Назва товару" />
+      <input type="text" v-model="product.detail" placeholder="Опис" />
+
+      <div class="file-upload">
+        <input type="file" @change="uploadImage" />
+        <img class="btnimg" src="../assets/btnimg.png" alt="icon" />
       </div>
+      <input type="number" v-model="product.buyPrice" placeholder="Ціна Купівлі" />
+      <input type="number" v-model="product.sellPrice" placeholder="Ціна Продажу" />
+      <div class="markUp"> Націнка: {{ markUpPercent }}%</div>
+    </div>
+    <div style="display: flex;">
       <textarea type="text" v-model="product.description" placeholder="Опис"></textarea>
       <textarea type="text" v-model="product.sklad" placeholder="Склад"></textarea>
-      <div class="inputs">
-        <div>
-          <div class="kcal">
-            <input type="number" v-model="product.kcal" placeholder="kcal" />
-            <input type="number" v-model="product.fat" placeholder="жири" />
-            <input type="number" v-model="product.carbo" placeholder="вуглеводи" />
-            <input type="number" v-model="product.protein" placeholder="білки" />
-            <input type="text" v-model="product.vitamins" placeholder="вітаміни" />
-          </div>
-          <div class="kcal">
-            <select v-model="product.country">
-              <option disabled value="">Країна</option>
-              <option v-for=" country  in  countries " :value="country.id">
-                {{ country.id }}
-              </option>
-            </select>
-            <select v-model="product.brand">
-              <option disabled value="">Бренд</option>
-              <option v-for=" brand  in  brands " :value="brand.id">
-                {{ brand.id }}
-              </option>
-            </select>
-            <select class="menus" v-model="product.category">
-              <option disabled value="">Категорія</option>
-              <option v-for=" category  in  categories " :value="category.id">
-                {{ category.id }}
-              </option>
-            </select>
-            <div class="file-upload">
-              <input type="file" @change="uploadImage" />
-              <img class="btnimg" src="../assets/btnimg.png" alt="icon" />
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="chekBoxes">
+    </div>
+    <div class="midle-inputs">
+      <input type="text" v-model="product.weight" placeholder="Вага" />
+      <input type="number" v-model="product.kcal" placeholder="Kcal" />
+      <input type="number" v-model="product.fat" placeholder="Жири" />
+      <input type="number" v-model="product.carbo" placeholder="Вуглеводи" />
+      <input type="number" v-model="product.protein" placeholder="Білки" />
+    </div>
+    <input style="width: 50vw;" type="text" v-model="product.vitamins" placeholder="Вітаміни" />
+    <div>
+      <select v-model="product.country">
+        <option disabled value="">Країна</option>
+        <option v-for="country in countries">{{ country.id }}</option>
+      </select>
+      <select v-model="product.brand">
+        <option disabled value="">Бренд</option>
+        <option v-for="brand in brands">{{ brand.id }}</option>
+      </select>
+      <select class="menus" v-model="product.category">
+        <option disabled value="">Категорія</option>
+        <option v-for="category in categories">{{ category.id }}</option>
+      </select>
+    </div>
+    <div>
+      <div>
         <input type="checkbox" class="checkbox" v-model="product.freeGluten" />
         <label for="checkbox">Free gluten</label>
         <input type="checkbox" class="checkbox" v-model="product.freeSugar" />
         <label for="checkbox">Free sugar</label>
+
         <input type="checkbox" class="checkbox" v-model="product.freeLactosa" />
         <label for="checkbox">Free lactosa</label>
         <input type="checkbox" class="checkbox" v-model="product.vegan" />
         <label for="checkbox">Vegan</label>
+
         <input type="checkbox" class="checkbox" v-model="product.raw" />
         <label for="checkbox">Raw</label>
         <input type="checkbox" class="checkbox" v-model="product.protein" />
         <label for="checkbox">Protein</label>
       </div>
-      <div class="modal-buttons">
-        <button class="productbutton" @click="updateData()">Зберегти</button>
-        <button class="productbutton" @click="close">Close</button>
-      </div>
+    </div>
+    <div>
+      <button @click="updateData">Зберегти</button>
+      <button @click="close">Закрити</button>
     </div>
   </div>
 </template>
@@ -78,9 +76,7 @@ export default {
     categories: Array,
     countries: Array,
   },
-  watch: {
-    visible(newVal) { if (newVal) { this.product = this.$props.product; } },
-  }, // el resto del código sigue igual };
+
   methods: {
     async updateData() {
       try {
@@ -123,94 +119,81 @@ export default {
 .modal {
   position: absolute;
   display: flex;
-  left: 0;
-  top: 0;
-  background-color: rgba(0, 0, 0, 0.3);
-  height: 100%;
-  width: 100%;
+  flex-direction: column;
+  padding: 1vw;
+  margin: 1.5vw;
+  width: 75%;
+  height: 75%;
   justify-content: center;
   align-items: center;
-  backdrop-filter: blur(15px);
-}
-
-.modal-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: rgba(255, 238, 217, 0.5);
-  padding: 15px;
-  border-radius: 25px;
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(15px);
+  border-radius: 25px;
 }
 
-.modal-buttons {
+
+.top-inputs {
   display: flex;
+  justify-content: space-around;
+  align-items: center;
+
+  input {
+    &:first-child {
+      width: 20vw;
+    }
+  }
 }
 
-input {
-  border-radius: 25px;
-  border: none;
-  margin: 5px;
-  padding: 7px;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
-}
+.midle-inputs {
+  display: flex;
 
-select {
-  border-radius: 25px;
-  border: none;
-  margin: 5px;
-  padding: 7px;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+  input {
+    width: 10vw;
+  }
 }
 
 textarea {
-  text-align: center;
-  font-family: "roboto", sans-serif;
-  width: 90%;
-  max-width: 90%;
-  min-width: 50%;
-  height: 200px;
-  padding: 15px;
-  margin: 10px;
-  max-height: 300px;
-  min-height: 200px;
-  border-radius: 25px;
-  border: none;
-  box-shadow: 4px 4px 4px rgb(200, 200, 200) inset,
-    -4px -4px 4px rgb(255, 255, 255) inset;
+  width: 35vw;
+  height: 30vh;
 }
 
-.productbutton {
-  font-family: "roboto", sans-serif;
-  font-size: 15px;
-  text-align: center;
+input,
+textarea {
   border: none;
-  border-radius: 25px;
-  width: 200px;
-  padding: 13px 13px 13px 13px;
-  margin: 10px;
-  box-shadow: 0px 5px 15px rgb(0, 0, 0, 0.5);
-  background-color: white;
-  transition: 0.3s;
-  text-decoration: none;
+  padding: 0.5vw;
+  margin: 0.5vw;
   color: black;
-  cursor: pointer;
+  font-size: 1vw;
+  text-decoration: none;
+  text-align: center;
+  border-radius: 25px;
+  box-shadow: inset 0px 5px 5px rgba(0, 0, 0, 0.3);
+  background-color: rgb(255, 255, 255);
 }
 
-.productbutton:hover {
-  transition: 0.3s;
-  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3),
-    inset 0px 0px 0px rgba(0, 0, 0, 0.3);
-}
+button,
+select {
+  border: none;
+  padding: 0.5vw;
+  margin: 0.5vw;
+  color: black;
+  font-size: 1vw;
+  text-decoration: none;
+  text-align: center;
+  border-radius: 25px;
+  box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.3), inset 0 0 0 rgba(0, 0, 0, 0.3);
+  background-color: rgb(255, 255, 255);
 
-.productbutton:active {
-  box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3),
-    inset 0px 3px 5px rgba(0, 0, 0, 0.3);
-  transition: 0.1s;
-}
+  :hover {
+    box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3), inset 0 0 0 rgba(0, 0, 0, 0.3);
+    transition: 0.3s;
+  }
 
-.chekBoxes {
-  display: flex;
+  :active {
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0.3), inset 0 3px 3px rgba(0, 0, 0, 0.3);
+    transition: 0.3s;
+  }
 }
 
 .checkbox {
@@ -224,8 +207,7 @@ textarea {
   width: 40px;
   border-radius: 25px;
   border: none;
-  box-shadow: 0px 5px 5px rgb(0, 0, 0, 0.5);
-  background-color: white;
+  box-shadow: 4px 4px 4px rgb(200, 200, 200), -4px -4px 4px rgb(255, 255, 255);
   margin: 0 5px 0 5px;
   display: flex;
   align-items: center;
@@ -249,13 +231,18 @@ textarea {
 }
 
 label {
-  width: 60px;
+  width: 50px;
+  margin-right: 5px;
 }
 
-.kcal {
+.markUp {
   display: flex;
-  justify-content: center;
   align-items: center;
-  margin-top: 10px;
+  justify-content: center;
+  text-align: center;
+  background-color: rgb(255, 255, 255);
+  padding: 0.5vw;
+  width: 5vw;
+  border-radius: 25px;
 }
 </style>

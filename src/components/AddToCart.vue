@@ -114,6 +114,7 @@ export default {
   box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.4);
   border: none;
   transition: 0.2s;
+  color: black;
 }
 
 .buy-button:hover {

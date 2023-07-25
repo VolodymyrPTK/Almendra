@@ -1,9 +1,11 @@
 <template>
   <div class="navbar-body">
+
     <div class="navBar">
       <RouterLink to="/">
         <img alt="Almendra logo" class="logo" src="../assets/logoNav.png" />
       </RouterLink>
+
       <div class="search-container">
         <input class="searchInput" v-model="searchTerm" @input="handleSearchInput" placeholder="Пошук" />
         <div v-if="showResults" class="searchResults">
@@ -14,30 +16,19 @@
           </RouterLink>
         </div>
       </div>
+
       <div class="buttons">
-        <div class="navButton dropdown-hover">
-          <div class="button-store">
-            <div class="default-btn">
-              <div>Крамниця</div>
-            </div>
-            <div class="hover-btn">
-              <RouterLink to="/store">Всі продукти</RouterLink>
-            </div>
-          </div>
-          <div class="dropdown-inner">
-            <RouterLink class="span" to="/store/free-sugar">Без Цукру</RouterLink>
-            <RouterLink class="span" to="/store/free-gluten">Без Глютену</RouterLink>
-            <RouterLink class="span" to="/store/vegan">Веган</RouterLink>
-          </div>
-        </div>
+        <RouterLink class="navButton" to="/store">Крамниця</RouterLink>
         <RouterLink class="navButton" to="/user">User</RouterLink>
         <RouterLink class="navButton" to="/admin/overview">Admin</RouterLink>
         <div v-if="isLoggedIn" class="navButton" @click="toggleModal">
           <img style="height: 21px; margin: 0" src="../assets/cart.png" alt="cartlogo" />
         </div>
         <RouterLink class="navButton" to="/" @click="handSignOut" v-if="isLoggedIn">Вийти</RouterLink>
+        <div class="menu-button"><img src="../assets/imgs/icons/menu.svg" alt=""></div>
       </div>
     </div>
+
     <Transition name="slide">
       <Cart v-if="isVisible" @close="isVisible = false" class="cart-comp" />
     </Transition>
@@ -130,7 +121,6 @@ export default {
   margin-top: 1.5vh;
 }
 
-
 .navBar {
   height: 8vh;
   width: 90%;
@@ -153,88 +143,30 @@ export default {
   display: flex;
 }
 
-.button-store {
-  position: relative;
-  overflow: hidden;
-  cursor: pointer;
-}
-
-.default-btn,
-.hover-btn {
+.menu-button {
   display: flex;
-  align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
-  padding-bottom: 10px;
-  width: 120px;
-  height: 25px;
-}
-
-.hover-btn {
-  position: absolute;
-  inset: 0;
-  transform: translate(0%, 100%);
-
-  a {
-    text-decoration: none;
-    color: inherit;
-  }
-}
-
-.button-store:hover .default-btn {
-  transform: translate(0%, -100%);
-}
-
-.button-store:hover .hover-btn {
-  transform: translate(0%, 0%);
-}
-
-.dropdown-inner {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  visibility: hidden;
-  z-index: 2;
-  padding: 7px;
-  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(35px);
-  background-color: rgba(253, 253, 253, 0.9);
-  border-radius: 25px;
-  transition: opacity 0.3s, visibility 0.3s;
-  left: 50%;
-  transform: translateX(-50%);
-  margin-top: 5px;
-}
-
-.dropdown-hover {
-  display: flex;
-}
-
-.dropdown-hover:hover .dropdown-inner,
-.dropdown-open:checked~.dropdown-inner {
-  visibility: visible;
-}
-
-.span {
-  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(35px);
-  background-color: rgba(253, 253, 253, 0.5);
-  border-radius: 25px;
+  align-items: center;
+  width: 1.2vw;
+  height: 1.2vw;
   padding: 13px 13px 13px 13px;
-  width: 120px;
-  height: 25px;
-  margin: 3px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: box-shadow 0.5s, background-color 0.5s;
-  text-decoration: none;
-  color: inherit;
-}
+  margin: 0 0.25em 0 0.25rem;
+  border-radius: 25px;
+  background: white;
+  box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
+  transition: 0.3s;
+  cursor: pointer;
 
-.span:hover {
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
-  background-color: rgba(206, 206, 206, 0.5);
+  &:hover {
+    transition: 0.3s;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
+  }
+
+  &:active {
+    box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3),
+      inset 0px 3px 5px rgba(0, 0, 0, 0.3);
+    transition: 0.3s;
+  }
 }
 
 .productImage {
@@ -302,9 +234,8 @@ export default {
 }
 
 .navButton {
-  width: 120px;
-  height: 25px;
-  border: none;
+  width: 7vw;
+  height: 1.2vw;
   padding: 13px 13px 13px 13px;
   margin: 0 0.25em 0 0.25rem;
   display: inline-block;
@@ -316,7 +247,6 @@ export default {
   background: white;
   box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
   transition: 0.3s;
-  backdrop-filter: blur(0px);
   color: black;
   cursor: pointer;
 }
