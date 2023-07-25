@@ -1,6 +1,7 @@
 <template>
   <div class="products">
-    <div v-if="isVisible" class="addproduct">
+
+    <div v-if="editVisible || isVisible" class="addproduct">
       <div class="top-inputs">
         <input type="text" v-model="product.name" placeholder="Назва товару" />
         <input type="text" v-model="product.detail" placeholder="Опис" />
@@ -85,7 +86,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="tableline" @dblclick="openModal(product.id)" v-for="product in filteredProducts" :key="product.id">
+          <tr class="tableline" @dblclick="editModal(product.id)" v-for="product in filteredProducts" :key="product.id">
             <td>
               <img class="productImage" :src="product.image" />
             </td>
@@ -161,26 +162,30 @@ export default {
       modalVisible: false,
       isVisible: false,
       searchTerm: "",
+      editVisible: false
     };
   },
   methods: {
+    editModal(id) {
+      // Buscar el producto en el array de productos
+      let product = this.products.find(product => product.id === id);
+      // Si existe el producto, asignar sus valores a this.product
+      if (product) {
+        this.product = { ...product };
+      }
+      // Mostrar el modal
+      this.editVisible = true;
+    },
     openModal(id) {
       this.modalVisible = true;
       this.currentProductId = id;
       this.product = {};
-      this.fetchData(id);
-    },
-    async fetchData(id) {
-      const productRef = doc(dataBase, id);
-      if (!productRef.exists) {
-        this.product = {};
-        return;
-      }
-
-      const product = await productRef.get();
-      this.product = product.data() || {};
     },
     toggleModal() {
+      this.editVisible = !this.editVisible;
+      this.product = {};
+    },
+    closeModal() {
       this.isVisible = !this.isVisible;
     },
     async saveData() {
@@ -304,6 +309,7 @@ export default {
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
   background-color: rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
 }
 
 .productlist {
