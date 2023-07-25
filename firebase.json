@@ -1,0 +1,10 @@
+{
+  "hosting": {
+    "public": "almendra.com.ua",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}
