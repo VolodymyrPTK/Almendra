@@ -103,26 +103,16 @@
         </tbody>
       </table>
     </div>
-    <Modal v-if="modalVisible" :visible="modalVisible" :product="currentProduct" :categories="categories" :brands="brands"
-      :countries="countries" @close="modalVisible = false" />
   </div>
 </template>
 
 <script>
 import { dataBase, storage, categoryReg, brandReg, countryReg } from "../main";
 import { addDoc, deleteDoc, onSnapshot, doc, setDoc } from "firebase/firestore";
-import {
-  ref as storageReference,
-  uploadBytesResumable,
-  getDownloadURL,
-} from "firebase/storage";
-import Modal from "../components/Modal.vue";
+import { ref as storageReference, uploadBytesResumable, getDownloadURL, } from "firebase/storage";
 
 export default {
   name: "Products",
-  components: {
-    Modal,
-  },
   props: {
     msg: String,
   },

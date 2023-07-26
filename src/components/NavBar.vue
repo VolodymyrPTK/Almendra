@@ -19,13 +19,19 @@
 
       <div class="buttons">
         <RouterLink class="navButton" to="/store">Крамниця</RouterLink>
-        <RouterLink class="navButton" to="/user">User</RouterLink>
         <RouterLink class="navButton" to="/admin/overview">Admin</RouterLink>
         <div v-if="isLoggedIn" class="navButton" @click="toggleModal">
           <img style="height: 21px; margin: 0" src="../assets/cart.png" alt="cartlogo" />
         </div>
-        <RouterLink class="navButton" to="/" @click="handSignOut" v-if="isLoggedIn">Вийти</RouterLink>
-        <div class="menu-button"><img src="../assets/imgs/icons/menu.svg" alt=""></div>
+        <div class="menu-container">
+          <div class="menu-button" @click="openMenu"><img src="../assets/imgs/icons/menu.svg" alt=""></div>
+          <div v-if="menuDropdown" class="menu-dropdown">
+            <RouterLink style="margin: 0.2vw;" class="navButton" to="/user">Мій кабінет</RouterLink>
+            <RouterLink style="margin: 0.2vw;" class="navButton" to="/" @click="handSignOut" v-if="isLoggedIn">Вийти
+            </RouterLink>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -38,8 +44,6 @@
 <script>
 import { RouterLink } from "vue-router";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-import { dataBase } from "../main";
-import { onSnapshot } from "@firebase/firestore";
 import Cart from "./Cart.vue";
 
 export default {
@@ -57,11 +61,15 @@ export default {
       searchTerm: "",
       products: [],
       showResults: false,
+      menuDropdown: false
     };
   },
   methods: {
     toggleModal() {
       this.isVisible = !this.isVisible;
+    },
+    openMenu() {
+      this.menuDropdown = !this.menuDropdown;
     },
     hideResults() {
       this.searchTerm = "";
@@ -80,7 +88,7 @@ export default {
       }
     },
   },
-  created() {
+  async created() {
     this.auth = getAuth();
     onAuthStateChanged(this.auth, (user) => {
       if (user) {
@@ -89,12 +97,7 @@ export default {
         this.isLoggedIn = false;
       }
     });
-    onSnapshot(dataBase, (snapshot) => {
-      this.products = [];
-      snapshot.docs.forEach((doc) => {
-        this.products.push({ ...doc.data(), id: doc.id });
-      });
-    });
+
   },
   computed: {
     filteredProducts() {
@@ -143,6 +146,12 @@ export default {
   display: flex;
 }
 
+.menu-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .menu-button {
   display: flex;
   justify-content: center;
@@ -169,38 +178,60 @@ export default {
   }
 }
 
-.productImage {
-  width: 40px;
-}
-
-.search-container {
-  display: flex;
-  flex-direction: column;
-}
-
-.searchResults {
-  margin: 65px;
+.menu-dropdown {
   position: absolute;
   display: flex;
   flex-direction: column;
-  width: 350px;
-  max-height: 500px;
-  overflow-y: scroll;
+  margin-top: 3.5vw;
   border-radius: 25px;
   padding: 10px;
-  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(35px);
-  -webkit-backdrop-filter: blur(35px);
-  background-color: rgba(253, 253, 253, 0.5);
+  -webkit-backdrop-filter: blur(15px);
+  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
+  animation-name: swing-in-top-fwd;
+  animation-duration: 0.7s;
+  animation-timing-function: ease;
+}
 
-  a {
-    text-decoration: none;
-    color: inherit;
+@-webkit-keyframes swing-in-top-fwd {
+  0% {
+    -webkit-transform: rotateX(-100deg);
+    transform: rotateX(-100deg);
+    -webkit-transform-origin: top;
+    transform-origin: top;
+    opacity: 0
+  }
+
+  100% {
+    -webkit-transform: rotateX(0deg);
+    transform: rotateX(0deg);
+    -webkit-transform-origin: top;
+    transform-origin: top;
+    opacity: 1
   }
 }
 
-.searchResults::-webkit-scrollbar {
-  display: none;
+@keyframes swing-in-top-fwd {
+  0% {
+    -webkit-transform: rotateX(-100deg);
+    transform: rotateX(-100deg);
+    -webkit-transform-origin: top;
+    transform-origin: top;
+    opacity: 0
+  }
+
+  100% {
+    -webkit-transform: rotateX(0deg);
+    transform: rotateX(0deg);
+    -webkit-transform-origin: top;
+    transform-origin: top;
+    opacity: 1
+  }
+}
+
+.productImage {
+  width: 40px;
 }
 
 .rlink {
@@ -263,11 +294,46 @@ export default {
 }
 
 .searchInput {
+  width: 10vw;
+  height: 1.2vw;
   border-radius: 25px;
   text-align: center;
-  box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0px 3px 5px rgba(0, 0, 0, 0.3);
   transition: 0.5s;
   border: none;
   padding: 13px 13px 13px 13px;
+}
+
+
+.search-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.searchResults {
+  margin-top: 3.3vw;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  width: 350px;
+  max-height: 500px;
+  overflow-y: scroll;
+  border-radius: 25px;
+  padding: 10px;
+  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
+  background-color: rgba(253, 253, 253, 0.7);
+  animation-name: swing-in-top-fwd;
+  animation-duration: 1s;
+  animation-timing-function: ease;
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+}
+
+.searchResults::-webkit-scrollbar {
+  display: none;
 }
 </style>

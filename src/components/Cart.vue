@@ -535,6 +535,7 @@ export default {
           snapshot.docs.forEach((doc) => {
             this.items.push({ ...doc.data(), id: doc.id });
           });
+
         });
       }
 
@@ -571,6 +572,13 @@ export default {
         return "";
       }
     }
+  },
+  watch: {
+    // Watch for changes in the total computed property
+    total(newValue) {
+      // Emit the updated total to the parent component
+      this.$emit("update-total", newValue);
+    },
   },
 };
 </script>
