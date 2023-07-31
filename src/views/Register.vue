@@ -2,20 +2,21 @@
   <div class="login-body">
     <div class="login-container">
       <h2>Створити логін</h2>
-      <div class="name">
-        <input type="string" v-model="firstName" placeholder="Ваше ім'я" />
-        <input type="string" v-model="secondName" placeholder="Ваше Призвіще" />
+      <div class="social-login">
+        <div>
+          <img @click="registerWithGoogle" src="../assets/google.png" alt="facebook login">
+        </div>
+        <div>
+          <img @click="registerWithFacebook" src="../assets/facebook.png" alt="facebook login">
+        </div>
       </div>
+      <h4>або</h4>
+
       <input type="email" v-model="email" placeholder="Електронна пошта" />
-      <input
-        type="password"
-        @keyup.enter="register"
-        v-model="password"
-        placeholder="Пароль"
-      />
+      <input type="password" @keyup.enter="register" v-model="password" placeholder="Пароль" />
       <p v-if="errMsg">{{ errMsg }}</p>
-      <div>
-        <button class="loginButton" @click="register">Зареєструватися</button>
+      <div class="login-btns">
+        <button @click="register">Зареєструватися</button>
         <RouterLink class="regbtn" to="/login">Вхід</RouterLink>
       </div>
     </div>
@@ -25,7 +26,7 @@
 <script setup>
 import { ref } from "vue";
 import { doc, setDoc } from "firebase/firestore";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from "firebase/auth";
 import { useRouter } from "vue-router";
 import { db } from "../main";
 
@@ -40,8 +41,6 @@ const register = () => {
   createUserWithEmailAndPassword(getAuth(), email.value, password.value)
     .then((data) => {
       setDoc(doc(db, "profiles", data.user.uid), {
-        firstName: firstName.value,
-        secondName: secondName.value,
         email: email.value,
       });
       router.push("/");
@@ -52,7 +51,46 @@ const register = () => {
         case "auth/email-already-in-use":
           errMsg.value = "Користувач з цією електронною поштою вже існує";
           break;
+        case "auth/invalid-email":
+          errMsg.value = "Користувач з цією електронною поштою вже існує";
+          break;
+        case "auth/auth/weak-password":
+          errMsg.value = "Пароль надто слабкий";
+          break;
       }
+    });
+};
+const registerWithGoogle = () => {
+  const provider = new GoogleAuthProvider();
+  signInWithPopup(getAuth(), provider)
+    .then((result) => {
+      const user = result.user;
+      setDoc(doc(db, "profiles", user.uid), {
+        firstName: user.displayName.split(" ")[0],
+        secondName: user.displayName.split(" ")[1],
+        email: user.email,
+      });
+      router.push("/");
+    })
+    .catch((error) => {
+      console.log(error.code);
+    });
+};
+
+const registerWithFacebook = () => {
+  const provider = new FacebookAuthProvider();
+  signInWithPopup(getAuth(), provider)
+    .then((result) => {
+      const user = result.user;
+      setDoc(doc(db, "profiles", user.uid), {
+        firstName: user.displayName.split(" ")[0],
+        secondName: user.displayName.split(" ")[1],
+        email: user.email,
+      });
+      router.push("/");
+    })
+    .catch((error) => {
+      console.log(error.code);
     });
 };
 </script>
@@ -62,7 +100,7 @@ const register = () => {
   display: flex;
   align-items: center;
   flex-direction: column;
-  margin-top: 250px;
+  transform: translatey(20%);
 }
 
 .login-container {
@@ -70,76 +108,104 @@ const register = () => {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 500px;
-  height: 300px;
+  width: 35%;
+  // height: 40vh;
   padding: 15px;
   border-radius: 25px;
-  background-color: rgba(253, 253, 253, 0.75);
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.125);
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.social-login {
+  display: flex;
+
+  div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 3vh;
+    width: 7vw;
+    padding: 1vh;
+    margin: 0.5vw;
+    background: white;
+    border-radius: 50px;
+    box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
+    cursor: pointer;
+  }
+
+  img {
+    height: 3vh;
+  }
 }
 
 input {
-  text-align: center;
-  width: 70%;
-  margin: 10px;
-  height: 40px;
+  width: 17vw;
+  height: 5vh;
   border-radius: 25px;
+  margin: 0.5vw;
+  text-align: center;
+  box-shadow: inset 0px 3px 5px rgba(0, 0, 0, 0.3);
+  transition: 0.5s;
   border: none;
-  box-shadow: 4px 4px 4px rgb(200, 200, 200) inset,
-    -4px -4px 4px rgb(255, 255, 255) inset;
-  background-color: transparent;
 }
 
-.loginButton {
-  font-family: "roboto", sans-serif;
-  font-size: 15px;
-  text-align: center;
-  width: 200px;
+button {
   border: none;
-  padding: 13px 13px 13px 13px;
-  margin: 1em 0.5em 0 0.5rem;
-  display: inline-block;
-  border-radius: 25px;
-  background-color: transparent;
-  box-shadow: 4px 4px 4px rgb(200, 200, 200), -4px -4px 4px rgb(255, 255, 255);
-  transition: 0.1s;
-  backdrop-filter: blur(0px);
+  height: 5vh;
+  width: 10vw;
+  margin: 0.5vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-decoration: none;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 1vw;
+  border-radius: 25px;
+  background: white;
+  box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
+  transition: 0.3s;
   color: black;
   cursor: pointer;
 }
 
-.loginButton:hover {
+button:hover {
   transition: 0.3s;
-  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
 }
 
-.loginButton:active {
+button:active {
   box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3),
     inset 0px 3px 5px rgba(0, 0, 0, 0.3);
-  transition: 0.1s;
+  transition: 0.3s;
 }
 
+.login-btns {
+  display: flex;
+}
+
+
 .regbtn {
-  text-align: center;
-  width: 114px;
-  height: 30px;
-  padding: 13px 13px 0px 13px;
-  margin-left: 10px;
-  display: inline-block;
   border: none;
-  border-radius: 25px;
-  background-color: transparent;
-  transition: 0.1s;
+  height: 5vh;
+  width: 6vw;
+  margin: 0.5vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-decoration: none;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 1vw;
+  border-radius: 25px;
+  transition: 0.3s;
   color: black;
   cursor: pointer;
+  background-color: transparent;
 }
 
 .regbtn:hover {
   border: none;
   box-shadow: 0px 7px 20px rgba(0, 0, 0, 0.25);
+  background-color: white;
   transition: 0.5s;
 }
 

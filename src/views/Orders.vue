@@ -7,6 +7,7 @@
                     <div>{{ order.time }}</div>
                     <div>{{ order.orderStatus }}</div>
                     <div>{{ order.total }}</div>
+                    <button @click="deleteOrder(order.id)">Delete</button>
                 </div>
                 <div v-if="orderDetails === order.id">
                     <div style="display: flex; justify-content: space-between;" v-for="user in order.userData">
@@ -41,7 +42,7 @@
 </template>
   
 <script>
-import { onSnapshot } from "firebase/firestore";
+import { onSnapshot, deleteDoc, doc } from "firebase/firestore";
 import { orderReg } from "../main";
 
 export default {
@@ -74,6 +75,13 @@ export default {
                 this.orderDetails = null;
             } else {
                 this.orderDetails = order.id;
+            }
+        },
+        async deleteOrder(id) {
+            if (confirm("Видалити ?")) {
+                await deleteDoc(doc(orderReg, id));
+                this.orders = this.orders.filter((order) => order.id !== id);
+            } else {
             }
         },
     },

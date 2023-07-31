@@ -39,51 +39,36 @@ export default {
           quantity: this.quantity,
           itemImage: this.productImage,
         };
-        const time = new Date().toLocaleString("en-US", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "2-digit",
-          hour12: false,
-          hour: "2-digit",
-          minute: "2-digit",
-        });
+
         const cartInfo = {
           uid: this.profile.uid,
           finalized: false,
-          time: time,
         };
         const q = query(cartReg, where("uid", "==", this.profile.uid), where("finalized", "==", false));
         const querySnapshot = await getDocs(q);
-        if (querySnapshot.size > 0) {
-          let cartId;
-          querySnapshot.forEach((doc) => {
-            if (doc.data().finalized === false) {
-              cartId = doc.id;
-            }
-          });
-          const productRef = doc(db, "carts", cartId, "cartProducts", this.productName);
-          try {
-            await runTransaction(db, async (transaction) => {
-              const newQ = await transaction.get(productRef);
-              if (!newQ.exists()) {
-                await setDoc(productRef, product);
-              }
-              const newQuant = newQ.data().quantity + 1;
-              transaction.update(productRef, { quantity: newQuant });
-            });
-            console.log("Transaction successfully committed!");
-          } catch (e) {
-            console.log("Transaction failed: ", e);
+
+
+        let cartId;
+        querySnapshot.forEach((doc) => {
+          if (doc.data().finalized === false) {
+            cartId = doc.id;
           }
-        } else {
-          const cart = await addDoc(cartReg, cartInfo);
-          const cartId = cart.id;
-          await setDoc(
-            doc(db, "carts", cartId, "cartProducts", this.productName),
-            product
-          );
-          console.log("Product added to cart successfully");
+        });
+        const productRef = doc(db, "carts", cartId, "cartProducts", this.productName);
+        try {
+          await runTransaction(db, async (transaction) => {
+            const newQ = await transaction.get(productRef);
+            if (!newQ.exists()) {
+              await setDoc(productRef, product);
+            }
+            const newQuant = newQ.data().quantity + 1;
+            transaction.update(productRef, { quantity: newQuant });
+          });
+          console.log("Transaction successfully committed!");
+        } catch (e) {
+          console.log("Transaction failed: ", e);
         }
+
       } catch (error) {
         console.error("Error adding product to cart: ", error);
       }

@@ -20,9 +20,11 @@
       <div class="buttons">
         <RouterLink class="navButton" to="/store">Крамниця</RouterLink>
         <RouterLink class="navButton" to="/admin/overview">Admin</RouterLink>
-        <div v-if="isLoggedIn" class="navButton" @click="toggleModal">
+        <!--  <div v-if="isLoggedIn" class="navButton" @click="toggleModal">
           <img style="height: 21px; margin: 0" src="../assets/cart.png" alt="cartlogo" />
-        </div>
+        </div>-->
+        <slot name="cart" v-if="isLoggedIn" @close="isVisible = false" class="cart-comp" />
+        <!-- <Cart v-if="isLoggedIn" @close="isVisible = false" class="cart-comp" />-->
         <div class="menu-container">
           <div class="menu-button" @click="openMenu"><img src="../assets/imgs/icons/menu.svg" alt=""></div>
           <div v-if="menuDropdown" class="menu-dropdown">
@@ -36,7 +38,6 @@
     </div>
 
     <Transition name="slide">
-      <Cart v-if="isVisible" @close="isVisible = false" class="cart-comp" />
     </Transition>
   </div>
 </template>
@@ -65,9 +66,7 @@ export default {
     };
   },
   methods: {
-    toggleModal() {
-      this.isVisible = !this.isVisible;
-    },
+
     openMenu() {
       this.menuDropdown = !this.menuDropdown;
     },
@@ -125,17 +124,28 @@ export default {
 }
 
 .navBar {
+  border-radius: 20px;
   height: 8vh;
   width: 90%;
-  border-radius: 20px;
   position: fixed;
   display: inline-flex;
   justify-content: space-around;
   align-items: center;
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
   background-color: rgba(255, 255, 255, 0.3);
-  -webkit-backdrop-filter: blur(25px);
-  backdrop-filter: blur(25px);
+
+  &::before {
+    border-radius: 20px;
+    content: "";
+    position: absolute;
+    z-index: -1;
+    -webkit-backdrop-filter: blur(25px);
+    backdrop-filter: blur(25px);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
 }
 
 .logo {
@@ -158,7 +168,7 @@ export default {
   align-items: center;
   width: 1.2vw;
   height: 1.2vw;
-  padding: 13px 13px 13px 13px;
+  padding: 1.2vh;
   margin: 0 0.25em 0 0.25rem;
   border-radius: 25px;
   background: white;
@@ -267,10 +277,11 @@ export default {
 .navButton {
   width: 7vw;
   height: 1.2vw;
-  padding: 13px 13px 13px 13px;
+  padding: 1.2vh;
   margin: 0 0.25em 0 0.25rem;
-  display: inline-block;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-decoration: none;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 -2px 3px rgba(255, 255, 255, 1);
@@ -301,7 +312,7 @@ export default {
   box-shadow: inset 0px 3px 5px rgba(0, 0, 0, 0.3);
   transition: 0.5s;
   border: none;
-  padding: 13px 13px 13px 13px;
+  padding: 1.2vh;
 }
 
 
