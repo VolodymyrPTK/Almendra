@@ -3,11 +3,11 @@
     <div class="login-container">
       <h2>Вхід</h2>
       <div class="social-login">
-        <div>
-          <img @click="loginWithGoogle" src="../assets/google.png" alt="google login">
+        <div @click="loginWithGoogle">
+          <img src="../assets/google.png" alt="google login">
         </div>
-        <div>
-          <img @click="loginWithFacebook" src="../assets/facebook.png" alt="facebook login">
+        <div @click="loginWithFacebook">
+          <img src="../assets/facebook.png" alt="facebook login">
         </div>
       </div>
       <h4>або</h4>
