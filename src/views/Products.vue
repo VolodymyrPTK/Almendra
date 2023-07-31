@@ -59,8 +59,11 @@
         </div>
       </div>
       <div>
-        <button @click="saveData">Зберегти</button>
-        <button @click="toggleModal">Закрити</button>
+        <button v-if="isVisible" @click="saveData">Зберегти</button>
+        <button v-if="isVisible" @click="toggleModal">Закрити</button>
+
+        <button v-if="editVisible" @click="updateData">Оновити</button>
+        <button v-if="editVisible" @click="closeModal">Закрити</button>
       </div>
     </div>
 
@@ -107,8 +110,8 @@
 </template>
 
 <script>
-import { dataBase, storage, categoryReg, brandReg, countryReg } from "../main";
-import { addDoc, deleteDoc, onSnapshot, doc, setDoc } from "firebase/firestore";
+import { dataBase, storage, categoryReg, brandReg, countryReg, db } from "../main";
+import { addDoc, deleteDoc, onSnapshot, doc, setDoc, updateDoc } from "firebase/firestore";
 import { ref as storageReference, uploadBytesResumable, getDownloadURL, } from "firebase/storage";
 
 export default {
@@ -172,11 +175,11 @@ export default {
       this.product = {};
     },
     toggleModal() {
-      this.editVisible = !this.editVisible;
+      this.isVisible = !this.isVisible;
       this.product = {};
     },
     closeModal() {
-      this.isVisible = !this.isVisible;
+      this.editVisible = !this.editVisible;
     },
     async saveData() {
       try {
@@ -184,6 +187,37 @@ export default {
       } catch (e) {
         console.error("Error adding document: ", e);
       }
+      this.product = {};
+    },
+    async updateData() {
+      try {
+        const refDoc = doc(db, "products", this.product.id);
+        await updateDoc(refDoc, {
+          name: this.product.name,
+          detail: this.product.detail,
+          sellPrice: this.product.sellPrice,
+          description: this.product.description,
+          sklad: this.product.sklad,
+          kcal: this.product.kcal,
+          protein: this.product.protein,
+          carbo: this.product.carbo,
+          fat: this.product.fat,
+          brand: this.product.brand,
+          category: this.product.category,
+          country: this.product.country,
+          image: this.product.image,
+          vitamins: this.product.vitamins,
+          freeGluten: this.product.freeGluten,
+          freeSugar: this.product.freeSugar,
+          freeLactosa: this.product.freeLactosa,
+          vegan: this.product.vegan,
+          raw: this.product.raw,
+          protein: this.product.protein,
+        });
+      } catch (error) {
+        console.error(error);
+      }
+      this.editVisible = !this.editVisible;
       this.product = {};
     },
     async saveCategory() {
