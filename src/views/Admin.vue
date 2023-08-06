@@ -38,11 +38,10 @@ import { RouterView } from "vue-router";
   height: 43vw;
   width: 10%;
   margin: 0;
-  padding: 0.2vw;
   text-align: center;
   border-radius: 25px;
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
-  background-color: rgba(253, 253, 253, 0.75);
+  background-color: rgb(255, 255, 255);
 }
 
 .admincontent {
@@ -51,6 +50,10 @@ import { RouterView } from "vue-router";
   width: 90%;
   height: 43vw;
   margin-left: 15px;
+  border-radius: 25px;
+  background-color: rgba(253, 253, 253, 1);
+  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.125);
 }
 
 .navButton {

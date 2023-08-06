@@ -16,7 +16,7 @@
 
         <RouterLink :to="'/product/' + product.id">
           <img class="productImage" :src="product.image" />
-          <h3>{{ product.name }}</h3>
+          <div class="product-name">{{ product.name }}</div>
           <h3>₴ {{ product.sellPrice }}.00</h3>
         </RouterLink>
 
@@ -96,7 +96,7 @@ export default {
 .filter-buttons {
   display: flex;
   flex-wrap: wrap;
-  margin: 0 0 25px 0;
+  margin: 0 0 3vw 0;
   justify-content: center;
   align-items: center;
   height: 50px;
@@ -167,9 +167,9 @@ label {
   text-align: center;
   text-decoration: none;
   font-size: 1vw;
-  width: 15vw;
-  height: 20vw;
-  margin: 0vw 0.5vw 5.6vw 0.5vw;
+  width: 30vh;
+  height: 19.5vw;
+  margin: 0vw 0.5vw 6.2vw 0.5vw;
   background: #ffffff;
   border-radius: 25px;
   box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px,
@@ -192,14 +192,22 @@ label {
 .productImage {
   height: 18vw;
   filter: drop-shadow(0 0.7vw 0.5vw rgba(0, 0, 0, 0.7));
-  margin-top: -2vw;
+  margin-top: -3vw;
+}
+
+.product-name {
+  font-size: 1.1vw;
+  font-weight: bold;
+  height: 3vh;
 }
 
 h3 {
-  margin: 0.2vw;
+  font-size: 1vw;
+  margin: 1vw;
 }
 
 .add-to-cart {
-  margin-top: 0.6vw;
+  margin-top: 0.3vw;
+
 }
 </style>

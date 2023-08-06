@@ -46,14 +46,10 @@
           <label for="checkbox">Free gluten</label>
           <input type="checkbox" class="checkbox" v-model="product.freeSugar" />
           <label for="checkbox">Free sugar</label>
-
           <input type="checkbox" class="checkbox" v-model="product.freeLactosa" />
           <label for="checkbox">Free lactosa</label>
           <input type="checkbox" class="checkbox" v-model="product.vegan" />
           <label for="checkbox">Vegan</label>
-
-          <input type="checkbox" class="checkbox" v-model="product.raw" />
-          <label for="checkbox">Raw</label>
           <input type="checkbox" class="checkbox" v-model="product.protein" />
           <label for="checkbox">Protein</label>
         </div>
@@ -300,9 +296,19 @@ export default {
       );
     },
     filteredProducts() {
-      return this.products.filter((product) =>
-        product.name.toLowerCase().includes(this.searchTerm.toLowerCase())
-      );
+      return this.products.filter((product) => {
+        return (
+          product.name
+            .toLowerCase()
+            .includes(this.searchTerm.toLowerCase()) ||
+          product.detail
+            .toLowerCase()
+            .includes(this.searchTerm.toLowerCase()) ||
+          product.brand
+            .toLowerCase()
+            .includes(this.searchTerm.toLowerCase())
+        );
+      });
     },
     markUpPercent() {
       const markupPercent = ((this.product.sellPrice - this.product.buyPrice) / this.product.buyPrice) * 100;
@@ -342,10 +348,6 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-radius: 25px;
-  background-color: rgba(253, 253, 253, 0.75);
-  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.125);
 }
 
 .list-header {
@@ -353,10 +355,11 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-evenly;
+
 }
 
 .searchInput {
-  width: 400px;
+  width: 20vh;
   border-radius: 25px;
   text-align: center;
   box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
@@ -559,6 +562,7 @@ label {
     background-color: rgb(177, 177, 177);
     color: #fdfdfd;
 
+
     tr {
       display: flex;
     }
@@ -577,6 +581,9 @@ label {
     display: flex;
     flex-direction: column;
     height: 100%;
+    overflow: hidden;
+    overflow-y: scroll;
+    scroll-behavior: smooth;
 
     tr:nth-child(even) {
       background-color: rgb(228, 228, 228);

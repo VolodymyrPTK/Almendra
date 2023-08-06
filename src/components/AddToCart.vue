@@ -88,7 +88,7 @@ export default {
 
 <style scoped lang="scss">
 .buy-button {
-  margin-top: 5px;
+  margin-top: 0vw;
   height: 2.5vw;
   width: 15vw;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
@@ -100,6 +100,7 @@ export default {
   border: none;
   transition: 0.2s;
   color: black;
+  cursor: pointer;
 }
 
 .buy-button:hover {

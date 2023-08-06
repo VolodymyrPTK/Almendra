@@ -5,188 +5,189 @@
       <div> {{ total }}</div>
       <div>грн</div>
     </div>
+    <Transition name="slide">
+      <div v-if="isVisible" class="cart">
+        <div class="cart-name">{{ show ? 'Оформлення замовлення' : 'Кошик' }}</div>
 
-    <div v-if="isVisible" class="cart">
-      <div class="cart-name">{{ show ? 'Оформлення замовлення' : 'Кошик' }}</div>
-
-      <div v-if="!show" class="cart-container">
-        <div class="cart-items" v-for="item in items" :key="item.id">
-          <img class="productImage" :src="item.itemImage" />
-          <div class="sum">
-            <div class="item-name">
-              <b>{{ item.name }}</b>
-            </div>
-            <div class="numbers">
-              <div>{{ item.price }} грн</div>
-              <div class="quant">
-                <button class="round-btn" @click="reduceQuantity(item.id)">-</button>
-                <div>{{ item.quantity }} шт</div>
-                <button class="round-btn" @click="addQuantity(item.id)">+</button>
+        <div v-if="!show" class="cart-container">
+          <div class="cart-items" v-for="item in items" :key="item.id">
+            <img class="productImage" :src="item.itemImage" />
+            <div class="sum">
+              <div class="item-name">
+                <b>{{ item.name }}</b>
               </div>
-            </div>
-          </div>
-          <div style="font-size: 18px; width: 20%">
-            <b>{{ item.price * item.quantity }} грн</b>
-          </div>
-          <button class="round-btn" @click="deleteProduct(item.id)">x</button>
-        </div>
-      </div>
-
-      <div v-else="show" class="data-container">
-        <div class="cart-name">До сплати {{ total }} грн</div>
-
-        <div class="radio-container2">
-          <div class="headers">Оплата</div>
-          <div class="pay-tabs">
-            <input type="radio" id="radio-p1" name="paytabs" value="payNow" v-model="payment" />
-            <label class="pay-tab" for="radio-p1">За реквізитами</label>
-            <input type="radio" id="radio-p2" name="paytabs" value="payLater" v-model="payment" />
-            <label class="pay-tab" for="radio-p2">Післяплата</label>
-            <span class="glider"></span>
-          </div>
-        </div>
-
-        <div class="profile">
-          <div class="user-name" v-if="!showModalFlag">
-            <div class="headers">Дані для відправки</div>
-            <div style="display: flex; width: 90%; align-items: center; justify-content: space-around;">
-              <div>
-                <div style="margin-bottom: 7px;"><b>Ім'я:</b> {{ profile.firstName }} {{ profile.secondName }}</div>
-                <div style="margin-bottom: 7px;"><b>Телефон:</b>{{ formattedPhoneNumber }}</div>
-              </div>
-              <div v-on:click="showModal()"><img src="../assets/edit.png" alt="edit"></div>
-            </div>
-          </div>
-
-          <div class="edit-modal" v-if="showModalFlag">
-            <div class="edit-inputs">
-              <input type="text" id="name" v-model="profile.secondName" placeholder="Призвіще" />
-              <input type="text" id="name" v-model="profile.firstName" placeholder="Ім'я" />
-              <input type="text" id="phone" v-model="profile.phone" placeholder="Телефон" />
-            </div>
-            <div class="edit-buttons">
-              <button class="btn-primary" @click="updateData()" :disabled="loading">
-                <div class="spinner-container" v-if="loading">
-                  <div class="spinner-border" role="status"></div>
+              <div class="numbers">
+                <div>{{ item.price }} грн</div>
+                <div class="quant">
+                  <button class="round-btn" @click="reduceQuantity(item.id)">-</button>
+                  <div>{{ item.quantity }} шт</div>
+                  <button class="round-btn" @click="addQuantity(item.id)">+</button>
                 </div>
-                <div v-else>Зберегти</div>
-              </button>
-              <button class="btn-secondary" @click="closeModal()">Назад</button>
+              </div>
             </div>
+            <div style="font-size: 18px; width: 20%">
+              <b>{{ item.price * item.quantity }} грн</b>
+            </div>
+            <button class="round-btn" @click="deleteProduct(item.id)">x</button>
           </div>
         </div>
 
-        <div class="adress">
-          <div class="headers" v-if="!expandedNovaPoshta && !expandedUkrPoshta">
-            Адреса Доставки</div>
+        <div v-else="show" class="data-container">
+          <div class="cart-name">До сплати {{ total }} грн</div>
 
-          <div class="delivery-adress" v-if="!expandedNovaPoshta && !expandedUkrPoshta">
-            <div class="expanded" v-if="profile.deliveryOption === 'novaPoshta'">
-              <div style="font-weight: bold; font-size: 1vw; margin-bottom: 5px;">Нова Пошта</div>
-              <div><b>Місто:</b> {{ profile.city }}</div>
-              <div><b>Віділеня:</b> {{ profile.warehouse }}</div>
-            </div>
-
-            <div class="expanded" v-else-if="profile.deliveryOption === 'ukrPoshta'">
-              <div style="font-weight: bold; font-size: 1vw; margin-bottom: 5px;">УкрПошта</div>
-              <div><b>Місто:</b> {{ profile.city }}</div>
-              <div><b>Індекс:</b> {{ profile.cityIndex }}</div>
-            </div>
-
-            <div v-else>
-              <div style="font-size: 1vw; font-weight: bold; margin: 5px">Виберіть перевізника</div>
+          <div class="radio-container2">
+            <div class="headers">Оплата</div>
+            <div class="pay-tabs">
+              <input type="radio" id="radio-p1" name="paytabs" value="payNow" v-model="payment" />
+              <label class="pay-tab" for="radio-p1">За реквізитами</label>
+              <input type="radio" id="radio-p2" name="paytabs" value="payLater" v-model="payment" />
+              <label class="pay-tab" for="radio-p2">Післяплата</label>
+              <span class="glider"></span>
             </div>
           </div>
 
-          <div style="display: flex; flex-direction: column; align-items: center;"
-            v-if="!expandedNovaPoshta && !expandedUkrPoshta">
-
-            <div style="font-weight: bold; font-size: 1vw;; margin: 5px 0;"
-              v-if="profile.deliveryOption === 'ukrPoshta' || profile.deliveryOption === 'novaPoshta'">Вибрати іншу адресу
+          <div class="profile">
+            <div class="user-name" v-if="!showModalFlag">
+              <div class="headers">Дані для відправки</div>
+              <div style="display: flex; width: 90%; align-items: center; justify-content: space-around;">
+                <div>
+                  <div style="margin-bottom: 7px;"><b>Ім'я:</b> {{ profile.firstName }} {{ profile.secondName }}</div>
+                  <div style="margin-bottom: 7px;"><b>Телефон:</b>{{ formattedPhoneNumber }}</div>
+                </div>
+                <div v-on:click="showModal()"><img src="../assets/edit.png" alt="edit"></div>
+              </div>
             </div>
 
-            <div class="delivery-options">
-              <div class="box" @click="onNovaPoshtaClick" v-if="!expandedNovaPoshta && !expandedUkrPoshta">
-                <img :title="messageNP" class="cart-img" src="../assets/novaposhta.jpg" alt="Нова Пошта">
-
+            <div class="edit-modal" v-if="showModalFlag">
+              <div class="edit-inputs">
+                <input type="text" id="name" v-model="profile.secondName" placeholder="Призвіще" />
+                <input type="text" id="name" v-model="profile.firstName" placeholder="Ім'я" />
+                <input type="text" id="phone" v-model="profile.phone" placeholder="Телефон" />
               </div>
-              <div class="box" @click="onUkrPoshtaClick" v-if="!expandedNovaPoshta && !expandedUkrPoshta">
-                <img :title="messageUP" class="cart-img" src="../assets/ukrposhta.png" alt="УкрПошта">
+              <div class="edit-buttons">
+                <button class="btn-primary" @click="updateData()" :disabled="loading">
+                  <div class="spinner-container" v-if="loading">
+                    <div class="spinner-border" role="status"></div>
+                  </div>
+                  <div v-else>Зберегти</div>
+                </button>
+                <button class="btn-secondary" @click="closeModal()">Назад</button>
               </div>
             </div>
           </div>
 
-          <div class="poshta" v-if="expandedNovaPoshta">
-            <div style="font-weight: bold; font-size: 1vw; margin: 5px 0;">Нова Пошта</div>
-            <input placeholder="Місто" type="text" v-model="search" @input="searchCities"
-              @input.debounce="showDropdown = true" />
-            <ul id="ul-1" v-if="showDropdown">
-              <li v-for="city in cities" @click="selectCity(city)">
-                {{ city.Description }}
-              </li>
-            </ul>
+          <div class="adress">
+            <div class="headers" v-if="!expandedNovaPoshta && !expandedUkrPoshta">
+              Адреса Доставки</div>
 
-            <div class="radio-container">
-              <div class="radio-tabs">
-                <input type="radio" id="radio-1" name="tabs" value="Warehouse" v-model="selectedCategory">
-                <label class="tab" for="radio-1">Віділення</label>
-                <input type="radio" id="radio-2" name="tabs" value="Postomat" v-model="selectedCategory">
-                <label class="tab" for="radio-2">Поштомат</label>
-                <span class="glider2"></span>
+            <div class="delivery-adress" v-if="!expandedNovaPoshta && !expandedUkrPoshta">
+              <div class="expanded" v-if="profile.deliveryOption === 'novaPoshta'">
+                <div style="font-weight: bold; font-size: 1vw; margin-bottom: 5px;">Нова Пошта</div>
+                <div><b>Місто:</b> {{ profile.city }}</div>
+                <div><b>Віділеня:</b> {{ profile.warehouse }}</div>
+              </div>
+
+              <div class="expanded" v-else-if="profile.deliveryOption === 'ukrPoshta'">
+                <div style="font-weight: bold; font-size: 1vw; margin-bottom: 5px;">УкрПошта</div>
+                <div><b>Місто:</b> {{ profile.city }}</div>
+                <div><b>Індекс:</b> {{ profile.cityIndex }}</div>
+              </div>
+
+              <div v-else>
+                <div style="font-size: 1vw; font-weight: bold; margin: 5px">Виберіть перевізника</div>
               </div>
             </div>
 
-            <input :placeholder="placeholderText" type="text" v-model="searchWarehouse" @input="filterWarehouses"
-              @input.debounce="showDropdownW = true" />
-            <ul id="ul-2" v-if="showDropdownW">
-              <li
-                v-for="warehouse in filteredWarehouses.filter(warehouse => warehouse.Number.startsWith(searchWarehouse))"
-                @click="selectWarehouse(warehouse)">
-                {{ warehouse.Description }}
-              </li>
-            </ul>
-            <div style="display: flex;">
-              <button class="btn-primary" @click="updateUserData">Зберегти</button>
-              <button class="btn-secondary" @click="reset">Назад</button>
+            <div style="display: flex; flex-direction: column; align-items: center;"
+              v-if="!expandedNovaPoshta && !expandedUkrPoshta">
+
+              <div style="font-weight: bold; font-size: 1vw;; margin: 5px 0;"
+                v-if="profile.deliveryOption === 'ukrPoshta' || profile.deliveryOption === 'novaPoshta'">Вибрати іншу
+                адресу
+              </div>
+
+              <div class="delivery-options">
+                <div class="box" @click="onNovaPoshtaClick" v-if="!expandedNovaPoshta && !expandedUkrPoshta">
+                  <img :title="messageNP" class="cart-img" src="../assets/novaposhta.jpg" alt="Нова Пошта">
+
+                </div>
+                <div class="box" @click="onUkrPoshtaClick" v-if="!expandedNovaPoshta && !expandedUkrPoshta">
+                  <img :title="messageUP" class="cart-img" src="../assets/ukrposhta.png" alt="УкрПошта">
+                </div>
+              </div>
+            </div>
+
+            <div class="poshta" v-if="expandedNovaPoshta">
+              <div style="font-weight: bold; font-size: 1vw; margin: 5px 0;">Нова Пошта</div>
+              <input placeholder="Місто" type="text" v-model="search" @input="searchCities"
+                @input.debounce="showDropdown = true" />
+              <ul id="ul-1" v-if="showDropdown">
+                <li v-for="city in cities" @click="selectCity(city)">
+                  {{ city.Description }}
+                </li>
+              </ul>
+
+              <div class="radio-container">
+                <div class="radio-tabs">
+                  <input type="radio" id="radio-1" name="tabs" value="Warehouse" v-model="selectedCategory">
+                  <label class="tab" for="radio-1">Віділення</label>
+                  <input type="radio" id="radio-2" name="tabs" value="Postomat" v-model="selectedCategory">
+                  <label class="tab" for="radio-2">Поштомат</label>
+                  <span class="glider2"></span>
+                </div>
+              </div>
+
+              <input :placeholder="placeholderText" type="text" v-model="searchWarehouse" @input="filterWarehouses"
+                @input.debounce="showDropdownW = true" />
+              <ul id="ul-2" v-if="showDropdownW">
+                <li
+                  v-for="warehouse in filteredWarehouses.filter(warehouse => warehouse.Number.startsWith(searchWarehouse))"
+                  @click="selectWarehouse(warehouse)">
+                  {{ warehouse.Description }}
+                </li>
+              </ul>
+              <div style="display: flex;">
+                <button class="btn-primary" @click="updateUserData">Зберегти</button>
+                <button class="btn-secondary" @click="reset">Назад</button>
+              </div>
+            </div>
+
+            <div class="poshta" v-if="expandedUkrPoshta">
+              <div style="font-weight: bold; font-size: 21px; margin: 5px 0;">УкрПошта</div>
+              <input placeholder="Місто" type="text" v-model="search" @input="searchCities"
+                @input.debounce="showDropdown = true" />
+              <ul id="ul-1" v-if="showDropdown">
+                <li v-for="city in cities" @click="selectCity(city)">
+                  {{ city.Description }}
+                </li>
+              </ul>
+              <input placeholder="Індекс" type="text" v-model="profile.cityIndex">
+              <div>
+                <button class="btn-primary" @click="updateUserDataUP">Зберегти</button>
+                <button class="btn-secondary" @click="reset">Назад</button>
+              </div>
             </div>
           </div>
 
-          <div class="poshta" v-if="expandedUkrPoshta">
-            <div style="font-weight: bold; font-size: 21px; margin: 5px 0;">УкрПошта</div>
-            <input placeholder="Місто" type="text" v-model="search" @input="searchCities"
-              @input.debounce="showDropdown = true" />
-            <ul id="ul-1" v-if="showDropdown">
-              <li v-for="city in cities" @click="selectCity(city)">
-                {{ city.Description }}
-              </li>
-            </ul>
-            <input placeholder="Індекс" type="text" v-model="profile.cityIndex">
-            <div>
-              <button class="btn-primary" @click="updateUserDataUP">Зберегти</button>
-              <button class="btn-secondary" @click="reset">Назад</button>
-            </div>
+          <div class="button-container">
+            <button style="width: 50%;" class="btn-primary" @click="createOrder()">Оформити</button>
+            <button class="btn-secondary" @click="closeConfirm()">Назад</button>
           </div>
         </div>
 
-        <div class="button-container">
-          <button style="width: 50%;" class="btn-primary" @click="createOrder()">Оформити</button>
-          <button class="btn-secondary" @click="closeConfirm()">Назад</button>
+        <div class="button-container" :class="{ down: show }">
+          <div class="cart-name">До сплати {{ total }} грн</div>
+          <button class="btn-primary" @click="saveCart()">Сплатити</button>
+          <button class="btn-secondary" @click="closeCart()">Закрити</button>
+        </div>
+
+        <div class="order-confiramtion" v-if="orderConfirmed">
+          <img src="../assets/imgs/icons/done.png" alt="">
+          <h2>Дякуємо за замовлення</h2>
+          <RouterLink class="view-order" to="/user" @click="closeCart()">Переглянути замовлення</RouterLink>
         </div>
       </div>
-
-      <div class="button-container" :class="{ down: show }">
-        <div class="cart-name">До сплати {{ total }} грн</div>
-        <button class="btn-primary" @click="saveCart()">Сплатити</button>
-        <button class="btn-secondary" @click="closeCart()">Закрити</button>
-      </div>
-
-      <div class="order-confiramtion" v-if="orderConfirmed">
-        <img src="../assets/imgs/icons/done.png" alt="">
-        <h2>Дякуємо за замовлення</h2>
-        <RouterLink class="view-order" to="/user" @click="closeCart()">Переглянути замовлення</RouterLink>
-      </div>
-    </div>
-
+    </Transition>
   </div>
 </template>
 
@@ -276,7 +277,6 @@ export default {
     async closeCart() {
       this.isVisible = !this.isVisible;
       this.orderConfirmed = false;
-      this.show = !this.show;
     },
     async closeConfirm() {
       this.show = !this.show;
@@ -520,12 +520,10 @@ export default {
   created() {
     const auth = getAuth();
     const user = auth.currentUser;
-    this.profile.uid = user.uid;
-
+    this.profile.uid = user.uid
     const checkAndCreateCart = async () => {
       const q = query(cartReg, where("uid", "==", this.profile.uid), where("finalized", "==", false));
       const querySnapshot = await getDocs(q);
-
       if (querySnapshot.size > 0) {
         querySnapshot.forEach((doc) => {
           if (doc.data().finalized === false) {
@@ -870,7 +868,7 @@ export default {
 
 .navButton {
   height: 1.2vw;
-  padding: 13px 13px 13px 13px;
+  padding: 1.2vh;
   margin: 0 0.25em 0 0.25rem;
   display: flex;
   justify-content: space-evenly;
@@ -1232,5 +1230,15 @@ input[id="radio-p2"] {
 a {
   text-decoration: none;
   color: inherit;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.75s;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  transform: translateX(120%);
 }
 </style>

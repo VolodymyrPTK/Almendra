@@ -14,7 +14,7 @@
 <script>
 import { RouterView } from "vue-router";
 import NavBar from "./components/NavBar.vue";
-import Cart from "./components/Cart.vue";
+import Cart from "./components/Cart.vue"
 
 export default {
   components: {

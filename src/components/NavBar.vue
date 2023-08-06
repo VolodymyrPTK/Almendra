@@ -6,6 +6,7 @@
         <img alt="Almendra logo" class="logo" src="../assets/logoNav.png" />
       </RouterLink>
 
+
       <div class="search-container">
         <input class="searchInput" v-model="searchTerm" @input="handleSearchInput" placeholder="Пошук" />
         <div v-if="showResults" class="searchResults">
@@ -19,15 +20,16 @@
 
       <div class="buttons">
         <RouterLink class="navButton" to="/store">Крамниця</RouterLink>
-        <RouterLink class="navButton" to="/admin/overview">Admin</RouterLink>
-        <!--  <div v-if="isLoggedIn" class="navButton" @click="toggleModal">
-          <img style="height: 21px; margin: 0" src="../assets/cart.png" alt="cartlogo" />
-        </div>-->
+        <RouterLink v-if="profile.userAdmin" class="navButton" to="/admin/overview">Admin</RouterLink>
         <slot name="cart" v-if="isLoggedIn" @close="isVisible = false" class="cart-comp" />
-        <!-- <Cart v-if="isLoggedIn" @close="isVisible = false" class="cart-comp" />-->
-        <div class="menu-container">
+        <RouterLink v-if="!isLoggedIn" class="navButton" to="/user">Увійти</RouterLink>
+        <div v-if="isLoggedIn" class="menu-container">
           <div class="menu-button" @click="openMenu"><img src="../assets/imgs/icons/menu.svg" alt=""></div>
           <div v-if="menuDropdown" class="menu-dropdown">
+            <img class="profilePic" src="../assets/Logo.png" alt="profilePic" />
+            <h3>
+              {{ profile.firstName }}
+              {{ profile.secondName }}</h3>
             <RouterLink style="margin: 0.2vw;" class="navButton" to="/user">Мій кабінет</RouterLink>
             <RouterLink style="margin: 0.2vw;" class="navButton" to="/" @click="handSignOut" v-if="isLoggedIn">Вийти
             </RouterLink>
@@ -37,14 +39,15 @@
       </div>
     </div>
 
-    <Transition name="slide">
-    </Transition>
+
   </div>
 </template>
 
 <script>
 import { RouterLink } from "vue-router";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import { dataBase, profileReg } from "../main";
+import { doc, onSnapshot } from "firebase/firestore";
 import Cart from "./Cart.vue";
 
 export default {
@@ -56,17 +59,27 @@ export default {
   },
   data() {
     return {
+      profile: {
+        firstName: "",
+        secondName: "",
+        phone: "",
+        city: "",
+        warehouse: "",
+        cityIndex: "",
+        email: "",
+        uid: "",
+      },
+      profile: [],
       isLoggedIn: false,
       auth: null,
       isVisible: false,
       searchTerm: "",
       products: [],
       showResults: false,
-      menuDropdown: false
+      menuDropdown: false,
     };
   },
   methods: {
-
     openMenu() {
       this.menuDropdown = !this.menuDropdown;
     },
@@ -92,20 +105,46 @@ export default {
     onAuthStateChanged(this.auth, (user) => {
       if (user) {
         this.isLoggedIn = true;
+
+        // User is authenticated, you can now safely access their properties
+        this.profile.email = user.email;
+        this.profile.uid = user.uid;
+
+        const docRef = doc(profileReg, this.profile.uid);
+        onSnapshot(docRef, (doc) => {
+          this.profile.firstName = doc.data().firstName;
+          this.profile.secondName = doc.data().secondName;
+          this.profile.city = doc.data().city;
+          this.profile.userAdmin = doc.data().userAdmin;
+          this.profile.phone = doc.data().phone ?? "";
+        });
       } else {
         this.isLoggedIn = false;
       }
     });
-
+    onSnapshot(dataBase, (snapshot) => {
+      this.products = [];
+      snapshot.docs.forEach((doc) => {
+        this.products.push({ ...doc.data(), id: doc.id });
+      });
+    });
   },
   computed: {
     filteredProducts() {
       return this.products.filter((product) => {
-        return product.name
-          .toLowerCase()
-          .includes(this.searchTerm.toLowerCase());
+        return (
+          product.name
+            .toLowerCase()
+            .includes(this.searchTerm.toLowerCase()) ||
+          product.description
+            .toLowerCase()
+            .includes(this.searchTerm.toLowerCase()) ||
+          product.brand
+            .toLowerCase()
+            .includes(this.searchTerm.toLowerCase())
+        );
       });
-    },
+    }
   },
 };
 </script>
@@ -192,6 +231,7 @@ export default {
   position: absolute;
   display: flex;
   flex-direction: column;
+  align-items: center;
   margin-top: 3.5vw;
   border-radius: 25px;
   padding: 10px;
@@ -244,6 +284,31 @@ export default {
   width: 40px;
 }
 
+.searchResults {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  margin-top: 3.5vw;
+  border-radius: 25px;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(35px);
+  -webkit-backdrop-filter: blur(15px);
+  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
+  animation-name: swing-in-top-fwd;
+  animation-duration: 0.7s;
+  animation-timing-function: ease;
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+}
+
+.searchResults::-webkit-scrollbar {
+  display: none;
+}
+
 .rlink {
   display: flex;
   align-items: center;
@@ -256,7 +321,7 @@ export default {
   background-color: white;
   box-shadow: 0 5px 7px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(35px);
-  -webkit-backdrop-filter: blur(35px);
+
 }
 
 .rlink:hover {
@@ -264,14 +329,12 @@ export default {
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
 }
 
-.slide-enter-active,
-.slide-leave-active {
-  transition: transform 0.75s;
-}
-
-.slide-enter-from,
-.slide-leave-to {
-  transform: translateX(110%);
+.profilePic {
+  height: 5vw;
+  width: 5vw;
+  border-radius: 100px;
+  border: 5px solid white;
+  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4);
 }
 
 .navButton {
@@ -320,31 +383,5 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.searchResults {
-  margin-top: 3.3vw;
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  width: 350px;
-  max-height: 500px;
-  overflow-y: scroll;
-  border-radius: 25px;
-  padding: 10px;
-  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
-  background-color: rgba(253, 253, 253, 0.7);
-  animation-name: swing-in-top-fwd;
-  animation-duration: 1s;
-  animation-timing-function: ease;
-
-  a {
-    text-decoration: none;
-    color: inherit;
-  }
-}
-
-.searchResults::-webkit-scrollbar {
-  display: none;
 }
 </style>
