@@ -13,7 +13,10 @@
           <RouterLink class="rlink" v-for="(product, index) in filteredProducts" :key="index"
             :to="'/product/' + product.id" @click="hideResults">
             <img class="productImage" :src="product.image" />
-            <div>{{ product.name }}</div>
+            <div>
+              <div style="font-weight: bold;">{{ product.name }}</div>
+              <div>{{ product.detail }}</div>
+            </div>
           </RouterLink>
         </div>
       </div>
@@ -288,12 +291,14 @@ export default {
   position: absolute;
   display: flex;
   flex-direction: column;
-  margin-top: 3.5vw;
+  margin-top: 7vh;
   border-radius: 25px;
   padding: 10px;
-  background-color: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(35px);
-  -webkit-backdrop-filter: blur(15px);
+  max-height: 50vh;
+  width: 15vw;
+  overflow: hidden;
+  overflow-y: scroll;
+  background-color: rgba(255, 255, 255, 0.9);
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
   animation-name: swing-in-top-fwd;
   animation-duration: 0.7s;
@@ -313,7 +318,7 @@ export default {
   display: flex;
   align-items: center;
   border-radius: 20px;
-  padding: 10px;
+  padding: 0.5vw;
   margin: 5px;
   height: 50px;
   cursor: pointer;
@@ -338,8 +343,8 @@ export default {
 }
 
 .navButton {
-  width: 7vw;
-  height: 1.2vw;
+  width: 7.5vw;
+  height: 2.5vh;
   padding: 1.2vh;
   margin: 0 0.25em 0 0.25rem;
   display: flex;

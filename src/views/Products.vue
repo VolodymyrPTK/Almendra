@@ -45,7 +45,7 @@
           <input type="checkbox" class="checkbox" v-model="product.freeGluten" />
           <label for="checkbox">Free gluten</label>
           <input type="checkbox" class="checkbox" v-model="product.freeSugar" />
-          <label for="checkbox">Free sugar</label>
+          <label for="checkbox">Free Sugar</label>
           <input type="checkbox" class="checkbox" v-model="product.freeLactosa" />
           <label for="checkbox">Free lactosa</label>
           <input type="checkbox" class="checkbox" v-model="product.vegan" />
@@ -144,7 +144,6 @@ export default {
         freeSugar: false,
         freeLactosa: false,
         vegan: false,
-        raw: false,
         protein: false,
         weight: ""
       },
@@ -188,28 +187,7 @@ export default {
     async updateData() {
       try {
         const refDoc = doc(db, "products", this.product.id);
-        await updateDoc(refDoc, {
-          name: this.product.name,
-          detail: this.product.detail,
-          sellPrice: this.product.sellPrice,
-          description: this.product.description,
-          sklad: this.product.sklad,
-          kcal: this.product.kcal,
-          protein: this.product.protein,
-          carbo: this.product.carbo,
-          fat: this.product.fat,
-          brand: this.product.brand,
-          category: this.product.category,
-          country: this.product.country,
-          image: this.product.image,
-          vitamins: this.product.vitamins,
-          freeGluten: this.product.freeGluten,
-          freeSugar: this.product.freeSugar,
-          freeLactosa: this.product.freeLactosa,
-          vegan: this.product.vegan,
-          raw: this.product.raw,
-          protein: this.product.protein,
-        });
+        await setDoc(refDoc, this.product, { merge: true });
       } catch (error) {
         console.error(error);
       }

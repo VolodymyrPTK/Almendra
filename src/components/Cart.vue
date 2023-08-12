@@ -35,16 +35,7 @@
         <div v-else="show" class="data-container">
           <div class="cart-name">До сплати {{ total }} грн</div>
 
-          <div class="radio-container2">
-            <div class="headers">Оплата</div>
-            <div class="pay-tabs">
-              <input type="radio" id="radio-p1" name="paytabs" value="payNow" v-model="payment" />
-              <label class="pay-tab" for="radio-p1">За реквізитами</label>
-              <input type="radio" id="radio-p2" name="paytabs" value="payLater" v-model="payment" />
-              <label class="pay-tab" for="radio-p2">Післяплата</label>
-              <span class="glider"></span>
-            </div>
-          </div>
+
 
           <div class="profile">
             <div class="user-name" v-if="!showModalFlag">
@@ -168,12 +159,23 @@
               </div>
             </div>
           </div>
+          <div class="radio-container2">
+            <div class="headers">Оплата</div>
+            <div class="pay-tabs">
+              <input type="radio" id="radio-p1" name="paytabs" value="payNow" v-model="payment" />
+              <label class="pay-tab" for="radio-p1">За реквізитами</label>
+              <input type="radio" id="radio-p2" name="paytabs" value="payLater" v-model="payment" />
+              <label class="pay-tab" for="radio-p2">Післяплата</label>
+              <span class="glider"></span>
+            </div>
+          </div>
 
           <div class="button-container">
             <button style="width: 50%;" class="btn-primary" @click="createOrder()">Оформити</button>
             <button class="btn-secondary" @click="closeConfirm()">Назад</button>
           </div>
         </div>
+
 
         <div class="button-container" :class="{ down: show }">
           <div class="cart-name">До сплати {{ total }} грн</div>
@@ -245,7 +247,7 @@ export default {
       messageNP: 'Нова Пошта',
       messageUP: 'УкрПошта',
       orderConfirmed: false,
-      payment: "payLater",
+      payment: "payNow",
       isVisible: false,
       cartId: null,
     };
@@ -637,10 +639,10 @@ export default {
   flex-direction: column;
   overflow: hidden;
   padding: 0.5vw 0;
-  top: 5vw;
+  top: 10vh;
   right: 0;
   width: 28vw;
-  height: 43vw;
+  height: 85vh;
   backdrop-filter: blur(25px);
   -webkit-backdrop-filter: blur(25px);
   background-color: rgba(255, 255, 255, 0.3);
@@ -735,6 +737,21 @@ export default {
 
 //user data
 
+
+.profile {
+  width: 100%;
+  height: 7vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 25px;
+  box-shadow: 0 5px 7px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(35px);
+  -webkit-backdrop-filter: blur(35px);
+  background-color: rgba(253, 253, 253, 0.5);
+}
+
 .user-name {
   display: flex;
   flex-direction: column;
@@ -745,8 +762,6 @@ export default {
 }
 
 .edit-modal {
-  width: 100%;
-  height: 6vw;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -785,6 +800,7 @@ export default {
 ///adress style
 .adress {
   width: 100%;
+  height: 35vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -815,7 +831,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 280px;
+  width: 15vw;
 
   input {
     margin: 10px 0;
@@ -867,7 +883,7 @@ export default {
 
 
 .navButton {
-  height: 1.2vw;
+  height: 2.5vh;
   padding: 1.2vh;
   margin: 0 0.25em 0 0.25rem;
   display: flex;
@@ -977,18 +993,6 @@ h3 {
   cursor: pointer;
 }
 
-.profile {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  border-radius: 25px;
-  box-shadow: 0 5px 7px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(35px);
-  -webkit-backdrop-filter: blur(35px);
-  background-color: rgba(253, 253, 253, 0.5);
-}
-
 input[type="radio"] {
   display: none;
 }
@@ -1010,7 +1014,7 @@ input[type="radio"] {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.2vw;
+  font-size: 1vw;
   z-index: 1;
   font-weight: bold;
 }

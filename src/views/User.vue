@@ -202,7 +202,7 @@ import {
 } from "firebase/firestore";
 import { orderReg, profileReg, db } from "../main";
 
-const apiKey = "0fe8dfcca7f61242d252e83fd715eaf2";
+const apiKey = "b78d2a5d64f6903591a12493aa852776";
 const endpointRef = "https://api.novaposhta.ua/v2.0/json/";
 
 export default {

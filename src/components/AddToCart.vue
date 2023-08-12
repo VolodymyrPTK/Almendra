@@ -7,7 +7,7 @@
 <script>
 import { getAuth } from "firebase/auth";
 import { cartReg, db, profileReg } from "../main";
-import { addDoc, doc, setDoc, getDoc, query, where, getDocs, runTransaction } from "firebase/firestore";
+import { doc, setDoc, getDoc, query, where, getDocs, runTransaction } from "firebase/firestore";
 
 export default {
   name: "AddToCart",
@@ -40,13 +40,8 @@ export default {
           itemImage: this.productImage,
         };
 
-        const cartInfo = {
-          uid: this.profile.uid,
-          finalized: false,
-        };
         const q = query(cartReg, where("uid", "==", this.profile.uid), where("finalized", "==", false));
         const querySnapshot = await getDocs(q);
-
 
         let cartId;
         querySnapshot.forEach((doc) => {

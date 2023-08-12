@@ -10,6 +10,7 @@ import Register from "../views/Register.vue";
 import User from "../views/User.vue";
 import Admin from "../views/Admin.vue";
 import Overview from "../views/Overview.vue";
+import NovaPoshta from "../views/NovaPoshta.vue";
 import Products from "../views/Products.vue";
 import Orders from "../views/Orders.vue";
 import Clients from "../views/Clients.vue";
@@ -96,6 +97,11 @@ const router = createRouter({
           path: "inventory",
           name: "inventory",
           component: Inventory,
+        },
+        {
+          path: "novaposhta",
+          name: "novaposhta",
+          component: NovaPoshta,
         },
       ],
     },

@@ -17,7 +17,7 @@
         <RouterLink :to="'/product/' + product.id">
           <img class="productImage" :src="product.image" />
           <div class="product-name">{{ product.name }}</div>
-          <h3>₴ {{ product.sellPrice }}.00</h3>
+          <div>₴ {{ product.sellPrice }}.00</div>
         </RouterLink>
 
         <AddToCart class="add-to-cart" :product-id="product.id" :sellPrice="product.sellPrice" :image="product.image"
@@ -30,66 +30,60 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, reactive, watch } from "vue";
 import { dataBase, categoryReg } from "../main";
 import { onSnapshot } from "firebase/firestore";
 import { RouterLink } from "vue-router";
 import AddToCart from "../components/AddToCart.vue";
 
-export default {
-  name: "Store",
-  props: {
-    msg: String,
-  },
-  components: { AddToCart, RouterLink },
-  data() {
-    return {
-      originalProducts: [],
-      categories: [],
-      category: {},
-      products: [],
-      product: {
-        productId: "",
-        name: "",
-        detail: "",
-        sellPrice: 0,
-        brand: "",
-        category: "",
-        image: "",
-        freeGluten: false,
-        freeSugar: false,
-        freeLactosa: false,
-        vegan: false,
-        raw: false,
-      },
-    };
-  },
-  methods: {
-    filterProducts(category) {
-      this.products = this.originalProducts;
-      this.products = this.products.filter(
-        (product) => product.category === category
-      );
-    },
-    resetFilter() {
-      this.products = this.originalProducts;
-    },
-  },
-  created() {
-    onSnapshot(dataBase, (snapshot) => {
-      snapshot.docs.forEach((doc) => {
-        this.products.push({ ...doc.data(), id: doc.id });
-      });
-    });
-    onSnapshot(categoryReg, (snapshot) => {
-      this.categories = [];
-      snapshot.docs.forEach((doc) => {
-        this.categories.push({ ...doc.data(), id: doc.id });
-      });
-    });
-    this.originalProducts = this.products;
-  },
+const originalProducts = ref([]);
+const categories = ref([]);
+const category = ref({});
+const products = ref([]);
+const product = reactive({
+  productId: "",
+  name: "",
+  detail: "",
+  sellPrice: 0,
+  brand: "",
+  category: "",
+  image: "",
+  freeGluten: false,
+  freeSugar: false,
+  freeLactosa: false,
+  vegan: false,
+  raw: false,
+});
+
+const filterProducts = (categoryFilter) => {
+  products.value = originalProducts.value.filter(
+    (product) => product.category === categoryFilter
+  );
 };
+
+const resetFilter = () => {
+  products.value = originalProducts.value;
+};
+
+onSnapshot(dataBase, (snapshot) => {
+  originalProducts.value = [];
+  snapshot.docs.forEach((doc) => {
+    originalProducts.value.push({ ...doc.data(), id: doc.id });
+  });
+});
+
+onSnapshot(categoryReg, (snapshot) => {
+  categories.value = [];
+  snapshot.docs.forEach((doc) => {
+    categories.value.push({ ...doc.data(), id: doc.id });
+  });
+});
+
+// Watch for changes in the originalProducts array and update the products array accordingly
+watch(originalProducts, () => {
+  products.value = originalProducts.value;
+});
 </script>
 
 <style scoped lang="scss">
@@ -167,9 +161,9 @@ label {
   text-align: center;
   text-decoration: none;
   font-size: 1vw;
-  width: 30vh;
+  width: 15vw;
   height: 19.5vw;
-  margin: 0vw 0.5vw 6.2vw 0.5vw;
+  margin: 0vw 0.5vw 6.5vw 0.5vw;
   background: #ffffff;
   border-radius: 25px;
   box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px,
@@ -201,13 +195,7 @@ label {
   height: 3vh;
 }
 
-h3 {
-  font-size: 1vw;
-  margin: 1vw;
-}
-
 .add-to-cart {
-  margin-top: 0.3vw;
-
+  margin-top: 4vh;
 }
 </style>
