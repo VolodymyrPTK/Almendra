@@ -48,8 +48,7 @@ import { RouterView } from "vue-router";
 }
 
 .admincontent {
-  display: flex;
-  justify-content: center;
+
   width: 90%;
   height: 43vw;
   margin-left: 15px;

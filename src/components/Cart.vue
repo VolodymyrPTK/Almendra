@@ -75,7 +75,8 @@
               <div class="expanded" v-if="profile.deliveryOption === 'novaPoshta'">
                 <div style="font-weight: bold; font-size: 1vw; margin-bottom: 5px;">Нова Пошта</div>
                 <div><b>Місто:</b> {{ profile.city }}</div>
-                <div><b>Віділеня:</b> {{ profile.warehouse }}</div>
+                <div v-if="profile.postType === 'Warehouse'"><b>Віділення</b> {{ profile.warehouse }}</div>
+                <div v-else-if="profile.postType === 'Postomat'"><b>Поштомат</b> {{ profile.warehouse }}</div>
               </div>
 
               <div class="expanded" v-else-if="profile.deliveryOption === 'ukrPoshta'">
@@ -199,7 +200,7 @@ import { getAuth } from "firebase/auth";
 import { addDoc, setDoc, doc, getDoc, getDocs, query, where, onSnapshot, increment, collection, deleteDoc, updateDoc, orderBy, limit } from "firebase/firestore";
 import { profileReg, cartReg, dataBase, db, orderReg } from "../main";
 
-const apiKey = "0fe8dfcca7f61242d252e83fd715eaf2";
+const apiKey = "b78d2a5d64f6903591a12493aa852776";
 const endpointRef = "https://api.novaposhta.ua/v2.0/json/";
 
 export default {
@@ -227,7 +228,8 @@ export default {
         phone: "",
         city: "",
         warehouse: "",
-        cityIndex: ""
+        cityIndex: "",
+        postType: ""
       },
       loading: false,
       search: "",
@@ -255,6 +257,9 @@ export default {
   methods: {
     toggleModal() {
       this.isVisible = !this.isVisible;
+    },
+    closeCartOut() {
+      this.isVisible = false;
     },
     onNovaPoshtaClick() {
       this.selectedOption = 'novaPoshta';
@@ -408,6 +413,7 @@ export default {
         city: this.selectedCity.Description,
         deliveryOption: this.selectedOption,
         warehouse: this.selectedWarehouse.Number,
+        postType: this.selectedCategory
       });
       this.expandedNovaPoshta = false;
     },
@@ -477,9 +483,6 @@ export default {
     },
     async createOrder() {
       const cartId = this.cartId;
-      console.log(cartId)
-      const items = this.items;
-      const userData = this.profiles;
       const time = new Date().toLocaleString("en-US", {
         day: "2-digit",
         month: "2-digit",
@@ -501,8 +504,16 @@ export default {
       const order = {
         orderId: lastId + 1,
         uid: this.profile.uid,
-        items,
-        userData,
+        firstName: this.profile.firstName,
+        secondName: this.profile.secondName,
+        city: this.profile.city,
+        deliveryOption: this.profile.deliveryOption,
+        warehouse: this.profile.warehouse,
+        cityIndex: this.profile.cityIndex,
+        phone: this.profile.phone,
+        email: this.profile.email,
+        items: this.items,
+        postType: this.selectedCategory,
         orderStatus: "Processing",
         time: time,
         payment: this.payment,
@@ -591,6 +602,7 @@ export default {
           this.profile.cityIndex = doc.data().cityIndex;
           this.profile.phone = doc.data().phone ?? '';
           this.profile.deliveryOption = doc.data().deliveryOption;
+          this.profile.postType = doc.data().postType;
         }
       });
 
@@ -598,7 +610,6 @@ export default {
       fetchCartAndProducts();
     }
   },
-
   computed: {
     formattedPhoneNumber() {
       const phoneNumber = this.profile.phone;

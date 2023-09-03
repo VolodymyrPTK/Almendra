@@ -5,8 +5,6 @@
       <RouterLink to="/">
         <img alt="Almendra logo" class="logo" src="../assets/logoNav.png" />
       </RouterLink>
-
-
       <div class="search-container">
         <input class="searchInput" v-model="searchTerm" @input="handleSearchInput" placeholder="Пошук" />
         <div v-if="showResults" class="searchResults">
@@ -23,7 +21,6 @@
 
       <div class="buttons">
         <RouterLink class="navButton" to="/store">Крамниця</RouterLink>
-        <RouterLink v-if="profile.userAdmin" class="navButton" to="/admin/overview">Admin</RouterLink>
         <slot name="cart" v-if="isLoggedIn" @close="isVisible = false" class="cart-comp" />
         <RouterLink v-if="!isLoggedIn" class="navButton" to="/user">Увійти</RouterLink>
         <div v-if="isLoggedIn" class="menu-container">
@@ -33,6 +30,8 @@
             <h3>
               {{ profile.firstName }}
               {{ profile.secondName }}</h3>
+            <RouterLink style="margin: 0.2vw;" v-if="profile.userAdmin" class="navButton" to="/admin/overview">Admin
+            </RouterLink>
             <RouterLink style="margin: 0.2vw;" class="navButton" to="/user">Мій кабінет</RouterLink>
             <RouterLink style="margin: 0.2vw;" class="navButton" to="/" @click="handSignOut" v-if="isLoggedIn">Вийти
             </RouterLink>
@@ -41,7 +40,6 @@
 
       </div>
     </div>
-
 
   </div>
 </template>
@@ -388,5 +386,19 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+@media (max-width: 501px) {
+  .logo {
+    height: 4.55vh;
+  }
+
+  .mobile-cart {
+    position: absolute;
+    top: -500px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
 }
 </style>

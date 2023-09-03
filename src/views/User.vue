@@ -2,9 +2,7 @@
   <div class="body">
     <div class="orders">
       <div class="order-container" v-for="order in orders" :key="order.id">
-        <div @click="showDetails(order)" class="order-row">
-
-
+        <div class="order-row">
           <div><b>Замовлення:</b> {{ order.orderId }}</div>
           <div><b>Дата:</b> {{ order.time }}</div>
           <div><b>Сума:</b> {{ order.total }}</div>
@@ -45,8 +43,8 @@
             </div>
           </div>
           <div style="display: flex; flex-direction: column; align-items: center;">
-            <div style="font-size: 0.8vw;">Розгорнути</div>
-            <img src="../assets/imgs/icons/expand.svg" alt="">
+            <button @click="showDetails(order)"><img src="../assets/imgs/icons/expand.svg" alt=""></button>
+
           </div>
         </div>
         <table v-if="orderDetails === order.id">
@@ -110,7 +108,8 @@
           <div class="expanded" v-if="profile.deliveryOption === 'novaPoshta'">
             <div style="font-weight: bold; font-size: 1vw; margin-bottom: 5px;">Нова Пошта</div>
             <div><b>Місто:</b> {{ profile.city }}</div>
-            <div><b>Віділеня:</b> {{ profile.warehouse }}</div>
+            <div v-if="profile.postType === 'Warehouse'"><b>Віділення</b> {{ profile.warehouse }}</div>
+            <div v-else-if="profile.postType === 'Postomat'"><b>Поштомат</b> {{ profile.warehouse }}</div>
           </div>
 
           <div class="expanded" v-else-if="profile.deliveryOption === 'ukrPoshta'">
@@ -197,9 +196,7 @@
 
 <script>
 import { getAuth } from "firebase/auth";
-import {
-  setDoc, addDoc, doc, getDoc, getDocs, query, where, onSnapshot, increment, collection, deleteDoc, updateDoc,
-} from "firebase/firestore";
+import { doc, getDocs, query, where, onSnapshot, updateDoc } from "firebase/firestore";
 import { orderReg, profileReg, db } from "../main";
 
 const apiKey = "b78d2a5d64f6903591a12493aa852776";
@@ -219,7 +216,8 @@ export default {
         phone: "",
         city: "",
         warehouse: "",
-        cityIndex: ""
+        cityIndex: "",
+        postType: ""
       },
       orders: [],
       order: {
@@ -384,6 +382,7 @@ export default {
         city: this.selectedCity.Description,
         deliveryOption: this.selectedOption,
         warehouse: this.selectedWarehouse.Number,
+        postType: this.selectedCategory
       });
       this.expandedNovaPoshta = false;
     },
@@ -416,6 +415,7 @@ export default {
       this.profile.cityIndex = doc.data().cityIndex;
       this.profile.phone = doc.data().phone ?? "";
       this.profile.deliveryOption = doc.data().deliveryOption;
+      this.profile.postType = doc.data().postType;
     });
     const q = query(
       orderReg,
@@ -762,15 +762,38 @@ input[id="radio-2"] {
 .order-container {
   border-radius: 25px;
   box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
-  padding: 1vw;
-  cursor: pointer;
-  margin: 1vw;
+  padding: 0.5vw;
+  margin: 0.25vw;
+  background-color: #ffffff;
 }
 
 .order-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 2vw;
+    width: 2vw;
+    border-radius: 50px;
+    border: none;
+    background-color: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: 0.3s;
+
+    img {
+      height: 2vh;
+    }
+
+    &:hover {
+      background-color: rgba(238, 238, 238, 1);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+  }
 }
 
 table td:nth-child(1) {

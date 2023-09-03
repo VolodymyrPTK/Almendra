@@ -10,9 +10,9 @@
 
     <div id="card-2" class="cards">
       <div>{{ product.name }}</div>
-      <div>{{ product.detail }}</div>
-      <div>{{ product.description }}</div>
-      <div><b>Склад:</b> {{ product.sklad }}</div>
+      <h2>{{ product.detail }}</h2>
+      <p>{{ product.description }}</p>
+      <p><b>Склад:</b> {{ product.sklad }}</p>
       <div class="lables-row">
         <img class="diet-lable" v-if="product.freeGluten == true"
           src="https://firebasestorage.googleapis.com/v0/b/almendra-a411d.appspot.com/o/icons%2Fgluten.png?alt=media&token=9440b903-9314-404e-86b0-1f173ce75460"
@@ -26,9 +26,6 @@
         <img class="diet-lable" v-if="product.vegan == true"
           src="https://firebasestorage.googleapis.com/v0/b/almendra-a411d.appspot.com/o/icons%2Fvegan.png?alt=media&token=95204665-ddb2-457e-b785-b1d062f3cdd5"
           alt="веган" />
-        <img class="diet-lable" v-if="product.raw == true"
-          src="https://firebasestorage.googleapis.com/v0/b/almendra-a411d.appspot.com/o/icons%2Fraw.png?alt=media&token=6c35501b-5854-4f0f-8155-e3a7d08f8740"
-          alt="raw" />
         <img class="diet-lable" v-if="product.protein == true"
           src="https://firebasestorage.googleapis.com/v0/b/almendra-a411d.appspot.com/o/icons%2Fraw.png?alt=media&token=6c35501b-5854-4f0f-8155-e3a7d08f8740"
           alt="protein" />
@@ -74,6 +71,7 @@
     </div>
   </div>
 </template>
+
 
 <script>
 import { dataBase } from "../main";
@@ -236,5 +234,63 @@ p {
   font-family: Arial, Helvetica, sans-serif;
   margin: 10px;
   color: rgb(0, 0, 0);
+}
+
+@media (max-width: 500px) {
+
+  .container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #card-1 {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    height: 50vh;
+  }
+
+  #card-2 {
+    margin: 5vw 0;
+    padding: 0;
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    >div:nth-child(1) {
+      margin-top: 3vw;
+      font-size: 6vw;
+      font-weight: bold;
+    }
+
+    >div:nth-child(2) {
+      background-color: aquamarine;
+      font-size: 1.5vw;
+      margin: 0 5vh;
+    }
+
+    >div:nth-child(3) {
+      font-size: 1.5vw;
+    }
+
+    >div:nth-child(4) {
+      font-size: 1.2vw;
+    }
+
+    >div:nth-child(5) {
+      font-size: 1.2vw;
+    }
+  }
+
+  #card-3 {
+    width: 100%;
+    padding: 0;
+  }
+
+  .productImage {
+    height: 40vh;
+  }
 }
 </style>

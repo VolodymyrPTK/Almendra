@@ -8,39 +8,41 @@
 import { getAuth } from "firebase/auth";
 import { cartReg, db, profileReg } from "../main";
 import { doc, setDoc, getDoc, query, where, getDocs, runTransaction } from "firebase/firestore";
+import { ref, computed, onMounted } from "vue";
 
 export default {
   name: "AddToCart",
-  props: {
-    product: Array,
-    sellPrice: Number,
-    name: String,
-    productId: String,
-    image: String,
-  },
-  data() {
-    return {
-      profiles: [],
-      profile: {},
-      productName: this.name,
-      productPrice: this.sellPrice,
-      product_id: this.productId,
-      productImage: this.image,
-      quantity: 1,
-    };
-  },
-  methods: {
-    async addToCart() {
-      try {
-        const product = {
-          name: this.productName,
-          price: this.productPrice,
-          itemId: this.product_id,
-          quantity: this.quantity,
-          itemImage: this.productImage,
-        };
+  props: { product: Array, sellPrice: Number, name: String, productId: String, image: String, },
+  setup(props) {
+    const profiles = ref([]); const profile = ref({});
+    const productName = ref(props.name); const productPrice = ref(props.sellPrice);
+    const product_id = ref(props.productId); const productImage = ref(props.image);
+    const quantity = ref(1);
 
-        const q = query(cartReg, where("uid", "==", this.profile.uid), where("finalized", "==", false));
+    // use computed to create reactive getters
+    const product = computed(() => ({
+      name: productName.value,
+      price: productPrice.value,
+      itemId: product_id.value,
+      quantity: quantity.value,
+      itemImage: productImage.value,
+    }));
+
+    // use onMounted to execute code when the component is mounted
+    onMounted(async () => {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      profile.value.uid = user.uid;
+      const docRef = doc(profileReg, profile.value.uid);
+      getDoc(docRef).then((doc) => {
+        profiles.value.push({ ...doc.data(), id: doc.id });
+      });
+    });
+
+    // use async functions to handle promises
+    async function addToCart() {
+      try {
+        const q = query(cartReg, where("uid", "==", profile.value.uid), where("finalized", "==", false));
         const querySnapshot = await getDocs(q);
 
         let cartId;
@@ -49,12 +51,12 @@ export default {
             cartId = doc.id;
           }
         });
-        const productRef = doc(db, "carts", cartId, "cartProducts", this.productName);
+        const productRef = doc(db, "carts", cartId, "cartProducts", productName.value);
         try {
           await runTransaction(db, async (transaction) => {
             const newQ = await transaction.get(productRef);
             if (!newQ.exists()) {
-              await setDoc(productRef, product);
+              await setDoc(productRef, product.value);
             }
             const newQuant = newQ.data().quantity + 1;
             transaction.update(productRef, { quantity: newQuant });
@@ -67,20 +69,22 @@ export default {
       } catch (error) {
         console.error("Error adding product to cart: ", error);
       }
-    },
-  },
-  async created() {
-    const auth = getAuth();
-    const user = auth.currentUser;
-    this.profile.uid = user.uid;
-    const docRef = doc(profileReg, this.profile.uid);
-    getDoc(docRef).then((doc) => {
-      this.profiles.push({ ...doc.data(), id: doc.id });
-    });
-  },
-};
-</script>
+    }
 
+    // return the variables and functions that are needed in the template
+    return {
+      profiles,
+      profile,
+      productName,
+      productPrice,
+      product_id,
+      productImage,
+      quantity,
+      addToCart
+    };
+  },
+}; 
+</script>
 <style scoped lang="scss">
 .buy-button {
   margin-top: 0vw;

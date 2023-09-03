@@ -17,7 +17,7 @@
         <RouterLink :to="'/product/' + product.id">
           <img class="productImage" :src="product.image" />
           <div class="product-name">{{ product.name }}</div>
-          <div>₴ {{ product.sellPrice }}.00</div>
+          <div style="font-size: 1.3vw;">₴ {{ product.sellPrice }}.00</div>
         </RouterLink>
 
         <AddToCart class="add-to-cart" :product-id="product.id" :sellPrice="product.sellPrice" :image="product.image"
@@ -174,6 +174,10 @@ label {
   a {
     text-decoration: none;
     color: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 }
 
@@ -190,12 +194,16 @@ label {
 }
 
 .product-name {
-  font-size: 1.1vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1vw;
   font-weight: bold;
-  height: 3vh;
+  height: 5vh;
+  width: 14vw;
 }
 
 .add-to-cart {
-  margin-top: 4vh;
+  margin-top: 2.5vh;
 }
 </style>

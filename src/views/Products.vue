@@ -1,6 +1,5 @@
 <template>
   <div class="products">
-
     <div v-if="editVisible || isVisible" class="addproduct">
       <div class="top-inputs">
         <input type="text" v-model="product.name" placeholder="Назва товару" />
@@ -8,7 +7,22 @@
 
         <div class="file-upload">
           <input type="file" @change="uploadImage" />
-          <img class="btnimg" src="../assets/btnimg.png" alt="icon" />
+          <div :class="{ 'loading': isLoading, 'loaded': isLoaded }">
+            <span v-if="isLoading">
+              <div class="dot-spinner">
+                <div class="dot-spinner__dot"></div>
+                <div class="dot-spinner__dot"></div>
+                <div class="dot-spinner__dot"></div>
+                <div class="dot-spinner__dot"></div>
+                <div class="dot-spinner__dot"></div>
+                <div class="dot-spinner__dot"></div>
+                <div class="dot-spinner__dot"></div>
+                <div class="dot-spinner__dot"></div>
+              </div>
+            </span>
+            <span v-else-if="isLoaded"><img class="btnimg" src="../assets/imgs/icons/done.svg" alt="icon" /></span>
+            <span v-else><img class="btnimg" src="../assets/btnimg.png" alt="icon" /></span>
+          </div>
         </div>
         <input type="number" v-model="product.buyPrice" placeholder="Ціна Купівлі" />
         <input type="number" v-model="product.sellPrice" placeholder="Ціна Продажу" />
@@ -28,7 +42,7 @@
       <input style="width: 50vw;" type="text" v-model="product.vitamins" placeholder="Вітаміни" />
       <div>
         <select v-model="product.country">
-          <option disabled value="">Країна</option>
+          <option disabled value="" placeholder="Країна">Країна</option>
           <option v-for="country in countries">{{ country.id }}</option>
         </select>
         <select v-model="product.brand">
@@ -55,7 +69,7 @@
         </div>
       </div>
       <div>
-        <button v-if="isVisible" @click="saveData">Зберегти</button>
+        <button :disabled="isSubmitDisabled" v-if="isVisible" @click="saveData">Зберегти</button>
         <button v-if="isVisible" @click="toggleModal">Закрити</button>
 
         <button v-if="editVisible" @click="updateData">Оновити</button>
@@ -68,9 +82,34 @@
         <button @click="toggleModal"> Створити продукт </button>
         <div class="center-flex">
           <input class="searchInput" v-model="searchTerm" placeholder="Пошук" />
-          <input type="text" v-model="category" @keyup.enter="saveCategory()" placeholder="Нова Категорія" />
-          <input type="text" v-model="brand" @keyup.enter="saveBrand()" placeholder="Новий Бренд" />
-          <input type="text" v-model="country" @keyup.enter="saveCountry()" placeholder="Новий Країна" />
+          <div>
+            <button @click="showBrands">Бренди</button>
+            <div class="menu" v-if="brandsMenu">
+              <input type="text" v-model="brand" @keyup.enter="saveBrand()" placeholder="Новий Бренд" />
+              <ul v-for="brand in brands">
+                <li> {{ brand.id }}</li>
+              </ul>
+            </div>
+          </div>
+          <div>
+            <button @click="showCategory">Категорії</button>
+            <div class="menu" v-if="categoryMenu">
+              <button></button>
+              <input type="text" v-model="category" @keyup.enter="saveCategory()" placeholder="Нова Категорія" />
+              <ul v-for="category in categories">
+                <li> {{ category.id }}</li>
+              </ul>
+            </div>
+          </div>
+          <div>
+            <button @click="showCountry">Країни</button>
+            <div class="menu" v-if="countryMenu">
+              <input type="text" v-model="country" @keyup.enter="saveCountry()" placeholder="Новий Країна" />
+              <ul v-for="country in countries">
+                <li> {{ country.id }}</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
       <table class="fixed_headers">
@@ -104,6 +143,7 @@
     </div>
   </div>
 </template>
+
 
 <script>
 import { dataBase, storage, categoryReg, brandReg, countryReg, db } from "../main";
@@ -139,21 +179,42 @@ export default {
         category: "",
         country: "",
         image: "",
+        weight: "",
         vitamins: [],
         freeGluten: false,
         freeSugar: false,
         freeLactosa: false,
         vegan: false,
-        protein: false,
-        weight: ""
+        protein: false
       },
       modalVisible: false,
       isVisible: false,
       searchTerm: "",
-      editVisible: false
+      editVisible: false,
+      brandsMenu: false,
+      categoryMenu: false,
+      countryMenu: false,
+      isLoading: false,
+      isLoaded: false,
+      requiredFields: [
+        "name", "detail", "sellPrice", "buyPrice", "description", "sklad", "kcal", "protein", "carbo", "fat", "brand", "category", "country", "image", "weight", "vitamins"
+      ]
     };
   },
   methods: {
+    showCategory() {
+      this.categoryMenu = !this.categoryMenu;
+    },
+    hideCategory() {
+      this.categoryMenu = false;
+    },
+
+    showBrands() {
+      this.brandsMenu = !this.brandsMenu;
+    },
+    showCountry() {
+      this.countryMenu = !this.countryMenu;
+    },
     editModal(id) {
       // Buscar el producto en el array de productos
       let product = this.products.find(product => product.id === id);
@@ -183,6 +244,7 @@ export default {
         console.error("Error adding document: ", e);
       }
       this.product = {};
+      this.isLoaded = false;
     },
     async updateData() {
       try {
@@ -226,15 +288,19 @@ export default {
       }
     },
     uploadImage(e) {
+      this.isLoading = true;
       const file = e.target.files[0];
       const storageRef = storageReference(storage, `products/${file.name}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
+
       uploadTask.on(
-        "state_changed",
+        'state_changed',
         (snapshot) => { },
         (error) => { },
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            this.isLoading = false;
+            this.isLoaded = true;
             this.product.image = downloadURL;
           });
         }
@@ -268,6 +334,9 @@ export default {
     });
   },
   computed: {
+    isSubmitDisabled() {
+      return this.requiredFields.some((field) => !this.product[field]) || this.isLoading;
+    },
     currentProduct() {
       return this.products.find(
         (product) => product.id === this.currentProductId
@@ -299,13 +368,15 @@ export default {
 <style scoped lang="scss">
 .products {
   display: flex;
+  justify-content: center;
   width: 100%;
+  height: 100%;
 }
 
 .addproduct {
   align-self: center;
   position: absolute;
-  padding: 1vw;
+  padding: 0.5vw;
   margin: 1.5vw;
   width: 75%;
   height: 75%;
@@ -402,14 +473,32 @@ select {
   box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.3), inset 0 0 0 rgba(0, 0, 0, 0.3);
   background-color: rgb(255, 255, 255);
 
-  :hover {
+  &:hover {
     box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3), inset 0 0 0 rgba(0, 0, 0, 0.3);
     transition: 0.3s;
   }
 
-  :active {
+  &:active {
     box-shadow: 0 0 0 rgba(0, 0, 0, 0.3), inset 0 3px 3px rgba(0, 0, 0, 0.3);
     transition: 0.3s;
+  }
+
+  &:disabled {
+    color: #9e9e9e;
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0.3), inset 0 0 0 rgba(0, 0, 0, 0.3);
+    cursor: not-allowed;
+
+    &:hover::before {
+      content: "Заповніть всі поля";
+      position: absolute;
+      top: 87%;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      padding: 5px;
+      border-radius: 5px;
+      font-size: 0.8rem;
+      white-space: nowrap;
+    }
   }
 }
 
@@ -447,10 +536,9 @@ select {
 .file-upload {
   height: 40px;
   width: 40px;
-  border-radius: 25px;
+  border-radius: 50px;
   border: none;
   box-shadow: 4px 4px 4px rgb(200, 200, 200), -4px -4px 4px rgb(255, 255, 255);
-  margin: 0 5px 0 5px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -461,6 +549,20 @@ select {
     position: absolute;
     opacity: 0;
   }
+
+  button {
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+  }
+
+  button.loading {
+    cursor: not-allowed;
+  }
+
+  button.loaded {
+    cursor: default;
+  }
 }
 
 .file-upload:hover {
@@ -470,6 +572,7 @@ select {
 
 .btnimg {
   height: 20px;
+  width: 20px;
 }
 
 label {
@@ -566,6 +669,120 @@ label {
     tr:nth-child(even) {
       background-color: rgb(228, 228, 228);
     }
+  }
+}
+
+.menu {
+  background-color: rgb(255, 255, 255);
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.3), inset 0 0 0 rgba(0, 0, 0, 0.3);
+  border-radius: 25px;
+}
+
+.dot-spinner {
+  --uib-size: 1.3vw;
+  --uib-speed: .9s;
+  --uib-color: #183153;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  height: var(--uib-size);
+  width: var(--uib-size);
+}
+
+.dot-spinner__dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  height: 100%;
+  width: 100%;
+}
+
+.dot-spinner__dot::before {
+  content: '';
+  height: 20%;
+  width: 20%;
+  border-radius: 50%;
+  background-color: var(--uib-color);
+  transform: scale(0);
+  opacity: 0.5;
+  animation: pulse0112 calc(var(--uib-speed) * 1.111) ease-in-out infinite;
+  box-shadow: 0 0 20px rgba(18, 31, 53, 0.3);
+}
+
+.dot-spinner__dot:nth-child(2) {
+  transform: rotate(45deg);
+}
+
+.dot-spinner__dot:nth-child(2)::before {
+  animation-delay: calc(var(--uib-speed) * -0.875);
+}
+
+.dot-spinner__dot:nth-child(3) {
+  transform: rotate(90deg);
+}
+
+.dot-spinner__dot:nth-child(3)::before {
+  animation-delay: calc(var(--uib-speed) * -0.75);
+}
+
+.dot-spinner__dot:nth-child(4) {
+  transform: rotate(135deg);
+}
+
+.dot-spinner__dot:nth-child(4)::before {
+  animation-delay: calc(var(--uib-speed) * -0.625);
+}
+
+.dot-spinner__dot:nth-child(5) {
+  transform: rotate(180deg);
+}
+
+.dot-spinner__dot:nth-child(5)::before {
+  animation-delay: calc(var(--uib-speed) * -0.5);
+}
+
+.dot-spinner__dot:nth-child(6) {
+  transform: rotate(225deg);
+}
+
+.dot-spinner__dot:nth-child(6)::before {
+  animation-delay: calc(var(--uib-speed) * -0.375);
+}
+
+.dot-spinner__dot:nth-child(7) {
+  transform: rotate(270deg);
+}
+
+.dot-spinner__dot:nth-child(7)::before {
+  animation-delay: calc(var(--uib-speed) * -0.25);
+}
+
+.dot-spinner__dot:nth-child(8) {
+  transform: rotate(315deg);
+}
+
+.dot-spinner__dot:nth-child(8)::before {
+  animation-delay: calc(var(--uib-speed) * -0.125);
+}
+
+@keyframes pulse0112 {
+
+  0%,
+  100% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+
+  50% {
+    transform: scale(1);
+    opacity: 1;
   }
 }
 </style>
