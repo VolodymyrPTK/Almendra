@@ -236,7 +236,7 @@ p {
   color: rgb(0, 0, 0);
 }
 
-@media (max-width: 500px) {
+@media (max-width: 550px) {
 
   .container {
     flex-direction: column;
@@ -247,7 +247,7 @@ p {
     width: 100%;
     margin: 0;
     padding: 0;
-    height: 50vh;
+    height: auto;
   }
 
   #card-2 {
@@ -259,34 +259,44 @@ p {
     flex-direction: column;
     align-items: center;
 
+
     >div:nth-child(1) {
       margin-top: 3vw;
       font-size: 6vw;
       font-weight: bold;
     }
 
-    >div:nth-child(2) {
-      background-color: aquamarine;
-      font-size: 1.5vw;
-      margin: 0 5vh;
+    >h2 {
+      text-align: center;
+      font-size: 4.5vw;
+      margin: 2vw 5vh;
     }
 
-    >div:nth-child(3) {
-      font-size: 1.5vw;
-    }
-
-    >div:nth-child(4) {
-      font-size: 1.2vw;
+    >p {
+      font-size: 4vw;
+      background-color: white;
+      border-radius: 25px;
+      padding: 5px;
     }
 
     >div:nth-child(5) {
-      font-size: 1.2vw;
+      margin-bottom: 15px;
+
+      >img {
+        height: 10vh;
+      }
     }
   }
+
 
   #card-3 {
     width: 100%;
     padding: 0;
+    height: auto;
+
+    p {
+      font-size: 4vw;
+    }
   }
 
   .productImage {
