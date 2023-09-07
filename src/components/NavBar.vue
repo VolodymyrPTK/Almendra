@@ -21,7 +21,7 @@
 
       <div class="buttons">
         <RouterLink class="navButton" to="/store">Крамниця</RouterLink>
-        <slot name="cart" v-if="isLoggedIn" @close="isVisible = false" class="cart-comp" />
+        <slot name="cart" v-if="isLoggedIn" @close="isVisible = false" />
         <RouterLink v-if="!isLoggedIn" class="navButton" to="/user">Увійти</RouterLink>
         <div v-if="isLoggedIn" class="menu-container">
           <div class="menu-button" @click="openMenu"><img src="../assets/imgs/icons/menu.svg" alt=""></div>
@@ -151,10 +151,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.cart-comp {
-  top: 130px;
-}
-
 .navbar-body {
   height: 100px;
   width: 100%;
@@ -388,17 +384,13 @@ export default {
   align-items: center;
 }
 
-@media (max-width: 501px) {
+@media (max-width: 550px) {
   .logo {
     height: 4.55vh;
   }
 
-  .mobile-cart {
-    position: absolute;
-    top: -500px;
-    left: 50%;
-    transform: translateX(-50%);
+  .navBar {
+    border-radius: 50px;
   }
-
 }
 </style>

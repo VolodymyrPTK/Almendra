@@ -17,7 +17,7 @@
         <RouterLink :to="'/product/' + product.id">
           <img class="productImage" :src="product.image" />
           <div class="product-name">{{ product.name }}</div>
-          <div style="font-size: 1.3vw;">₴ {{ product.sellPrice }}.00</div>
+          <div style="font-size:2vh; margin 5px">₴ {{ product.sellPrice }}.00</div>
         </RouterLink>
 
         <AddToCart class="add-to-cart" :product-id="product.id" :sellPrice="product.sellPrice" :image="product.image"
@@ -158,12 +158,9 @@ label {
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
-  text-decoration: none;
-  font-size: 1vw;
   width: 15vw;
-  height: 19.5vw;
-  margin: 0vw 0.5vw 6.5vw 0.5vw;
+  height: 38vh;
+  margin: 0vh 0.5vw 13vh 0.5vw;
   background: #ffffff;
   border-radius: 25px;
   box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px,
@@ -188,22 +185,42 @@ label {
 }
 
 .productImage {
-  height: 18vw;
+  height: 33vh;
   filter: drop-shadow(0 0.7vw 0.5vw rgba(0, 0, 0, 0.7));
-  margin-top: -3vw;
+  margin-top: -3vh;
 }
 
 .product-name {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1vw;
+  font-size: 2vh;
   font-weight: bold;
   height: 5vh;
   width: 14vw;
 }
 
 .add-to-cart {
-  margin-top: 2.5vh;
+  margin-top: 1.5vh;
+}
+
+@media (max-width: 550px) {
+  .productCard {
+    width: 40vw;
+    height: 25vh;
+    margin: 0vh 2vw 8vh 2vw;
+  }
+
+  .product-name {
+    font-size: 1.5vh;
+    height: 2vh;
+    width: 38vw;
+    text-align: center;
+  }
+
+
+  .add-to-cart {
+    margin-top: 2vh;
+  }
 }
 </style>

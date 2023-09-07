@@ -19,7 +19,6 @@ export default {
     const product_id = ref(props.productId); const productImage = ref(props.image);
     const quantity = ref(1);
 
-    // use computed to create reactive getters
     const product = computed(() => ({
       name: productName.value,
       price: productPrice.value,
@@ -28,7 +27,6 @@ export default {
       itemImage: productImage.value,
     }));
 
-    // use onMounted to execute code when the component is mounted
     onMounted(async () => {
       const auth = getAuth();
       const user = auth.currentUser;
@@ -39,7 +37,6 @@ export default {
       });
     });
 
-    // use async functions to handle promises
     async function addToCart() {
       try {
         const q = query(cartReg, where("uid", "==", profile.value.uid), where("finalized", "==", false));
@@ -71,7 +68,6 @@ export default {
       }
     }
 
-    // return the variables and functions that are needed in the template
     return {
       profiles,
       profile,
@@ -88,11 +84,11 @@ export default {
 <style scoped lang="scss">
 .buy-button {
   margin-top: 0vw;
-  height: 2.5vw;
+  height: 5vh;
   width: 15vw;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 -2px 3px rgba(255, 255, 255, 1);
-  font-size: 1.4vw;
+  font-size: 2.8vh;
   border-radius: 25px;
   background-color: rgb(255, 255, 255);
   box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.4);
@@ -112,5 +108,11 @@ export default {
   box-shadow: rgba(0, 0, 0, 0.4) 0px 5px 5px,
     rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
   transition: 0.2s;
+}
+
+@media (max-width: 550px) {
+  .buy-button {
+    width: 30vw;
+  }
 }
 </style>

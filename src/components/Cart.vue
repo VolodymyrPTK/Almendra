@@ -11,24 +11,23 @@
 
         <div v-if="!show" class="cart-container">
           <div class="cart-items" v-for="item in items" :key="item.id">
-            <img class="productImage" :src="item.itemImage" />
-            <div class="sum">
-              <div class="item-name">
-                <b>{{ item.name }}</b>
-              </div>
-              <div class="numbers">
+            <img :src="item.itemImage" />
+            <div>
+              <div>{{ item.name }}</div>
+              <div>
                 <div>{{ item.price }} грн</div>
-                <div class="quant">
-                  <button class="round-btn" @click="reduceQuantity(item.id)">-</button>
+                <div style="display: flex; align-items: center;">
+                  <div class="round-btn" @click="reduceQuantity(item.id)">-</div>
                   <div>{{ item.quantity }} шт</div>
-                  <button class="round-btn" @click="addQuantity(item.id)">+</button>
+                  <div class="round-btn" @click="addQuantity(item.id)">+</div>
                 </div>
+                <div>{{ item.price * item.quantity }} грн</div>
               </div>
             </div>
-            <div style="font-size: 18px; width: 20%">
-              <b>{{ item.price * item.quantity }} грн</b>
+            <div id="trash" @click="deleteProduct(item.id)">
+              <img src="../assets/imgs/icons/trash.svg" alt="">
             </div>
-            <button class="round-btn" @click="deleteProduct(item.id)">x</button>
+
           </div>
         </div>
 
@@ -45,7 +44,7 @@
                   <div style="margin-bottom: 7px;"><b>Ім'я:</b> {{ profile.firstName }} {{ profile.secondName }}</div>
                   <div style="margin-bottom: 7px;"><b>Телефон:</b>{{ formattedPhoneNumber }}</div>
                 </div>
-                <div v-on:click="showModal()"><img src="../assets/edit.png" alt="edit"></div>
+                <div style="cursor: pointer; " v-on:click="showModal()"><img src="../assets/edit.png" alt="edit"></div>
               </div>
             </div>
 
@@ -55,7 +54,7 @@
                 <input type="text" id="name" v-model="profile.firstName" placeholder="Ім'я" />
                 <input type="text" id="phone" v-model="profile.phone" placeholder="Телефон" />
               </div>
-              <div class="edit-buttons">
+              <div class="edit-inputs">
                 <button class="btn-primary" @click="updateData()" :disabled="loading">
                   <div class="spinner-container" v-if="loading">
                     <div class="spinner-border" role="status"></div>
@@ -73,27 +72,27 @@
 
             <div class="delivery-adress" v-if="!expandedNovaPoshta && !expandedUkrPoshta">
               <div class="expanded" v-if="profile.deliveryOption === 'novaPoshta'">
-                <div style="font-weight: bold; font-size: 1vw; margin-bottom: 5px;">Нова Пошта</div>
+                <div style="font-weight: bold; font-size: 2vh; margin-bottom: 5px;">Нова Пошта</div>
                 <div><b>Місто:</b> {{ profile.city }}</div>
                 <div v-if="profile.postType === 'Warehouse'"><b>Віділення</b> {{ profile.warehouse }}</div>
                 <div v-else-if="profile.postType === 'Postomat'"><b>Поштомат</b> {{ profile.warehouse }}</div>
               </div>
 
               <div class="expanded" v-else-if="profile.deliveryOption === 'ukrPoshta'">
-                <div style="font-weight: bold; font-size: 1vw; margin-bottom: 5px;">УкрПошта</div>
+                <div style="font-weight: bold; font-size: 2vh; margin-bottom: 5px;">УкрПошта</div>
                 <div><b>Місто:</b> {{ profile.city }}</div>
                 <div><b>Індекс:</b> {{ profile.cityIndex }}</div>
               </div>
 
               <div v-else>
-                <div style="font-size: 1vw; font-weight: bold; margin: 5px">Виберіть перевізника</div>
+                <div style="font-size: 2vh; font-weight: bold; margin: 5px">Виберіть перевізника</div>
               </div>
             </div>
 
             <div style="display: flex; flex-direction: column; align-items: center;"
               v-if="!expandedNovaPoshta && !expandedUkrPoshta">
 
-              <div style="font-weight: bold; font-size: 1vw;; margin: 5px 0;"
+              <div style="font-weight: bold; font-size: 2vh;; margin: 5px 0;"
                 v-if="profile.deliveryOption === 'ukrPoshta' || profile.deliveryOption === 'novaPoshta'">Вибрати іншу
                 адресу
               </div>
@@ -110,7 +109,7 @@
             </div>
 
             <div class="poshta" v-if="expandedNovaPoshta">
-              <div style="font-weight: bold; font-size: 1vw; margin: 5px 0;">Нова Пошта</div>
+              <div>Нова Пошта</div>
               <input placeholder="Місто" type="text" v-model="search" @input="searchCities"
                 @input.debounce="showDropdown = true" />
               <ul id="ul-1" v-if="showDropdown">
@@ -177,10 +176,12 @@
           </div>
         </div>
 
-
         <div class="button-container" :class="{ down: show }">
-          <div class="cart-name">До сплати {{ total }} грн</div>
-          <button class="btn-primary" @click="saveCart()">Сплатити</button>
+          <div>
+            <div class="cart-name">До сплати</div>
+            <div class="cart-name">{{ total }} грн</div>
+          </div>
+          <button class="btn-primary" @click="saveCart()">Оформити</button>
           <button class="btn-secondary" @click="closeCart()">Закрити</button>
         </div>
 
@@ -644,7 +645,6 @@ export default {
 }
 
 .cart {
-  transform: translateX(4vw);
   position: absolute;
   display: flex;
   flex-direction: column;
@@ -667,12 +667,6 @@ export default {
   overflow: hidden;
   overflow-y: scroll;
   scroll-behavior: smooth;
-  transform: scale(1.00);
-
-  >div:hover {
-    transform: scale(1.02);
-    transition: 0.5s;
-  }
 
   &::-webkit-scrollbar {
     background-color: #ffffff00;
@@ -683,7 +677,6 @@ export default {
     background-color: #c2c2c2;
     border-radius: 25px;
     width: 0.2vw;
-
   }
 }
 
@@ -693,16 +686,16 @@ export default {
   flex-direction: column;
   align-items: stretch;
   justify-content: space-between;
-  padding: 0.5vw 2vw;
+  padding: 0.5vh 2vw;
 
   >div {
-    margin: 0.5vw 0;
+    margin: 0.5vh 0;
   }
 }
 
 .radio-container2 {
   width: 100%;
-  height: 5vw;
+  height: 10vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -721,13 +714,13 @@ export default {
 }
 
 .pay-tab {
-  height: 2vw;
+  height: 4vh;
   z-index: 3;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 50%;
-  font-size: 1.2vw;
+  font-size: 2vh;
   font-weight: 500;
   cursor: pointer;
   transition: color 0.15s ease-in;
@@ -735,7 +728,7 @@ export default {
 }
 
 .glider {
-  height: 2vw;
+  height: 4vh;
   position: absolute;
   display: flex;
   width: 50%;
@@ -751,7 +744,7 @@ export default {
 
 .profile {
   width: 100%;
-  height: 7vw;
+  height: 17vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -769,21 +762,28 @@ export default {
   align-items: center;
   justify-content: space-around;
   width: 100%;
-  height: 6vw;
+  height: 12vh;
 }
 
 .edit-modal {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
 
   input {
     border-radius: 25px;
     border: none;
-    margin: 0.1vw 25px;
-    padding: 0.3vw;
+    margin: 0.3vh 25px;
+    padding: 5px 10px;
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+    height: 3vh;
   }
+}
+
+.edit-inputs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .spinner-container {
@@ -821,13 +821,14 @@ export default {
   backdrop-filter: blur(35px);
   -webkit-backdrop-filter: blur(35px);
   background-color: rgba(253, 253, 253, 0.5);
+
 }
 
 .delivery-adress {
   background-color: #fff;
-  border-radius: 25px;
+  border-radius: 20px;
   border: 2px solid rgba(78, 78, 78, 0.15);
-  font-size: 1.2;
+  font-size: 2.5vh;
 }
 
 .delivery-options {
@@ -847,6 +848,15 @@ export default {
   input {
     margin: 10px 0;
   }
+
+  >div:nth-child(1) {
+    font-weight: bold;
+    font-size: 2vh;
+    text-align: center;
+    margin: 5px 0;
+    width: 30vh;
+  }
+
 }
 
 .radio-container {
@@ -890,8 +900,6 @@ export default {
   border-radius: 20px; // just a high number to create pill effect
   transition: 0.25s ease-out;
 }
-
-
 
 .navButton {
   height: 2.5vh;
@@ -977,7 +985,7 @@ h3 {
 .button-container {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-evenly;
   padding: 0 25px;
   position: relative;
   z-index: 1;
@@ -999,7 +1007,7 @@ h3 {
 }
 
 .cart-img {
-  height: 6vw;
+  height: 12vh;
   border-radius: 25px;
   cursor: pointer;
 }
@@ -1014,29 +1022,22 @@ input[type="radio"] {
   z-index: 1;
 }
 
-.quant {
-  display: flex;
-  align-items: baseline;
-}
-
 .cart-name {
-  height: 1.2vw;
-  padding: 5px;
+  padding: 3px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1vw;
+  font-size: 2vh;
   z-index: 1;
   font-weight: bold;
 }
 
 .headers {
-  height: 1.2vw;
   padding: 10px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.2vw;
+  font-size: 2vh;
   font-weight: bold;
   z-index: 1;
 }
@@ -1044,20 +1045,48 @@ input[type="radio"] {
 .cart-items {
   display: flex;
   align-items: center;
-  padding: 5px 15px 5px 15px;
+  padding: 5px 15px;
   margin: 15px;
   border-radius: 20px;
   box-shadow: 0 5px 7px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(35px);
   background-color: rgba(253, 253, 253, 0.5);
   z-index: 2;
+
+  >img {
+    height: 8vh;
+  }
+
+
+  >div:nth-child(2) {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 100%;
+    height: 8vh;
+
+    >div:nth-child(1) {
+      font-weight: bold;
+    }
+
+    >div:nth-child(2) {
+      display: flex;
+      justify-content: space-around;
+    }
+  }
+
 }
 
-.item-name {
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 -2px 3px rgba(255, 255, 255, 1);
-  height: 30px;
+//cart items
+
+#trash {
+  height: 6vh;
+  width: 3vw;
   display: flex;
   align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  cursor: pointer;
 }
 
 .round-btn {
@@ -1075,6 +1104,7 @@ input[type="radio"] {
   box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.75), inset 0px 0px 0px rgba(0, 0, 0, 0);
   font-size: 20px;
   transition: 0.3s;
+  cursor: pointer;
 }
 
 .round-btn:hover {
@@ -1087,30 +1117,12 @@ input[type="radio"] {
   transition: 0.3s;
 }
 
-.sum {
-  width: 80%;
-  height: 70px;
-  display: flex;
-  flex-direction: column;
-}
-
-.numbers {
-  height: 50%;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-}
-
-.productImage {
-  height: 75px;
-}
-
 .btn-primary {
-  width: 12vh;
-  height: 2.5vw;
+  width: auto;
+  height: 5vh;
   margin: 0.5vw;
   border: none;
-  font-size: 1.1vw;
+  font-size: 2.2vh;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   border-radius: 25px;
   backdrop-filter: blur(35px);
@@ -1118,6 +1130,7 @@ input[type="radio"] {
   background-color: rgba(253, 253, 253, 0.8);
   box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
   transition: 0.3s;
+  cursor: pointer;
 }
 
 .btn-primary:hover {
@@ -1132,11 +1145,11 @@ input[type="radio"] {
 }
 
 .btn-secondary {
-  width: 12vh;
-  height: 2.5vw;
+  width: auto;
+  height: 5vh;
   margin: 10px;
   border: none;
-  font-size: 1vw;
+  font-size: 2vh;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   border-radius: 25px;
   backdrop-filter: blur(35px);
@@ -1144,6 +1157,7 @@ input[type="radio"] {
   background-color: rgba(253, 253, 253, 0.2);
   box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
   transition: 0.3s;
+  cursor: pointer;
 }
 
 .btn-secondary:hover {
@@ -1163,7 +1177,6 @@ input {
   margin: 5px 25px;
   padding: 7px;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
-  width: 80%;
 }
 
 input[type="radio"] {
@@ -1231,15 +1244,15 @@ input[id="radio-p2"] {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 17vw;
-  height: 4vw;
+  width: auto;
+  padding: 2vh 2vw;
   border: none;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   border-radius: 10vw;
   background-color: rgba(253, 253, 253, 0.8);
   box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.3), 0px -1px 5px rgba(0, 0, 0, 0.1), inset 0px 0px 0px rgba(0, 0, 0, 0);
   transition: 0.3s;
-  margin-top: 2vw;
+  margin-top: 2vh;
 }
 
 a {
@@ -1255,5 +1268,21 @@ a {
 .slide-enter-from,
 .slide-leave-to {
   transform: translateX(120%);
+}
+
+@media (max-width: 550px) {
+  .cart {
+    width: 100%;
+  }
+
+  .cart-items {
+    height: 10vh;
+  }
+
+  .edit-modal {
+    input {
+      width: 40vw;
+    }
+  }
 }
 </style>

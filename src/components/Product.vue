@@ -3,9 +3,10 @@
 
     <div id="card-1" class="cards">
       <img class="productImage" :src="product.image" />
-      <h1>{{ product.sellPrice }} грн</h1>
-      <AddToCart class="AddToCart" :product-id="product.id" :sellPrice="product.sellPrice" :image="product.image"
-        :name="product.name" />
+      <div class="product-buy">
+        <div>{{ product.sellPrice }} грн</div>
+        <AddToCart :product-id="product.id" :sellPrice="product.sellPrice" :image="product.image" :name="product.name" />
+      </div>
     </div>
 
     <div id="card-2" class="cards">
@@ -184,14 +185,30 @@ export default {
   justify-content: flex-start;
 }
 
-.AddToCart {
-  margin-bottom: 1vw;
-  transform: scale(1.2);
+.productImage {
+  height: 35vw;
+  filter: drop-shadow(0 25px 25px rgba(0, 0, 0, 0.75));
 }
 
-.productImage {
-  height: 30vw;
-  filter: drop-shadow(0 25px 25px rgba(0, 0, 0, 0.75));
+.product-buy {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  width: 100%;
+
+  div:nth-child(1) {
+    height: 5vh;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 -2px 3px rgba(255, 255, 255, 1);
+    font-size: 2.8vh;
+    background-color: white;
+    border-radius: 25px;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.4);
+    padding: 0 15px;
+  }
 }
 
 .kcal {
@@ -264,6 +281,7 @@ p {
       margin-top: 3vw;
       font-size: 6vw;
       font-weight: bold;
+      text-align: center;
     }
 
     >h2 {
@@ -288,7 +306,6 @@ p {
     }
   }
 
-
   #card-3 {
     width: 100%;
     padding: 0;
@@ -301,6 +318,25 @@ p {
 
   .productImage {
     height: 40vh;
+  }
+
+  .product-buy {
+    padding: 3vw;
+
+
+    div:nth-child(1) {
+      height: 5vh;
+      display: flex;
+      align-items: center;
+      text-align: center;
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 -2px 3px rgba(255, 255, 255, 1);
+      font-size: 2.8vh;
+      background-color: white;
+      border-radius: 25px;
+      box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.4);
+      padding: 0 15px;
+    }
   }
 }
 </style>
