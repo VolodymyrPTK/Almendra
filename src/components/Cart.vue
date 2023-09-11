@@ -33,16 +33,13 @@
 
         <div v-else="show" class="data-container">
           <div class="cart-name">До сплати {{ total }} грн</div>
-
-
-
           <div class="profile">
             <div class="user-name" v-if="!showModalFlag">
-              <div class="headers">Дані для відправки</div>
-              <div style="display: flex; width: 90%; align-items: center; justify-content: space-around;">
+              <div class="headers">Дані отримувача</div>
+              <div class="names">
                 <div>
-                  <div style="margin-bottom: 7px;"><b>Ім'я:</b> {{ profile.firstName }} {{ profile.secondName }}</div>
-                  <div style="margin-bottom: 7px;"><b>Телефон:</b>{{ formattedPhoneNumber }}</div>
+                  <div><b>Ім'я:</b> {{ profile.firstName }} {{ profile.secondName }}</div>
+                  <div><b>Телефон:</b>{{ formattedPhoneNumber }}</div>
                 </div>
                 <div style="cursor: pointer; " v-on:click="showModal()"><img src="../assets/edit.png" alt="edit"></div>
               </div>
@@ -67,19 +64,17 @@
           </div>
 
           <div class="adress">
-            <div class="headers" v-if="!expandedNovaPoshta && !expandedUkrPoshta">
-              Адреса Доставки</div>
-
+            <div class="headers" v-if="!expandedNovaPoshta && !expandedUkrPoshta">Адреса Доставки</div>
             <div class="delivery-adress" v-if="!expandedNovaPoshta && !expandedUkrPoshta">
               <div class="expanded" v-if="profile.deliveryOption === 'novaPoshta'">
-                <div style="font-weight: bold; font-size: 2vh; margin-bottom: 5px;">Нова Пошта</div>
+                <div><b>Нова Пошта</b></div>
                 <div><b>Місто:</b> {{ profile.city }}</div>
                 <div v-if="profile.postType === 'Warehouse'"><b>Віділення</b> {{ profile.warehouse }}</div>
                 <div v-else-if="profile.postType === 'Postomat'"><b>Поштомат</b> {{ profile.warehouse }}</div>
               </div>
 
               <div class="expanded" v-else-if="profile.deliveryOption === 'ukrPoshta'">
-                <div style="font-weight: bold; font-size: 2vh; margin-bottom: 5px;">УкрПошта</div>
+                <div><b>УкрПошта</b></div>
                 <div><b>Місто:</b> {{ profile.city }}</div>
                 <div><b>Індекс:</b> {{ profile.cityIndex }}</div>
               </div>
@@ -137,7 +132,7 @@
                   {{ warehouse.Description }}
                 </li>
               </ul>
-              <div style="display: flex;">
+              <div style="display: flex; align-items: center;">
                 <button class="btn-primary" @click="updateUserData">Зберегти</button>
                 <button class="btn-secondary" @click="reset">Назад</button>
               </div>
@@ -153,7 +148,7 @@
                 </li>
               </ul>
               <input placeholder="Індекс" type="text" v-model="profile.cityIndex">
-              <div>
+              <div style="display: flex; align-items: center;">
                 <button class="btn-primary" @click="updateUserDataUP">Зберегти</button>
                 <button class="btn-secondary" @click="reset">Назад</button>
               </div>
@@ -740,8 +735,6 @@ export default {
 }
 
 //user data
-
-
 .profile {
   width: 100%;
   height: 17vh;
@@ -763,6 +756,21 @@ export default {
   justify-content: space-around;
   width: 100%;
   height: 12vh;
+}
+
+.names {
+  display: flex;
+  width: 90%;
+  align-items: center;
+  justify-content: space-around;
+  background-color: #fff;
+  border-radius: 20px;
+  border: 2px solid rgba(78, 78, 78, 0.15);
+  padding: 5px;
+
+  >div {
+    gap: 10px;
+  }
 }
 
 .edit-modal {
@@ -1005,6 +1013,11 @@ h3 {
   width: 100%;
   height: 100%;
   margin: 1vw;
+
+  div {
+    font-size: 2vh;
+    margin-bottom: 5px;
+  }
 }
 
 .cart-img {
@@ -1028,7 +1041,7 @@ input[type="radio"] {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 2vh;
+  font-size: 2.2vh;
   z-index: 1;
   font-weight: bold;
 }
