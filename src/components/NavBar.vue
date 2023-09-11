@@ -5,8 +5,9 @@
       <RouterLink to="/">
         <img alt="Almendra logo" class="logo" src="../assets/logoNav.png" />
       </RouterLink>
-      <div class="search-container">
-        <input class="searchInput" v-model="searchTerm" @input="handleSearchInput" placeholder="Пошук" />
+      <div class="search-input" v-if="searchInput">
+        <input type="text" v-model="searchTerm" @input="handleSearchInput" placeholder="Пошук">
+        <div class="navButton" @click="toggleSearch"><img src="../assets/imgs/icons/close.svg" alt=""></div>
         <div v-if="showResults" class="searchResults">
           <RouterLink class="rlink" v-for="(product, index) in filteredProducts" :key="index"
             :to="'/product/' + product.id" @click="hideResults">
@@ -19,21 +20,24 @@
         </div>
       </div>
 
+
+
       <div class="buttons">
-        <RouterLink class="navButton" to="/store">Крамниця</RouterLink>
+        <div class="navButton" @click="toggleSearch"><img src="../assets/imgs/icons/search.svg" alt=""></div>
+        <RouterLink class="navButton" to="/store"><img src="../assets/imgs/icons/home.svg" alt=""></RouterLink>
         <slot name="cart" v-if="isLoggedIn" @close="isVisible = false" />
-        <RouterLink v-if="!isLoggedIn" class="navButton" to="/user">Увійти</RouterLink>
+        <RouterLink v-if="!isLoggedIn" style="width: 15vw; color: black;" class="navButton" to="/user">Увійти</RouterLink>
         <div v-if="isLoggedIn" class="menu-container">
-          <div class="menu-button" @click="openMenu"><img src="../assets/imgs/icons/menu.svg" alt=""></div>
+          <div class="navButton" @click="openMenu"><img src="../assets/imgs/icons/menu.svg" alt=""></div>
           <div v-if="menuDropdown" class="menu-dropdown">
             <img class="profilePic" src="../assets/Logo.png" alt="profilePic" />
             <h3>
               {{ profile.firstName }}
               {{ profile.secondName }}</h3>
-            <RouterLink style="margin: 0.2vw;" v-if="profile.userAdmin" class="navButton" to="/admin/overview">Admin
+            <RouterLink v-if="profile.userAdmin" class="menuButton" to="/admin/overview">Admin
             </RouterLink>
-            <RouterLink style="margin: 0.2vw;" class="navButton" to="/user">Мій кабінет</RouterLink>
-            <RouterLink style="margin: 0.2vw;" class="navButton" to="/" @click="handSignOut" v-if="isLoggedIn">Вийти
+            <RouterLink class="menuButton" to="/user">Мій кабінет</RouterLink>
+            <RouterLink class="menuButton" to="/" @click="handSignOut" v-if="isLoggedIn">Вийти
             </RouterLink>
           </div>
         </div>
@@ -78,9 +82,15 @@ export default {
       products: [],
       showResults: false,
       menuDropdown: false,
+      searchInput: false
     };
   },
   methods: {
+    toggleSearch() {
+      this.searchInput = !this.searchInput;
+      this.searchTerm = "";
+      this.showResults = false;
+    },
     openMenu() {
       this.menuDropdown = !this.menuDropdown;
     },
@@ -152,7 +162,7 @@ export default {
 
 <style scoped lang="scss">
 .navbar-body {
-  height: 100px;
+  height: 8vh;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -162,7 +172,7 @@ export default {
 .navBar {
   border-radius: 20px;
   height: 8vh;
-  width: 90%;
+  width: 95%;
   position: fixed;
   display: inline-flex;
   justify-content: space-around;
@@ -190,6 +200,7 @@ export default {
 
 .buttons {
   display: flex;
+  align-items: center;
 }
 
 .menu-container {
@@ -198,43 +209,18 @@ export default {
   align-items: center;
 }
 
-.menu-button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 1.2vw;
-  height: 1.2vw;
-  padding: 1.2vh;
-  margin: 0 0.25em 0 0.25rem;
-  border-radius: 25px;
-  background: white;
-  box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
-  transition: 0.3s;
-  cursor: pointer;
-
-  &:hover {
-    transition: 0.3s;
-    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
-  }
-
-  &:active {
-    box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3),
-      inset 0px 3px 5px rgba(0, 0, 0, 0.3);
-    transition: 0.3s;
-  }
-}
-
 .menu-dropdown {
   position: absolute;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 3.5vw;
+  margin-top: 5vw;
   border-radius: 25px;
   padding: 10px;
+  gap: 5px;
   background-color: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(35px);
-  -webkit-backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(35px);
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
   animation-name: swing-in-top-fwd;
   animation-duration: 0.7s;
@@ -277,6 +263,24 @@ export default {
   }
 }
 
+.search-input {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 25px;
+
+  input {
+    height: 3vh;
+    padding: 0.6vw;
+    margin: 0 0.5vh;
+    width: 15vw;
+    border: none;
+    box-shadow: inset 0 3px 5px grey;
+    border-radius: 25px;
+  }
+}
+
 .productImage {
   width: 40px;
 }
@@ -285,14 +289,14 @@ export default {
   position: absolute;
   display: flex;
   flex-direction: column;
-  margin-top: 7vh;
+  margin-top: 60vh;
   border-radius: 25px;
   padding: 10px;
   max-height: 50vh;
-  width: 15vw;
+  width: 20vw;
   overflow: hidden;
   overflow-y: scroll;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 1);
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
   animation-name: swing-in-top-fwd;
   animation-duration: 0.7s;
@@ -314,12 +318,12 @@ export default {
   border-radius: 20px;
   padding: 0.5vw;
   margin: 5px;
-  height: 50px;
+  height: auto;
   cursor: pointer;
   transition: 0.75s;
+  font-size: 15px;
   background-color: white;
-  box-shadow: 0 5px 7px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(35px);
+  box-shadow: 0 5px 7px grey;
 
 }
 
@@ -329,18 +333,18 @@ export default {
 }
 
 .profilePic {
-  height: 5vw;
-  width: 5vw;
+  height: 10vh;
+  width: 10vh;
   border-radius: 100px;
   border: 5px solid white;
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4);
 }
 
 .navButton {
-  width: 7.5vw;
-  height: 2.5vh;
-  padding: 1.2vh;
-  margin: 0 0.25em 0 0.25rem;
+  width: 3vh;
+  height: 3vh;
+  padding: 0.6vw;
+  margin: 0 0.5vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -351,7 +355,6 @@ export default {
   background: white;
   box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
   transition: 0.3s;
-  color: black;
   cursor: pointer;
 }
 
@@ -366,22 +369,34 @@ export default {
   transition: 0.3s;
 }
 
-.searchInput {
-  width: 10vw;
-  height: 1.2vw;
+.menuButton {
+  width: 7.5vw;
+  height: 2.3vh;
+  padding: 0.6vw;
+  margin: 0 1vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 -2px 3px rgba(255, 255, 255, 1);
   border-radius: 25px;
-  text-align: center;
-  box-shadow: inset 0px 3px 5px rgba(0, 0, 0, 0.3);
-  transition: 0.5s;
-  border: none;
-  padding: 1.2vh;
+  background: white;
+  box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
+  transition: 0.3s;
+  color: black;
+  cursor: pointer;
 }
 
+.menuButton:hover {
+  transition: 0.3s;
+  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
+}
 
-.search-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.menuButton:active {
+  box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3),
+    inset 0px 3px 5px rgba(0, 0, 0, 0.3);
+  transition: 0.3s;
 }
 
 @media (max-width: 550px) {
@@ -392,5 +407,48 @@ export default {
   .navBar {
     border-radius: 50px;
   }
+
+  .search-input {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(35px);
+    -webkit-backdrop-filter: blur(35px);
+    border-radius: 25px;
+
+    input {
+      height: 4vh;
+      width: 50vw;
+      padding: 1vw 1vh;
+    }
+  }
+
+  .searchResults {
+    width: 80vw;
+  }
+
+  .navButton {
+    height: 4vh;
+    width: 4vh;
+  }
+
+  .menu-container {
+    align-items: flex-end;
+  }
+
+  .menu-dropdown {
+    margin-top: 15vw;
+    width: 50vw;
+  }
+
+  .menuButton {
+    width: 30vw;
+    height: 4vh;
+  }
+
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="store-container">
     <div class="filter-buttons">
       <label @click="resetFilter(category.id)">
         <input type="radio" name="radio" checked />
@@ -29,6 +29,7 @@
 
   </div>
 </template>
+
 
 <script setup>
 import { ref, reactive, watch } from "vue";
@@ -90,10 +91,9 @@ watch(originalProducts, () => {
 .filter-buttons {
   display: flex;
   flex-wrap: wrap;
-  margin: 0 0 3vw 0;
   justify-content: center;
   align-items: center;
-  height: 50px;
+  height: 10vh;
 }
 
 input[type="radio"] {
@@ -124,8 +124,8 @@ label {
     display: block;
     cursor: pointer;
     background-color: transparent;
-    padding: 0.375em 0.75em;
-    margin-left: 0.0625em;
+    padding: 0 1.5vh;
+    gap: 0.1vw;
     letter-spacing: 0.05em;
     color: #3e4963;
     font-size: 20px;
@@ -152,6 +152,7 @@ label {
   flex-wrap: wrap;
   width: 100%;
   justify-content: center;
+
 }
 
 .productCard {
@@ -160,7 +161,7 @@ label {
   align-items: center;
   width: 15vw;
   height: 38vh;
-  margin: 0vh 0.5vw 13vh 0.5vw;
+  margin: 0vh 0.5vw 10vh 0.5vw;
   background: #ffffff;
   border-radius: 25px;
   box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px,
@@ -207,8 +208,8 @@ label {
 @media (max-width: 550px) {
   .productCard {
     width: 40vw;
-    height: 25vh;
-    margin: 0vh 2vw 8vh 2vw;
+    height: 27vh;
+    margin: 1vh 2vw 8vh 2vw;
   }
 
   .product-name {
@@ -216,11 +217,20 @@ label {
     height: 2vh;
     width: 38vw;
     text-align: center;
+    margin: 1vh 0;
   }
 
+  .filter-buttons {
+    height: 15vh;
+    margin: 2vh 0;
+  }
 
   .add-to-cart {
-    margin-top: 2vh;
+    margin-top: 1vh;
+  }
+
+  .productImage {
+    height: 23vh;
   }
 }
 </style>

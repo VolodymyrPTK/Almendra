@@ -46,6 +46,7 @@ body {
 }
 
 .home {
-  width: 90%;
+  width: 95%;
+  height: 100%;
 }
 </style>

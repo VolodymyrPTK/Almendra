@@ -10,13 +10,21 @@
 
                     <td class="select-container">
                         <div :class="{ 'active': order.orderStatus === 'Processing' }"
-                            @click="updateOrderStatus(order.id, 'Processing')">Processing</div>
+                            @click="updateOrderStatus(order.id, 'Processing')" :title="'Обробляється'"><img
+                                src="../assets/imgs/icons/processing.svg" alt="Обробляється"></div>
+
                         <div :class="{ 'active': order.orderStatus === 'Preparing' }"
-                            @click="updateOrderStatus(order.id, 'Preparing')">Preparing</div>
+                            @click="updateOrderStatus(order.id, 'Preparing')" :title="'Комплектується'"><img
+                                src="../assets/imgs/icons/boxing.svg" alt="Комплектується"></div>
+                        <div :class="{ 'active': order.orderStatus === 'Prepared' }"
+                            @click="updateOrderStatus(order.id, 'Prepared')" :title="'Комплектовано'"><img
+                                src="../assets/imgs/icons/boxed.svg" alt="Комплектовано"></div>
                         <div :class="{ 'active': order.orderStatus === 'Shipped' }"
-                            @click="updateOrderStatus(order.id, 'Shipped')">Shipped</div>
+                            @click="updateOrderStatus(order.id, 'Shipped')" :title="'Відправлено'"><img
+                                src="../assets/imgs/icons/shipping.svg" alt="Відправлено"></div>
                         <div :class="{ 'active': order.orderStatus === 'Received' }"
-                            @click="updateOrderStatus(order.id, 'Received')">Received</div>
+                            @click="updateOrderStatus(order.id, 'Received')" :title="'Отримано'"><img
+                                src="../assets/imgs/icons/delivered.svg" alt="Отримано"></div>
                     </td>
                     <td>Сума <b>{{ order.total }}</b></td>
                     <td v-if="order.payment === 'payLater'">Післяплата</td>
@@ -146,8 +154,11 @@ export default {
 }
 
 .active {
+    display: flex;
+    align-items: center;
     background-color: rgb(228, 228, 228);
     box-shadow: 0 3px 3px rgba(116, 116, 116, 0.5);
+    border: solid 2px;
     border-radius: 25px;
     padding: 0.3vw;
 }
@@ -158,8 +169,7 @@ export default {
     height: 100%;
     width: 100%;
     padding: 1vw;
-    overflow: scroll;
-    overflow-x: hidden;
+    overflow: hidden;
 
     &::-webkit-scrollbar {
         display: none;
@@ -195,7 +205,8 @@ export default {
     }
 
     td:nth-child(5) {
-        width: 40%;
+        width: 15vw;
+        gap: 3px;
         text-align: center;
     }
 

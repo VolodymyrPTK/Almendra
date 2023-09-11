@@ -902,14 +902,15 @@ export default {
 }
 
 .navButton {
-  height: 2.5vh;
-  padding: 1.2vh;
+  height: 3vh;
+  padding: 0.6vw;
   margin: 0 0.25em 0 0.25rem;
   display: flex;
+  align-items: center;
   justify-content: space-evenly;
   text-decoration: none;
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 -2px 3px rgba(255, 255, 255, 1);
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
   border-radius: 25px;
   background: white;
   box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
@@ -1283,6 +1284,10 @@ a {
     input {
       width: 40vw;
     }
+  }
+
+  .navButton {
+    height: 4vh;
   }
 }
 </style>
