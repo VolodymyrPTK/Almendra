@@ -737,15 +737,13 @@ export default {
 //user data
 .profile {
   width: 100%;
-  height: 17vh;
+  height: 15vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   border-radius: 25px;
   box-shadow: 0 5px 7px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(35px);
-  -webkit-backdrop-filter: blur(35px);
   background-color: rgba(253, 253, 253, 0.5);
 }
 
@@ -826,17 +824,13 @@ export default {
   justify-content: center;
   border-radius: 25px;
   box-shadow: 0 5px 7px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(35px);
-  -webkit-backdrop-filter: blur(35px);
   background-color: rgba(253, 253, 253, 0.5);
-
 }
 
 .delivery-adress {
   background-color: #fff;
   border-radius: 20px;
   border: 2px solid rgba(78, 78, 78, 0.15);
-  font-size: 2.5vh;
 }
 
 .delivery-options {
@@ -1015,7 +1009,6 @@ h3 {
   margin: 1vw;
 
   div {
-    font-size: 2vh;
     margin-bottom: 5px;
   }
 }

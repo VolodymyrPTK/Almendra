@@ -75,10 +75,7 @@
         <img class="profilePic" src="../assets/Logo.png" alt="profilePic" />
         <div class="edit-modal" v-if="!showModalFlag">
           <h3>Вітаємо!</h3>
-          <div class="names">
-            <h2>{{ profile.firstName }}&nbsp;</h2>
-            <h2>{{ profile.secondName }}</h2>
-          </div>
+          <h2>{{ profile.firstName }} {{ profile.secondName }}</h2>
           <h3>{{ profile.email }}</h3>
           <h3 v-if="profile.phone">{{ formattedPhoneNumber }}</h3>
           <h3 style="cursor: pointer; color: blueviolet;" v-else v-on:click="showModal()">Додати телефон</h3>
@@ -108,8 +105,8 @@
           <div class="expanded" v-if="profile.deliveryOption === 'novaPoshta'">
             <div style="font-weight: bold; font-size: 1vw; margin-bottom: 5px;">Нова Пошта</div>
             <div><b>Місто:</b> {{ profile.city }}</div>
-            <div v-if="profile.postType === 'Warehouse'"><b>Віділення</b> {{ profile.warehouse }}</div>
-            <div v-else-if="profile.postType === 'Postomat'"><b>Поштомат</b> {{ profile.warehouse }}</div>
+            <div v-if="profile.postType === 'Warehouse'"><b>Віділення:</b> {{ profile.warehouse }}</div>
+            <div v-else-if="profile.postType === 'Postomat'"><b>Поштомат:</b> {{ profile.warehouse }}</div>
           </div>
 
           <div class="expanded" v-else-if="profile.deliveryOption === 'ukrPoshta'">
@@ -451,82 +448,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.poshta {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-input,
-select {
-  height: 25px;
-  width: 210px;
-  border: 1px solid #ccc;
-  border-radius: 25px;
-  padding: 0 10px;
-  margin: 5px;
-  font-size: 16px;
-}
-
-ul,
-option {
-  list-style: none;
-  margin: 0;
-  padding: 10px;
-  border-top: none;
-  background-color: white;
-  height: 200px;
-  width: 300px;
-  overflow-y: scroll;
-  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.2);
-  position: relative;
-}
-
-ul::-webkit-scrollbar {
-  display: none;
-}
-
-li {
-  cursor: pointer;
-  padding: 10px;
-  margin: 7px;
-  transition: 0.75s;
-  background-color: white;
-  box-shadow: 0 5px 7px rgba(0, 0, 0, 0.2);
-  border-radius: 20px;
-}
-
-li:hover {
-  transition: 0.5s;
-  background-color: #e9e9e9;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
-}
-
-ul {
-  z-index: 5;
-  padding: 5px 0 5px 0;
-  position: absolute;
-  border-radius: 25px;
-  transition: 0.75s;
-  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
-  background-color: rgba(253, 253, 253, 1);
-  border: solid 15px rgba(253, 253, 253, 1);
-}
-
-#ul-1 {
-  margin-top: 75px;
-}
-
-#ul-2 {
-  margin-top: 135px;
-  height: 150px;
-}
-
-h2,
-h3 {
-  margin: 5px 0 5px 0;
-}
-
 .body {
   display: flex;
   height: 100%;
@@ -565,7 +486,6 @@ h3 {
 .orders {
   display: flex;
   flex-direction: column;
-
   width: 100%;
   overflow: scroll;
   overflow-y: scroll;
@@ -871,5 +791,93 @@ tr:nth-child(even) {
   margin-top: 0.5vw;
   font-size: 0.8vw;
   text-align: center;
+}
+
+
+.poshta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+input,
+select {
+  height: 25px;
+  width: 210px;
+  border: 1px solid #ccc;
+  border-radius: 25px;
+  padding: 0 10px;
+  margin: 5px;
+  font-size: 16px;
+}
+
+ul,
+option {
+  list-style: none;
+  margin: 0;
+  padding: 10px;
+  border-top: none;
+  background-color: white;
+  height: 200px;
+  width: 300px;
+  overflow-y: scroll;
+  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+ul::-webkit-scrollbar {
+  display: none;
+}
+
+li {
+  cursor: pointer;
+  padding: 10px;
+  margin: 7px;
+  transition: 0.75s;
+  background-color: white;
+  box-shadow: 0 5px 7px rgba(0, 0, 0, 0.2);
+  border-radius: 20px;
+}
+
+li:hover {
+  transition: 0.5s;
+  background-color: #e9e9e9;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+}
+
+ul {
+  z-index: 5;
+  padding: 5px 0 5px 0;
+  position: absolute;
+  border-radius: 25px;
+  transition: 0.75s;
+  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
+  background-color: rgba(253, 253, 253, 1);
+  border: solid 15px rgba(253, 253, 253, 1);
+}
+
+#ul-1 {
+  margin-top: 75px;
+}
+
+#ul-2 {
+  margin-top: 135px;
+  height: 150px;
+}
+
+h2,
+h3 {
+  margin: 5px 0 5px 0;
+}
+
+
+@media (max-width: 550px) {
+
+  .body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
 }
 </style>

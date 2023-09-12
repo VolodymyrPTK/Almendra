@@ -1,6 +1,6 @@
 <template>
   <div class="login-body">
-    <div class="login-container">
+    <div v-if="!loginProblem" class="login-container">
       <h2>Вхід</h2>
       <div class="social-login">
         <div @click="loginWithGoogle">
@@ -18,7 +18,15 @@
         <button @click="login">Увійти</button>
         <RouterLink class="regbtn" to="/register">Реєстрація</RouterLink>
       </div>
-      <p class="forgot" @click="resetPassword">Забули пароль?</p>
+      <p class="forgot" @click="toggleModal">Забули пароль?</p>
+    </div>
+    <div v-if="loginProblem" class="login-container">
+      <h2>Відновлення паролі</h2>
+      <h3>Вам буде надіслано листа на вашу електрону пошту</h3>
+      <div style="display: flex;">
+        <button style="width: auto;" @click="resetPassword">Відновити пароль</button>
+        <button @click="toggleModal">Скасувати</button>
+      </div>
     </div>
   </div>
 </template>
@@ -32,6 +40,7 @@ const email = ref("");
 const password = ref("");
 const errMsg = ref();
 const router = useRouter();
+const loginProblem = ref(false);
 
 const login = () => {
   signInWithEmailAndPassword(getAuth(), email.value, password.value)
@@ -79,6 +88,11 @@ const loginWithFacebook = () => {
     });
 };
 
+function toggleModal() {
+  loginProblem.value = !loginProblem.value;
+  console.log("ok")
+};
+
 const resetPassword = () => {
   sendPasswordResetEmail(getAuth(), email.value)
     .then(() => {
@@ -96,14 +110,17 @@ const resetPassword = () => {
       }
     });
 };
+
+
 </script>
 
 <style scoped lang="scss">
 .login-body {
+  height: 80vh;
   display: flex;
   align-items: center;
   flex-direction: column;
-  transform: translatey(20%);
+  justify-content: center;
 }
 
 
@@ -112,23 +129,24 @@ const resetPassword = () => {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 35%;
-  // height: 40vh;
+  width: 35vw;
+  height: 30vw;
   padding: 15px;
   border-radius: 25px;
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.5);
 }
 
 .social-login {
   display: flex;
+  gap: 3vh;
 
   div {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 3vh;
-    width: 7vw;
+    width: 12vh;
     padding: 1vh;
     margin: 0.5vw;
     background: white;
@@ -143,10 +161,10 @@ const resetPassword = () => {
 }
 
 input {
-  width: 17vw;
+  width: calc(200px + 10%);
   height: 5vh;
   border-radius: 25px;
-  margin: 0.5vw;
+  margin: 1vh;
   text-align: center;
   box-shadow: inset 0px 3px 5px rgba(0, 0, 0, 0.3);
   transition: 0.5s;
@@ -163,7 +181,7 @@ button {
   justify-content: center;
   text-decoration: none;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
-  font-size: 1vw;
+  font-size: 2vh;
   border-radius: 25px;
   background: white;
   box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
@@ -185,6 +203,7 @@ button:active {
 
 .login-btns {
   display: flex;
+  align-items: center;
 }
 
 
@@ -198,7 +217,7 @@ button:active {
   justify-content: center;
   text-decoration: none;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
-  font-size: 1vw;
+  font-size: 1.5vh;
   border-radius: 25px;
   transition: 0.3s;
   color: black;
@@ -219,7 +238,30 @@ button:active {
   transition: 0.35s;
 }
 
+.login-problem {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  width: 100%;
+  background-color: aquamarine;
+}
+
 .forgot {
   cursor: pointer;
+}
+
+@media (max-width: 550px) {
+  .login-container {
+    width: 70vw;
+    height: 50vh;
+  }
+
+  button {
+    width: 25vw;
+  }
+
+  .regbtn {
+    width: 25vw;
+  }
 }
 </style>
