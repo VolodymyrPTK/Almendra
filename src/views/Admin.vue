@@ -33,6 +33,9 @@ import { RouterView } from "vue-router";
 <style scoped>
 .admin {
   display: flex;
+  align-items: center;
+  background-color: aquamarine;
+  margin-top: 3vh;
 }
 
 .menu {

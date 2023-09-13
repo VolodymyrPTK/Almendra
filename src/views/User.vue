@@ -870,7 +870,6 @@ h3 {
   margin: 5px 0 5px 0;
 }
 
-
 @media (max-width: 550px) {
 
   .body {
