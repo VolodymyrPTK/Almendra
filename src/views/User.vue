@@ -1,51 +1,25 @@
 <template>
   <div class="body">
     <div class="orders">
+      <h3 style="text-align: center;">Замовлення</h3>
       <div class="order-container" v-for="order in orders" :key="order.id">
         <div class="order-row">
           <div><b>Замовлення:</b> {{ order.orderId }}</div>
+          <div><b>Сума:</b> ₴ {{ order.total }}</div>
           <div><b>Дата:</b> {{ order.time }}</div>
-          <div><b>Сума:</b> {{ order.total }}</div>
-          <div class="status-line">
-            <!-- Processing -->
-            <div class="status-point-container">
-              <div class="status-point"
-                :class="{ active: order.orderStatus === 'Processing' || order.orderStatus === 'Preparing' || order.orderStatus === 'Received' || order.orderStatus === 'Shipped' }">
-              </div>
-              <div class="status-text">Обробка</div>
-            </div>
-
-            <!-- Preparing -->
-            <div class="status-point-container">
-              <div class="status-point"
-                :class="{ active: order.orderStatus === 'Preparing' || order.orderStatus === 'Shipped' || order.orderStatus === 'Received' }">
-              </div>
-              <div class="status-text">Пакування</div>
-            </div>
-
-            <!-- Shipped -->
-            <div class="status-line-segment"
-              :class="{ active: order.orderStatus === 'Shipped' || order.orderStatus === 'Received' }"></div>
-            <div class="status-point-container">
-              <div class="status-point"
-                :class="{ active: order.orderStatus === 'Shipped' || order.orderStatus === 'Received' }">
-              </div>
-              <div class="status-text">Відправлено</div>
-            </div>
-
-            <!-- Delivered -->
-            <div class="status-line-segment" :class="{ active: order.orderStatus === 'Received' }"></div>
-            <div class="status-point-container">
-              <div class="status-point" :class="{ active: order.orderStatus === 'Received' }">
-                <img style="height: 0.7vw;" src="../assets/imgs/icons/done.svg" alt="">
-              </div>
-              <div class="status-text">Доставлено</div>
-            </div>
-          </div>
-          <div style="display: flex; flex-direction: column; align-items: center;">
-            <button @click="showDetails(order)"><img src="../assets/imgs/icons/expand.svg" alt=""></button>
-
-          </div>
+          <td class="select-container">
+            <div :class="{ 'active': order.orderStatus === 'Processing' }" :title="'Обробляється'"><img
+                src="../assets/imgs/icons/processing.svg" alt="Обробляється"></div>
+            <div :class="{ 'active': order.orderStatus === 'Preparing' }" :title="'Комплектується'"><img
+                src="../assets/imgs/icons/boxing.svg" alt="Комплектується"></div>
+            <div :class="{ 'active': order.orderStatus === 'Prepared' }" :title="'Комплектовано'"><img
+                src="../assets/imgs/icons/boxed.svg" alt="Комплектовано"></div>
+            <div :class="{ 'active': order.orderStatus === 'Shipped' }" :title="'Відправлено'"><img
+                src="../assets/imgs/icons/shipping.svg" alt="Відправлено"></div>
+            <div :class="{ 'active': order.orderStatus === 'Received' }" :title="'Отримано'"><img
+                src="../assets/imgs/icons/delivered.svg" alt="Отримано"></div>
+          </td>
+          <div class="button" @click="showDetails(order)"><img src="../assets/imgs/icons/expand.svg" alt=""> </div>
         </div>
         <table v-if="orderDetails === order.id">
           <thead>
@@ -75,10 +49,12 @@
         <img class="profilePic" src="../assets/Logo.png" alt="profilePic" />
         <div class="edit-modal" v-if="!showModalFlag">
           <h3>Вітаємо!</h3>
-          <h2>{{ profile.firstName }} {{ profile.secondName }}</h2>
-          <h3>{{ profile.email }}</h3>
-          <h3 v-if="profile.phone">{{ formattedPhoneNumber }}</h3>
-          <h3 style="cursor: pointer; color: blueviolet;" v-else v-on:click="showModal()">Додати телефон</h3>
+          <h3>{{ profile.firstName }} {{ profile.secondName }}</h3>
+          <div class="user-data" style="align-items: center;">
+            <div>{{ profile.email }}</div>
+            <div v-if="profile.phone">{{ formattedPhoneNumber }}</div>
+            <div style="cursor: pointer; color: blueviolet;" v-else v-on:click="showModal()">Додати телефон</div>
+          </div>
           <button class="btn" v-on:click="showModal()">Редагувати</button>
         </div>
 
@@ -86,7 +62,7 @@
           <input placeholder="Ім'я" type="text" id="name" v-model="profile.secondName" />
           <input placeholder="Призвіще" type="text" id="surename" v-model="profile.firstName" />
           <input placeholder="Телефон" type="text" id="phone" v-model="profile.phone" />
-          <div style="display: flex ;">
+          <div style="display: flex; align-items: center; justify-content: center;">
             <button class="btn" @click="updateData()" :disabled="loading">
               <div class="spinner-container" v-if="loading">
                 <div class="spinner-border" role="status"></div>
@@ -103,27 +79,28 @@
 
         <div class="delivery-adress" v-if="!expandedNovaPoshta && !expandedUkrPoshta">
           <div class="expanded" v-if="profile.deliveryOption === 'novaPoshta'">
-            <div style="font-weight: bold; font-size: 1vw; margin-bottom: 5px;">Нова Пошта</div>
+            <div style="font-weight: bold; text-align: center; font-size: 2vh; margin-bottom: 5px;">Нова Пошта</div>
             <div><b>Місто:</b> {{ profile.city }}</div>
             <div v-if="profile.postType === 'Warehouse'"><b>Віділення:</b> {{ profile.warehouse }}</div>
             <div v-else-if="profile.postType === 'Postomat'"><b>Поштомат:</b> {{ profile.warehouse }}</div>
           </div>
 
           <div class="expanded" v-else-if="profile.deliveryOption === 'ukrPoshta'">
-            <div style="font-weight: bold; font-size: 1.3vw; margin-bottom: 5px;">УкрПошта</div>
+            <div style="font-weight: bold; text-align: center; font-size: 2vh; margin-bottom: 5px;">УкрПошта</div>
             <div><b>Місто:</b> {{ profile.city }}</div>
             <div><b>Індекс:</b> {{ profile.cityIndex }}</div>
           </div>
 
           <div v-else>
-            <div style="font-size: 20px; font-weight: bold; margin: 5px">Виберіть перевізника</div>
+            <div style="font-size: 2vh; font-weight: bold; margin: 5px">Виберіть перевізника</div>
           </div>
         </div>
 
         <div style="display: flex; flex-direction: column; align-items: center;"
           v-if="!expandedNovaPoshta && !expandedUkrPoshta">
-          <div style="font-weight: bold; font-size: 1.1vw; margin: 5px 0;"
-            v-if="profile.deliveryOption === 'ukrPoshta' || profile.deliveryOption === 'novaPoshta'">Вибрати іншу адресу
+          <div style="font-weight: bold; text-align: center; font-size: 2vр; margin: 5px 0;"
+            v-if="profile.deliveryOption === 'ukrPoshta' || profile.deliveryOption === 'novaPoshta'">або виберіть іншу
+            адресу
           </div>
           <div class="delivery-options">
             <div class="box" @click="onNovaPoshtaClick" v-if="!expandedNovaPoshta && !expandedUkrPoshta">
@@ -450,8 +427,10 @@ export default {
 <style scoped lang="scss">
 .body {
   display: flex;
-  height: 100%;
+  height: 80vh;
   justify-content: center;
+  margin-top: 2vw;
+  gap: 20px;
 }
 
 .box {
@@ -464,9 +443,17 @@ export default {
 .expanded {
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: 90%;
   height: 100%;
-  margin: 10px;
+}
+
+.user-data {
+  padding: 1vw 2vh;
+  background-color: #fff;
+  border-radius: 25px;
+  border: 2px solid rgba(78, 78, 78, 0.15);
+  font-size: 2vh;
+  width: 90%;
 }
 
 .delivery-options {
@@ -477,16 +464,15 @@ export default {
 }
 
 .cart-img {
-  height: 7vw;
+  height: 12vh;
   border-radius: 25px;
   cursor: pointer;
   box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3), 0 -1px 20px rgba(0, 0, 0, 0.2);
 }
 
 .orders {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
+  width: 90%;
+  height: 100%;
   overflow: scroll;
   overflow-y: scroll;
   scroll-behavior: smooth;
@@ -494,25 +480,46 @@ export default {
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
   background-color: rgba(253, 253, 253, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.125);
-  margin: 10px;
-  padding: 25px;
+  padding: 1vh;
 }
 
 .orders::-webkit-scrollbar {
   display: none;
 }
 
-.user {
-  margin: 10px;
-}
-
-.names {
+.order-row {
   display: flex;
   justify-content: space-around;
+  align-items: center;
+  width: 100%;
+}
+
+.button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 2vw;
+  width: 2vw;
+  border-radius: 50px;
+  border: none;
+  background-color: rgba(255, 255, 255, 1);
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: 0.3s;
+
+
+  img {
+    height: 4vh;
+  }
+
+  &:hover {
+    background-color: rgba(238, 238, 238, 1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
 }
 
 .profile {
-  height: 20vw;
+  height: 50%;
   width: 20vw;
   display: flex;
   flex-direction: column;
@@ -522,11 +529,11 @@ export default {
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
   background-color: rgba(253, 253, 253, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.125);
-  font-size: 1vw;
+  font-size: 2vh;
 }
 
 .adress {
-  height: 20vw;
+  height: 50%;
   width: 20vw;
   margin-top: 20px;
   display: flex;
@@ -536,19 +543,25 @@ export default {
   border-radius: 25px;
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
   background-color: rgba(253, 253, 253, 0.75);
-  font-size: 1vw;
+  font-size: 2vh;
 }
 
 .delivery-adress {
+  padding: 0.5vw 0.5vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   background-color: #fff;
   border-radius: 25px;
   border: 2px solid rgba(78, 78, 78, 0.15);
-  font-size: 1.1vw;
+  font-size: 2vh;
+  width: 90%;
 }
 
 .profilePic {
-  height: 5vw;
-  width: 5vw;
+  height: 10vh;
+  width: 10vh;
   border-radius: 100px;
   border: 5px solid white;
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4);
@@ -557,10 +570,12 @@ export default {
 .btn {
   display: inline-block;
   text-align: center;
+  font-size: 2vh;
   border: none;
   border-radius: 25px;
-  width: 100px;
-  padding: 0.5vw;
+  width: auto;
+  height: 5vh;
+  padding: 1.5vh 0.5vw;
   margin: 10px;
   box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
   background-color: white;
@@ -616,6 +631,9 @@ export default {
 }
 
 .radio-tabs {
+  display: flex;
+  align-items: center;
+  height: 4vh;
   width: 230px;
   display: flex;
   position: relative;
@@ -680,40 +698,13 @@ input[id="radio-2"] {
 }
 
 .order-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   border-radius: 25px;
   box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
-  padding: 0.5vw;
-  margin: 0.25vw;
+  margin: 0.5vw;
   background-color: #ffffff;
-}
-
-.order-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  button {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 2vw;
-    width: 2vw;
-    border-radius: 50px;
-    border: none;
-    background-color: rgba(255, 255, 255, 1);
-    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
-    cursor: pointer;
-    transition: 0.3s;
-
-    img {
-      height: 2vh;
-    }
-
-    &:hover {
-      background-color: rgba(238, 238, 238, 1);
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-    }
-  }
 }
 
 table td:nth-child(1) {
@@ -737,7 +728,7 @@ table td:nth-child(4) {
 
 table {
   border-collapse: collapse;
-  width: 100%;
+  width: 95%;
   margin: 1vw 0 1vw 0;
 }
 
@@ -757,43 +748,6 @@ tr:nth-child(even) {
   background-color: rgb(231, 231, 231);
 }
 
-.status-line {
-  display: flex;
-  align-items: flex-start;
-}
-
-.status-point-container {
-  width: 4.5vw;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 0 1vw;
-}
-
-.status-point {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.3vw;
-  height: 1.3vw;
-  border-radius: 50%;
-  background-color: #ccc;
-  box-shadow: inset 0 3px 4px rgba(0, 0, 0, 0.3);
-}
-
-.status-point.active {
-  background-color: rgb(27, 233, 0);
-  box-shadow: inset 0 3px 4px rgba(0, 0, 0, 0.3);
-}
-
-
-.status-text {
-  margin-top: 0.5vw;
-  font-size: 0.8vw;
-  text-align: center;
-}
-
-
 .poshta {
   display: flex;
   flex-direction: column;
@@ -802,13 +756,12 @@ tr:nth-child(even) {
 
 input,
 select {
-  height: 25px;
+  height: 4vh;
   width: 210px;
   border: 1px solid #ccc;
   border-radius: 25px;
   padding: 0 10px;
-  margin: 5px;
-  font-size: 16px;
+  font-size: 2vh;
 }
 
 ul,
@@ -866,17 +819,90 @@ ul {
 }
 
 h2,
-h3 {
+h3,
+h4 {
   margin: 5px 0 5px 0;
+}
+
+.select-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  >div {
+    margin: 1vw;
+  }
+}
+
+.active {
+  display: flex;
+  align-items: center;
+  background-color: rgb(228, 228, 228);
+  box-shadow: 0 3px 3px rgba(116, 116, 116, 0.5);
+  border: solid 2px;
+  border-radius: 25px;
+  padding: 0.5vw;
 }
 
 @media (max-width: 550px) {
 
   .body {
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
     justify-content: center;
     align-items: center;
+    height: auto;
   }
+
+  .orders {
+    width: 90%;
+  }
+
+  .button {
+    height: 5vh;
+    width: 5vh;
+  }
+
+  .order-row {
+    height: 25vw;
+    flex-wrap: wrap;
+    padding: 1vh;
+  }
+
+  table {
+    margin: 2vh;
+  }
+
+  .user {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+
+    >div {
+      width: 95%;
+    }
+  }
+
+  .btn {
+    width: auto;
+    height: auto;
+    padding: 3vw;
+  }
+
+  .select-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    >div {
+      margin: 2vw;
+    }
+  }
+
+  .active {
+    padding: 1.5vw;
+  }
+
 }
 </style>
