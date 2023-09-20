@@ -20,10 +20,9 @@
         </div>
       </div>
 
-
-
       <div class="buttons">
-        <div class="navButton" @click="toggleSearch"><img src="../assets/imgs/icons/search.svg" alt=""></div>
+        <div class="navButton" v-if="!this.searchInput" @click="toggleSearch"><img src="../assets/imgs/icons/search.svg"
+            alt=""></div>
         <RouterLink class="navButton" to="/store"><img src="../assets/imgs/icons/home.svg" alt=""></RouterLink>
         <slot name="cart" v-if="isLoggedIn" @close="isVisible = false" />
         <RouterLink v-if="!isLoggedIn" style="width: 15vw; color: black;" class="navButton" to="/user">Увійти</RouterLink>

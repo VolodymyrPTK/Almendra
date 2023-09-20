@@ -1,6 +1,7 @@
 <template>
   <div class="overview">
-    <div>Total Value: {{ totalValue }}</div>
+    <h3>Total Value: {{ totalValue }}</h3>
+    <h3>Number of Products: {{ productCount }}</h3>
   </div>
 </template>
 
@@ -9,7 +10,7 @@ import { dataBase } from "../main";
 import { onSnapshot } from "firebase/firestore";
 
 export default {
-  name: "Overwiev",
+  name: "Overview",
   props: {
     msg: String,
   },
@@ -32,16 +33,26 @@ export default {
         return total + (product.sellPrice * product.quantity || 0);
       }, 0);
     },
+    productCount() {
+      // Use a Set to store unique product IDs
+      const uniqueProductIds = new Set();
+
+      // Loop through the products and add their IDs to the Set
+      this.products.forEach((product) => {
+        uniqueProductIds.add(product.id);
+      });
+
+      // Return the size of the Set, which is the count of unique products
+      return uniqueProductIds.size;
+    },
   },
 };
 </script>
 
+
 <style scoped>
 .overview {
-  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
-  background-color: rgba(253, 253, 253, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.125);
+  padding: 1vh;
   width: 100%;
-  border-radius: 25px;
 }
 </style>

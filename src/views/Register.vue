@@ -3,8 +3,8 @@
     <div class="login-container">
       <h2>Створити логін</h2>
       <div class="social-login">
-        <div>
-          <img @click="registerWithGoogle" src="../assets/google.png" alt="facebook login">
+        <div @click="loginOrRegisterWithGoogle">
+          <img src="../assets/google.png" alt="google login">
         </div>
         <div>
           <img @click="registerWithFacebook" src="../assets/facebook.png" alt="facebook login">
@@ -25,13 +25,11 @@
 
 <script setup>
 import { ref } from "vue";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import { db } from "../main";
 import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from "firebase/auth";
 import { useRouter } from "vue-router";
-import { db } from "../main";
 
-const firstName = ref("");
-const secondName = ref("");
 const email = ref("");
 const password = ref("");
 const errMsg = ref();
@@ -60,11 +58,52 @@ const register = () => {
       }
     });
 };
+
+const loginOrRegisterWithGoogle = () => {
+  const provider = new GoogleAuthProvider();
+  signInWithPopup(getAuth(), provider)
+    .then((result) => {
+      const user = result.user;
+      const uid = user.uid;
+      const profileRef = doc(db, "profiles", uid);
+      getDoc(profileRef)
+        .then((docSnapshot) => {
+          if (docSnapshot.exists()) {
+            // User is already registered
+            console.log("User is already registered");
+            router.push("/");
+          } else {
+            // User is not registered, perform registration
+            setDoc(profileRef, {
+              firstName: user.displayName.split(" ")[0],
+              secondName: user.displayName.split(" ")[1],
+              email: user.email,
+            })
+              .then(() => {
+                console.log("User registered successfully");
+                router.push("/");
+              })
+              .catch((error) => {
+                console.log(error.code);
+              });
+          }
+        })
+        .catch((error) => {
+          console.log(error.code);
+        });
+    })
+    .catch((error) => {
+      console.log(error.code);
+    });
+};
+
+/*
 const registerWithGoogle = () => {
   const provider = new GoogleAuthProvider();
   signInWithPopup(getAuth(), provider)
     .then((result) => {
       const user = result.user;
+
       setDoc(doc(db, "profiles", user.uid), {
         firstName: user.displayName.split(" ")[0],
         secondName: user.displayName.split(" ")[1],
@@ -76,6 +115,7 @@ const registerWithGoogle = () => {
       console.log(error.code);
     });
 };
+*/
 
 const registerWithFacebook = () => {
   const provider = new FacebookAuthProvider();

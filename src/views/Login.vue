@@ -3,10 +3,10 @@
     <div v-if="!loginProblem" class="login-container">
       <h2>Вхід</h2>
       <div class="social-login">
-        <div @click="loginWithGoogle">
+        <div @click="loginOrRegisterWithGoogle">
           <img src="../assets/google.png" alt="google login">
         </div>
-        <div @click="loginWithFacebook">
+        <div @click="loginOrRegisterWithFacebook">
           <img src="../assets/facebook.png" alt="facebook login">
         </div>
       </div>
@@ -35,6 +35,8 @@
 import { ref } from "vue";
 import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider, sendPasswordResetEmail } from "firebase/auth";
 import { useRouter } from "vue-router";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import { db } from "../main";
 
 const email = ref("");
 const password = ref("");
@@ -64,6 +66,46 @@ const login = () => {
     });
 };
 
+const loginOrRegisterWithGoogle = () => {
+  const provider = new GoogleAuthProvider();
+  signInWithPopup(getAuth(), provider)
+    .then((result) => {
+      const user = result.user;
+      const uid = user.uid;
+      const profileRef = doc(db, "profiles", uid);
+      getDoc(profileRef)
+        .then((docSnapshot) => {
+          if (docSnapshot.exists()) {
+            // User is already registered
+            console.log("User is already registered");
+            router.push("/");
+          } else {
+            // User is not registered, perform registration
+            setDoc(profileRef, {
+              firstName: user.displayName.split(" ")[0],
+              secondName: user.displayName.split(" ")[1],
+              email: user.email,
+            })
+              .then(() => {
+                console.log("User registered successfully");
+                router.push("/");
+              })
+              .catch((error) => {
+                console.log(error.code);
+              });
+          }
+        })
+        .catch((error) => {
+          console.log(error.code);
+        });
+    })
+    .catch((error) => {
+      console.log(error.code);
+    });
+};
+
+
+/*
 const loginWithGoogle = () => {
   const provider = new GoogleAuthProvider();
   signInWithPopup(getAuth(), provider)
@@ -86,7 +128,7 @@ const loginWithFacebook = () => {
     .catch((error) => {
       console.log(error.code);
     });
-};
+};*/
 
 function toggleModal() {
   loginProblem.value = !loginProblem.value;
@@ -110,8 +152,6 @@ const resetPassword = () => {
       }
     });
 };
-
-
 </script>
 
 <style scoped lang="scss">
