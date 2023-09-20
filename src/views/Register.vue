@@ -6,8 +6,8 @@
         <div @click="loginOrRegisterWithGoogle">
           <img src="../assets/google.png" alt="google login">
         </div>
-        <div>
-          <img @click="registerWithFacebook" src="../assets/facebook.png" alt="facebook login">
+        <div @click="registerWloginOrRegisterWithFacebookithFacebook">
+          <img src="../assets/facebook.png" alt="facebook login">
         </div>
       </div>
       <h4>або</h4>
@@ -97,6 +97,43 @@ const loginOrRegisterWithGoogle = () => {
     });
 };
 
+const loginOrRegisterWithFacebook = () => {
+  const provider = new FacebookAuthProvider();
+  signInWithPopup(getAuth(), provider)
+    .then((result) => {
+      const user = result.user;
+      const uid = user.uid;
+      const profileRef = doc(db, "profiles", uid);
+      getDoc(profileRef)
+        .then((docSnapshot) => {
+          if (docSnapshot.exists()) {
+            // User is already registered
+            console.log("User is already registered");
+            router.push("/");
+          } else {
+            // User is not registered, perform registration
+            setDoc(profileRef, {
+              firstName: user.displayName.split(" ")[0],
+              secondName: user.displayName.split(" ")[1],
+              email: user.email,
+            })
+              .then(() => {
+                console.log("User registered successfully");
+                router.push("/");
+              })
+              .catch((error) => {
+                console.log(error.code);
+              });
+          }
+        })
+        .catch((error) => {
+          console.log(error.code);
+        });
+    })
+    .catch((error) => {
+      console.log(error.code);
+    });
+};
 /*
 const registerWithGoogle = () => {
   const provider = new GoogleAuthProvider();
