@@ -2,9 +2,6 @@ import { createRouter, createWebHistory } from "vue-router";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import Home from "../views/Home.vue";
 import Store from "../views/Store.vue";
-import FreeGluten from "../components/FreeGluten.vue";
-import FreeSugar from "../components/FreeSugar.vue";
-import Vegan from "../components/Vegan.vue";
 import Login from "../views/Login.vue";
 import Register from "../views/Register.vue";
 import User from "../views/User.vue";
@@ -29,21 +26,6 @@ const router = createRouter({
       path: "/store",
       name: "store",
       component: Store,
-    },
-    {
-      path: "/store/free-gluten",
-      name: "FreeGluten",
-      component: FreeGluten,
-    },
-    {
-      path: "/store/free-sugar",
-      name: "FreeSugar",
-      component: FreeSugar,
-    },
-    {
-      path: "/store/vegan",
-      name: "Vegan",
-      component: Vegan,
     },
     {
       path: "/login",

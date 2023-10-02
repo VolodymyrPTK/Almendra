@@ -1,6 +1,6 @@
 <script>
 import { ref, onMounted, computed } from "vue";
-import { dataBase, storage, categoryReg, dataReg, countryReg, db, brandReg } from "../main";
+import { dataBase, storage, dataReg, db } from "../main";
 import { addDoc, deleteDoc, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteField } from "firebase/firestore";
 import { ref as storageReference, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 

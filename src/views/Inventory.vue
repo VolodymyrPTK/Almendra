@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import { dataBase, brandReg } from "../main";
+import { dataBase } from "../main";
 import { onSnapshot } from "firebase/firestore";
 import InventoryModal from "../components/InventoryModal.vue";
 
