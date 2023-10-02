@@ -17,13 +17,13 @@
         <RouterLink :to="'/product/' + product.id">
           <img class="productImage" :src="product.image" />
           <div class="product-name">{{ product.name }}</div>
+          <div class="product-name">{{ product.brand }}</div>
           <div style="font-size:2vh; margin 5px">₴ {{ product.sellPrice }}.00</div>
         </RouterLink>
 
         <AddToCart class="add-to-cart" :product-id="product.id" :sellPrice="product.sellPrice" :image="product.image"
           :name="product.name">
         </AddToCart>
-
       </div>
     </section>
 
@@ -32,9 +32,9 @@
 
 
 <script setup>
-import { ref, reactive, watch } from "vue";
-import { dataBase, categoryReg } from "../main";
-import { onSnapshot } from "firebase/firestore";
+import { ref, reactive, watch, onMounted } from "vue";
+import { dataBase, categoryReg, dataReg } from "../main";
+import { onSnapshot, doc } from "firebase/firestore";
 import { RouterLink } from "vue-router";
 import AddToCart from "../components/AddToCart.vue";
 
@@ -74,17 +74,29 @@ onSnapshot(dataBase, (snapshot) => {
   });
 });
 
-onSnapshot(categoryReg, (snapshot) => {
-  categories.value = [];
-  snapshot.docs.forEach((doc) => {
-    categories.value.push({ ...doc.data(), id: doc.id });
-  });
+const fetchCategories = async () => {
+  try {
+    const categoriesDocRef = doc(dataReg, 'categories');
+    onSnapshot(categoriesDocRef, (snapshot) => {
+      const categoriesData = snapshot.data();
+      const categoriesArray = Object.keys(categoriesData).map((category) => ({
+        id: category,
+        ...categoriesData[category],
+      }));
+      categories.value = categoriesArray;
+    });
+
+  } catch (e) { console.error("Error fetching categories: ", e); }
+};
+onMounted(async () => {
+  await fetchCategories();
 });
 
-// Watch for changes in the originalProducts array and update the products array accordingly
 watch(originalProducts, () => {
   products.value = originalProducts.value;
 });
+
+
 </script>
 
 <style scoped lang="scss">
@@ -186,18 +198,19 @@ label {
 }
 
 .productImage {
-  height: 33vh;
+  height: 30vh;
   filter: drop-shadow(0 0.7vw 0.5vw rgba(0, 0, 0, 0.7));
   margin-top: -3vh;
 }
 
 .product-name {
+  text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 2vh;
   font-weight: bold;
-  height: 5vh;
+  height: 4vh;
   width: 14vw;
 }
 

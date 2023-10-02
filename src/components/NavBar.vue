@@ -5,24 +5,32 @@
       <RouterLink to="/">
         <img alt="Almendra logo" class="logo" src="../assets/logoNav.png" />
       </RouterLink>
-      <div class="search-input" v-if="searchInput">
-        <input type="text" v-model="searchTerm" @input="handleSearchInput" placeholder="Пошук">
-        <div class="navButton" @click="toggleSearch"><img src="../assets/imgs/icons/close.svg" alt=""></div>
-        <div v-if="showResults" class="searchResults">
-          <RouterLink class="rlink" v-for="(product, index) in filteredProducts" :key="index"
-            :to="'/product/' + product.id" @click="hideResults">
-            <img class="productImage" :src="product.image" />
-            <div>
-              <div style="font-weight: bold;">{{ product.name }}</div>
-              <div>{{ product.detail }}</div>
-            </div>
-          </RouterLink>
-        </div>
-      </div>
+
 
       <div class="buttons">
-        <div class="navButton" v-if="!this.searchInput" @click="toggleSearch"><img src="../assets/imgs/icons/search.svg"
-            alt=""></div>
+        <div class="search-container">
+          <transition name="fade" mode="out-in">
+            <div class="navButton" v-if="!this.searchInput" @click="toggleSearch"><img
+                src="../assets/imgs/icons/search.svg" alt=""></div>
+          </transition>
+          <transition name="fade">
+            <div class="search-input" v-if="searchInput">
+              <input type="text" v-model="searchTerm" @input="handleSearchInput" placeholder="Пошук">
+              <div class="navButton" @click="toggleSearch"><img src="../assets/imgs/icons/close.svg" alt=""></div>
+              <div v-if="showResults" class="searchResults">
+                <RouterLink class="rlink" v-for="(product, index) in filteredProducts" :key="index"
+                  :to="'/product/' + product.id" @click="hideResults">
+                  <img class="productImage" :src="product.image" />
+                  <div>
+                    <div style="font-weight: bold;">{{ product.name }}</div>
+                    <div>{{ product.detail }}</div>
+                  </div>
+                </RouterLink>
+              </div>
+            </div>
+          </transition>
+        </div>
+
         <RouterLink class="navButton" to="/store"><img src="../assets/imgs/icons/home.svg" alt=""></RouterLink>
         <slot name="cart" v-if="isLoggedIn" @close="isVisible = false" />
         <RouterLink v-if="!isLoggedIn" style="width: 15vw; color: black;" class="navButton" to="/user">Увійти</RouterLink>
@@ -96,6 +104,7 @@ export default {
     hideResults() {
       this.searchTerm = "";
       this.showResults = false;
+      this.searchInput = !this.searchInput;
     },
     handSignOut() {
       signOut(this.auth).then(() => {
@@ -262,8 +271,13 @@ export default {
   }
 }
 
+.search-container {
+  width: 25vw;
+  display: flex;
+  justify-content: end;
+}
+
 .search-input {
-  position: absolute;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -398,6 +412,20 @@ export default {
   transition: 0.3s;
 }
 
+.fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.fade-leave-active {
+  transition: all 0.3s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+
+  opacity: 0;
+}
+
 @media (max-width: 550px) {
   .logo {
     height: 4.55vh;
@@ -407,8 +435,16 @@ export default {
     border-radius: 50px;
   }
 
+  .search-container {
+    width: 6vh;
+
+  }
+
   .search-input {
     position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
     display: flex;
     align-items: center;
     justify-content: center;

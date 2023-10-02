@@ -114,11 +114,9 @@ const loginOrRegisterWithFacebook = () => {
       getDoc(profileRef)
         .then((docSnapshot) => {
           if (docSnapshot.exists()) {
-            // User is already registered
             console.log("User is already registered");
             router.push("/");
           } else {
-            // User is not registered, perform registration
             setDoc(profileRef, {
               firstName: user.displayName.split(" ")[0],
               secondName: user.displayName.split(" ")[1],

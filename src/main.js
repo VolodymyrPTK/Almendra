@@ -24,6 +24,7 @@ export const dataBase = collection(db, "products");
 export const profileReg = collection(db, "profiles");
 export const categoryReg = collection(db, "categories");
 export const brandReg = collection(db, "brands");
+export const dataReg = collection(db, "data");
 export const countryReg = collection(db, "countries");
 export const cartReg = collection(db, "carts");
 export const orderReg = collection(db, "orders");

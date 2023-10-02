@@ -1,3 +1,350 @@
+<script>
+import { ref, onMounted, computed } from "vue";
+import { dataBase, storage, categoryReg, dataReg, countryReg, db, brandReg } from "../main";
+import { addDoc, deleteDoc, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteField } from "firebase/firestore";
+import { ref as storageReference, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+
+export default {
+  name: "Products",
+  props: {
+    msg: String,
+  },
+  setup() {
+    const categories = ref([]);
+    const category = ref("");
+    const countries = ref([]);
+    const country = ref("");
+    const brands = ref([]);
+    const brand = ref("");
+    const products = ref([]);
+    const product = ref({
+      name: "",
+      detail: "",
+      sellPrice: "",
+      buyPrice: "",
+      description: "",
+      sklad: "",
+      kcal: "",
+      protein: "",
+      carbo: "",
+      fat: "",
+      brand: "",
+      category: "",
+      country: "",
+      image: "",
+      weight: "",
+      vitamins: [],
+      freeGluten: false,
+      freeSugar: false,
+      freeLactosa: false,
+      vegan: false,
+      proteinik: "",
+    });
+    const modalVisible = ref(false);
+    const isVisible = ref(false);
+    const searchTerm = ref("");
+    const editVisible = ref(false);
+    const brandsMenu = ref(false);
+    const categoryMenu = ref(false);
+    const countryMenu = ref(false);
+    const isLoading = ref(false);
+    const isLoaded = ref(false);
+    const requiredFields = ref([
+      "name", "detail", "sellPrice", "buyPrice", "description", "sklad", "kcal", "protein", "carbo", "fat", "brand", "category", "country", "image", "weight", "vitamins"
+    ]);
+
+    const showCategory = () => {
+      categoryMenu.value = !categoryMenu.value;
+    };
+
+    const hideCategory = () => {
+      categoryMenu.value = false;
+    };
+
+    const showBrands = () => {
+      brandsMenu.value = !brandsMenu.value;
+    };
+
+    const showCountry = () => {
+      countryMenu.value = !countryMenu.value;
+    };
+
+    const editModal = (id) => {
+      const selectedProduct = products.value.find(product => product.id === id);
+      if (selectedProduct) {
+        product.value = { ...selectedProduct };
+      }
+      editVisible.value = true;
+    };
+
+    const openModal = (id) => {
+      modalVisible.value = true;
+      currentProduct.value = id;
+      product.value = {};
+    };
+
+    const toggleModal = () => {
+      isVisible.value = !isVisible.value;
+      product.value = {};
+    };
+
+    const closeModal = () => {
+      editVisible.value = !editVisible.value;
+    };
+
+    const saveData = async () => {
+      try {
+        await addDoc(dataBase, product.value);
+      } catch (e) {
+        console.error("Error adding document: ", e);
+      }
+      product.value = {};
+      isLoaded.value = false;
+    };
+
+    const updateData = async () => {
+      try {
+        const refDoc = doc(db, "products", product.value.id);
+        await setDoc(refDoc, product.value, { merge: true });
+      } catch (error) {
+        console.error(error);
+      }
+      editVisible.value = !editVisible.value;
+      product.value = {};
+    };
+
+    const saveBrand = async () => {
+      try {
+        const brandsDocRef = doc(dataReg, 'brands');
+        const brandsDocSnapshot = await getDoc(brandsDocRef);
+        const brandsData = brandsDocSnapshot.exists() ? brandsDocSnapshot.data() : {};
+        brandsData[brand.value] = {};
+        await setDoc(brandsDocRef, brandsData);
+        brand.value = "";
+      } catch (e) {
+        console.error("Error adding brand: ", e);
+      }
+    };
+
+    const saveCountry = async () => {
+      try {
+        const countriesDocRef = doc(dataReg, 'countries');
+        const countriesDocSnapshot = await getDoc(countriesDocRef);
+        const countriesData = countriesDocSnapshot.exists() ? countriesDocSnapshot.data() : {};
+        countriesData[country.value] = {};
+        await setDoc(countriesDocRef, countriesData);
+        country.value = "";
+      } catch (e) {
+        console.error("Error adding country: ", e);
+      }
+    };
+
+    const saveCategory = async () => {
+      try {
+        const categoriesDocRef = doc(dataReg, 'categories');
+        const categoriesDocSnapshot = await getDoc(categoriesDocRef);
+        const categoriesData = categoriesDocSnapshot.exists() ? categoriesDocSnapshot.data() : {};
+        categoriesData[category.value] = {};
+        await setDoc(categoriesDocRef, categoriesData);
+        category.value = "";
+      } catch (e) {
+        console.error("Error adding category: ", e);
+      }
+    };
+
+    const deleteProduct = async (id) => {
+      if (confirm("Видалити ?")) {
+        await deleteDoc(doc(dataBase, id));
+        products.value = products.value.filter((product) => product.id !== id);
+      }
+    };
+
+    const deleteBrand = async (brandId) => {
+      if (confirm("Видалити ?")) {
+        try {
+          const brandsDocRef = doc(dataReg, 'brands');
+          await updateDoc(brandsDocRef, {
+            [brandId]: deleteField()
+          });
+        } catch (e) {
+          console.error("Error deleting brand: ", e);
+        }
+      }
+    };
+
+    const deleteCategory = async (categoryId) => {
+      if (confirm("Видалити ?")) {
+        try {
+          const categoriesDocRef = doc(dataReg, 'categories');
+          await updateDoc(categoriesDocRef, {
+            [categoryId]: deleteField()
+          });
+        } catch (e) {
+          console.error("Error deleting category: ", e);
+        }
+      }
+    };
+
+    const deleteCountry = async (countryId) => {
+      if (confirm("Видалити ?")) {
+        try {
+          const countriesDocRef = doc(dataReg, 'countries');
+          await updateDoc(countriesDocRef, {
+            [countryId]: deleteField()
+          });
+        } catch (e) {
+          console.error("Error deleting country: ", e);
+        }
+      }
+    };
+
+    const uploadImage = (e) => {
+      isLoading.value = true;
+      const file = e.target.files[0];
+      const storageRef = storageReference(storage, `products/${file.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => { },
+        (error) => { },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            isLoading.value = false;
+            isLoaded.value = true;
+            product.value.image = downloadURL;
+          });
+        }
+      );
+    };
+
+    const fetchProducts = async () => {
+      onSnapshot(dataBase, (snapshot) => {
+        products.value = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+      });
+    };
+
+    const fetchBrands = async () => {
+      try {
+        const brandsDocRef = doc(dataReg, 'brands');
+        onSnapshot(brandsDocRef, (snapshot) => {
+          const brandsData = snapshot.data();
+          const brandsArray = Object.keys(brandsData).map((brandName) => ({
+            id: brandName,
+            ...brandsData[brandName],
+          }));
+          brands.value = brandsArray;
+        });
+
+      } catch (e) { console.error("Error fetching brands: ", e); }
+    };
+
+    const fetchCategories = async () => {
+      try {
+        const categoriesDocRef = doc(dataReg, 'categories');
+        onSnapshot(categoriesDocRef, (snapshot) => {
+          const categoriesData = snapshot.data();
+          const categoriesArray = Object.keys(categoriesData).map((category) => ({
+            id: category,
+            ...categoriesData[category],
+          }));
+          categories.value = categoriesArray;
+        });
+
+      } catch (e) { console.error("Error fetching categories: ", e); }
+    };
+
+    const fetchCountries = async () => {
+      try {
+        const countriesDocRef = doc(dataReg, 'countries');
+        onSnapshot(countriesDocRef, (snapshot) => {
+          const countriesData = snapshot.data();
+          const countriesArray = Object.keys(countriesData).map((country) => ({
+            id: country,
+            ...countriesData[country],
+          }));
+          countries.value = countriesArray;
+        });
+
+      } catch (e) { console.error("Error fetching countries: ", e); }
+    };
+
+    const isSubmitDisabled = computed(() => {
+      return requiredFields.value.some((field) => !product.value[field]) || isLoading.value;
+    });
+
+    const currentProduct = computed(() => {
+      return products.value.find((product) => product.id === currentProduct.value);
+    });
+
+    const filteredProducts = computed(() => {
+      return products.value.filter((product) => {
+        return (
+          product.name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+          product.detail.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+          product.brand.toLowerCase().includes(searchTerm.value.toLowerCase())
+        );
+      });
+    });
+
+    const markUpPercent = computed(() => {
+      const markupPercent = ((product.value.sellPrice - product.value.buyPrice) / product.value.buyPrice) * 100;
+      return markupPercent.toFixed(2);
+    });
+
+    onMounted(async () => {
+      await fetchCategories();
+      await fetchProducts();
+      await fetchBrands();
+      await fetchCountries();
+    });
+
+    return {
+      categories,
+      category,
+      countries,
+      country,
+      brands,
+      brand,
+      products,
+      product,
+      modalVisible,
+      isVisible,
+      searchTerm,
+      editVisible,
+      brandsMenu,
+      categoryMenu,
+      countryMenu,
+      isLoading,
+      isLoaded,
+      requiredFields,
+      showCategory,
+      hideCategory,
+      showBrands,
+      showCountry,
+      editModal,
+      openModal,
+      toggleModal,
+      closeModal,
+      saveData,
+      updateData,
+      saveBrand,
+      saveCountry,
+      saveCategory,
+      deleteProduct,
+      deleteBrand,
+      deleteCategory,
+      deleteCountry,
+      uploadImage,
+      isSubmitDisabled,
+      currentProduct,
+      filteredProducts,
+      markUpPercent,
+    };
+  },
+};
+</script>
+
 <template>
   <div class="products">
     <div v-if="editVisible || isVisible" class="addproduct">
@@ -64,52 +411,75 @@
           <label for="checkbox">Free lactosa</label>
           <input type="checkbox" class="checkbox" v-model="product.vegan" />
           <label for="checkbox">Vegan</label>
-          <input type="checkbox" class="checkbox" v-model="product.protein" />
+          <input type="checkbox" class="checkbox" v-model="product.proteinik" />
           <label for="checkbox">Protein</label>
         </div>
       </div>
       <div>
         <button :disabled="isSubmitDisabled" v-if="isVisible" @click="saveData">Зберегти</button>
         <button v-if="isVisible" @click="toggleModal">Закрити</button>
-
         <button v-if="editVisible" @click="updateData">Оновити</button>
         <button v-if="editVisible" @click="closeModal">Закрити</button>
       </div>
     </div>
 
+    <div v-if="brandsMenu">
+      <div class="menu">
+        <input type="text" v-model="brand" @keyup.enter="saveBrand()" placeholder="Новий Бренд" />
+        <div class="menu-table">
+          <div v-for="brand in brands" :key="brand.id">
+            <div> {{ brand.id }}
+              <div class="deleteButton" @click="deleteBrand(brand.id)">
+                <img src="../assets/imgs/icons/delete.svg" alt="">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="menu-container" @click="showBrands">
+      </div>
+    </div>
+
+    <div v-if="categoryMenu">
+      <div class="menu">
+        <input type="text" v-model="category" @keyup.enter="saveCategory()" placeholder="Нова Категорія" />
+        <div class="menu-table">
+          <div v-for="category in categories" :key="category.id">
+            <div> {{ category.id }}
+              <div class="deleteButton" @click="deleteCategory(category.id)">
+                <img src="../assets/imgs/icons/delete.svg" alt="">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="menu-container" @click="showCategory"></div>
+    </div>
+
+    <div v-if="countryMenu">
+      <div class="menu">
+        <input type="text" v-model="country" @keyup.enter="saveCountry()" placeholder="Новий Країна" />
+        <div class="menu-table">
+          <div v-for="country in countries">
+            <div> {{ country.id }}
+              <div class="deleteButton" @click="deleteCountry(country.id)">
+                <img src="../assets/imgs/icons/delete.svg" alt="">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="menu-container" @click="showCountry"></div>
+    </div>
+
     <div class="productlist">
       <div class="list-header">
-        <button @click="toggleModal"> Створити продукт </button>
+        <button @click="toggleModal">Створити продукт</button>
         <div class="center-flex">
           <input class="searchInput" v-model="searchTerm" placeholder="Пошук" />
-          <div>
-            <button @click="showBrands">Бренди</button>
-            <div class="menu" v-if="brandsMenu">
-              <input type="text" v-model="brand" @keyup.enter="saveBrand()" placeholder="Новий Бренд" />
-              <ul v-for="brand in brands">
-                <li> {{ brand.id }}</li>
-              </ul>
-            </div>
-          </div>
-          <div>
-            <button @click="showCategory">Категорії</button>
-            <div class="menu" v-if="categoryMenu">
-              <button></button>
-              <input type="text" v-model="category" @keyup.enter="saveCategory()" placeholder="Нова Категорія" />
-              <ul v-for="category in categories">
-                <li> {{ category.id }}</li>
-              </ul>
-            </div>
-          </div>
-          <div>
-            <button @click="showCountry">Країни</button>
-            <div class="menu" v-if="countryMenu">
-              <input type="text" v-model="country" @keyup.enter="saveCountry()" placeholder="Новий Країна" />
-              <ul v-for="country in countries">
-                <li> {{ country.id }}</li>
-              </ul>
-            </div>
-          </div>
+          <button @click="showBrands">Бренди</button>
+          <button @click="showCategory">Категорії</button>
+          <button @click="showCountry">Країни</button>
         </div>
       </div>
       <table class="fixed_headers">
@@ -144,226 +514,6 @@
   </div>
 </template>
 
-
-<script>
-import { dataBase, storage, categoryReg, brandReg, countryReg, db } from "../main";
-import { addDoc, deleteDoc, onSnapshot, doc, setDoc, updateDoc } from "firebase/firestore";
-import { ref as storageReference, uploadBytesResumable, getDownloadURL, } from "firebase/storage";
-
-export default {
-  name: "Products",
-  props: {
-    msg: String,
-  },
-  data() {
-    return {
-      categories: [],
-      category: "",
-      countries: [],
-      country: "",
-      brands: [],
-      brand: "",
-      products: [],
-      product: {
-        name: "",
-        detail: "",
-        sellPrice: "  ",
-        buyPrice: "",
-        description: "",
-        sklad: "",
-        kcal: "",
-        protein: "",
-        carbo: "",
-        fat: "",
-        brand: "",
-        category: "",
-        country: "",
-        image: "",
-        weight: "",
-        vitamins: [],
-        freeGluten: false,
-        freeSugar: false,
-        freeLactosa: false,
-        vegan: false,
-        protein: false
-      },
-      modalVisible: false,
-      isVisible: false,
-      searchTerm: "",
-      editVisible: false,
-      brandsMenu: false,
-      categoryMenu: false,
-      countryMenu: false,
-      isLoading: false,
-      isLoaded: false,
-      requiredFields: [
-        "name", "detail", "sellPrice", "buyPrice", "description", "sklad", "kcal", "protein", "carbo", "fat", "brand", "category", "country", "image", "weight", "vitamins"
-      ]
-    };
-  },
-  methods: {
-    showCategory() {
-      this.categoryMenu = !this.categoryMenu;
-    },
-    hideCategory() {
-      this.categoryMenu = false;
-    },
-
-    showBrands() {
-      this.brandsMenu = !this.brandsMenu;
-    },
-    showCountry() {
-      this.countryMenu = !this.countryMenu;
-    },
-    editModal(id) {
-      // Buscar el producto en el array de productos
-      let product = this.products.find(product => product.id === id);
-      // Si existe el producto, asignar sus valores a this.product
-      if (product) {
-        this.product = { ...product };
-      }
-      // Mostrar el modal
-      this.editVisible = true;
-    },
-    openModal(id) {
-      this.modalVisible = true;
-      this.currentProductId = id;
-      this.product = {};
-    },
-    toggleModal() {
-      this.isVisible = !this.isVisible;
-      this.product = {};
-    },
-    closeModal() {
-      this.editVisible = !this.editVisible;
-    },
-    async saveData() {
-      try {
-        await addDoc(dataBase, this.product);
-      } catch (e) {
-        console.error("Error adding document: ", e);
-      }
-      this.product = {};
-      this.isLoaded = false;
-    },
-    async updateData() {
-      try {
-        const refDoc = doc(db, "products", this.product.id);
-        await setDoc(refDoc, this.product, { merge: true });
-      } catch (error) {
-        console.error(error);
-      }
-      this.editVisible = !this.editVisible;
-      this.product = {};
-    },
-    async saveCategory() {
-      try {
-        await setDoc(doc(categoryReg, this.category), { name: this.category });
-        this.category = "";
-      } catch (e) {
-        console.error("Error adding document: ", e);
-      }
-    },
-    async saveBrand() {
-      try {
-        await setDoc(doc(brandReg, this.brand), { name: this.brand });
-        this.brand = "";
-      } catch (e) {
-        console.error("Error adding document: ", e);
-      }
-    },
-    async saveCountry() {
-      try {
-        await setDoc(doc(countryReg, this.country), { name: this.country });
-        this.country = "";
-      } catch (e) {
-        console.error("Error adding document: ", e);
-      }
-    },
-    async deleteProduct(id) {
-      if (confirm("Видалити ?")) {
-        await deleteDoc(doc(dataBase, id));
-        this.products = this.products.filter((product) => product.id !== id);
-      } else {
-      }
-    },
-    uploadImage(e) {
-      this.isLoading = true;
-      const file = e.target.files[0];
-      const storageRef = storageReference(storage, `products/${file.name}`);
-      const uploadTask = uploadBytesResumable(storageRef, file);
-
-      uploadTask.on(
-        'state_changed',
-        (snapshot) => { },
-        (error) => { },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            this.isLoading = false;
-            this.isLoaded = true;
-            this.product.image = downloadURL;
-          });
-        }
-      );
-    },
-  },
-  async created() {
-    onSnapshot(dataBase, (snapshot) => {
-      this.products = [];
-      snapshot.docs.forEach((doc) => {
-        this.products.push({ ...doc.data(), id: doc.id });
-      });
-    });
-    onSnapshot(categoryReg, (snapshot) => {
-      this.categories = [];
-      snapshot.docs.forEach((doc) => {
-        this.categories.push({ ...doc.data(), id: doc.id });
-      });
-    });
-    onSnapshot(brandReg, (snapshot) => {
-      this.brands = [];
-      snapshot.docs.forEach((doc) => {
-        this.brands.push({ ...doc.data(), id: doc.id });
-      });
-    });
-    onSnapshot(countryReg, (snapshot) => {
-      this.countries = [];
-      snapshot.docs.forEach((doc) => {
-        this.countries.push({ ...doc.data(), id: doc.id });
-      });
-    });
-  },
-  computed: {
-    isSubmitDisabled() {
-      return this.requiredFields.some((field) => !this.product[field]) || this.isLoading;
-    },
-    currentProduct() {
-      return this.products.find(
-        (product) => product.id === this.currentProductId
-      );
-    },
-    filteredProducts() {
-      return this.products.filter((product) => {
-        return (
-          product.name
-            .toLowerCase()
-            .includes(this.searchTerm.toLowerCase()) ||
-          product.detail
-            .toLowerCase()
-            .includes(this.searchTerm.toLowerCase()) ||
-          product.brand
-            .toLowerCase()
-            .includes(this.searchTerm.toLowerCase())
-        );
-      });
-    },
-    markUpPercent() {
-      const markupPercent = ((this.product.sellPrice - this.product.buyPrice) / this.product.buyPrice) * 100;
-      return markupPercent.toFixed(2);
-    },
-  },
-};
-</script>
 
 <style scoped lang="scss">
 .products {
@@ -672,13 +822,61 @@ label {
   }
 }
 
-.menu {
-  background-color: rgb(255, 255, 255);
+.menu-container {
   position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  width: 100%;
+  height: 100%;
+}
+
+.menu {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  z-index: 5;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 60vh;
+  width: 25vw;
+  background-color: rgb(255, 255, 255);
   display: flex;
   flex-direction: column;
   box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.3), inset 0 0 0 rgba(0, 0, 0, 0.3);
   border-radius: 25px;
+}
+
+.menu-table {
+  overflow: scroll;
+
+
+  >div {
+    width: 20vw;
+    background-color: rgb(241, 239, 239);
+    border-radius: 25px;
+    padding: 5px 15px;
+    margin: 3px;
+    font-size: 2vh;
+
+    >div {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
 }
 
 .dot-spinner {

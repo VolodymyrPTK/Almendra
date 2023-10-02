@@ -265,7 +265,6 @@ export default {
     onUkrPoshtaClick() {
       this.selectedOption = 'ukrPoshta';
       this.expandedUkrPoshta = true;
-      this.profile.cityIndex = "";
       console.log('urkposhta')
     },
     showModal() {
@@ -504,8 +503,8 @@ export default {
         secondName: this.profile.secondName,
         city: this.profile.city,
         deliveryOption: this.profile.deliveryOption,
-        warehouse: this.profile.warehouse,
-        cityIndex: this.profile.cityIndex,
+        warehouse: this.profile.warehouse || null,
+        cityIndex: this.profile.cityIndex || null,
         phone: this.profile.phone,
         email: this.profile.email,
         items: this.items,

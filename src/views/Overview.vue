@@ -1,53 +1,74 @@
 <template>
   <div class="overview">
-    <h3>Total Value: {{ totalValue }}</h3>
-    <h3>Number of Products: {{ productCount }}</h3>
+    <input type="text" v-model="brandname" @keyup.enter="saveBrand">
+    <ul>
+      <li v-for="(brand, index) in brands" :key="index">{{ brand.brandname }}</li>
+    </ul>
   </div>
 </template>
 
 <script>
-import { dataBase } from "../main";
-import { onSnapshot } from "firebase/firestore";
+import supabase from '../supabaseClient';
 
 export default {
-  name: "Overview",
+  name: 'Overview',
   props: {
     msg: String,
   },
   data() {
     return {
-      products: [],
+      brands: [],
+      brandname: '',
+      errorMessage: '',
     };
   },
-  async created() {
-    onSnapshot(dataBase, (snapshot) => {
-      this.products = [];
-      snapshot.docs.forEach((doc) => {
-        this.products.push({ ...doc.data(), id: doc.id });
-      });
-    });
+  methods: {
+    async saveBrand() {
+      try {
+        const { data, error } = await supabase
+          .from('brands')
+          .insert([
+            {
+              brandname: this.brandname,
+            },
+          ]);
+
+        if (error) {
+          this.errorMessage = 'Error storing data: ' + error.message;
+        } else {
+          console.log('Data stored successfully:', data);
+          this.brandname = ''; // Clear the input field
+        }
+      } catch (error) {
+        this.errorMessage = 'Error: ' + error.message;
+      }
+    },
+    async fetchBrands() {
+      try {
+        const { data, error } = await supabase.from('brands').select('brandname');
+
+        if (error) {
+          console.error('Error fetching data:', error);
+        } else {
+          this.brands = data;
+        }
+      } catch (error) {
+        console.error('Error:', error.message);
+      }
+    },
   },
-  computed: {
-    totalValue() {
-      return this.products.reduce((total, product) => {
-        return total + (product.sellPrice * product.quantity || 0);
-      }, 0);
-    },
-    productCount() {
-      // Use a Set to store unique product IDs
-      const uniqueProductIds = new Set();
+  mounted() {
+    this.fetchBrands();
 
-      // Loop through the products and add their IDs to the Set
-      this.products.forEach((product) => {
-        uniqueProductIds.add(product.id);
-      });
-
-      // Return the size of the Set, which is the count of unique products
-      return uniqueProductIds.size;
-    },
+    // Subscribe to changes in the user's authentication state
+    supabase.auth.onAuthStateChange(() => {
+      this.fetchBrands();
+    });
   },
 };
 </script>
+  
+
 
 
 <style scoped>
