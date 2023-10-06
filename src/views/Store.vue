@@ -27,10 +27,12 @@
       </div>
     </section>
     <div class="pagination">
-      <button @click="prevPage" :class="{ 'disabled': currentPage === 1 }">Prev</button>
+      <button @click="prevPage" :class="{ 'disabled': currentPage === 1 }"><img src="../assets/imgs/icons/left-arrow.png"
+          alt=""></button>
       <button @click="goToPage(pageNumber)" v-for="pageNumber in totalPages" :key="pageNumber"
         :class="{ active: pageNumber === currentPage }">{{ pageNumber }}</button>
-      <button @click="nextPage" :class="{ 'disabled': currentPage === totalPages }">Next</button>
+      <button @click="nextPage" :class="{ 'disabled': currentPage === totalPages }"><img
+          src="../assets/imgs/icons/right-arrow.png" alt=""></button>
     </div>
 
   </div>
@@ -301,13 +303,22 @@ label {
   margin: 0 0 5vh 0;
   display: flex;
   align-items: center;
+  justify-content: center;
+}
+
+img {
+  height: 1.5vh;
 }
 
 button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: auto;
+  height: 4vh;
   border: none;
-  margin: 1vw;
-  padding: 0.5vw;
+  margin: 0.6vw;
+  padding: 0.6vw;
   background-color: #fff;
   color: #000;
   cursor: pointer;
@@ -335,8 +346,8 @@ button {
 
 @media (max-width: 550px) {
   .productCard {
-    width: 40vw;
-    height: 27vh;
+    width: 42vw;
+    height: 31vh;
     margin: 1vh 2vw 8vh 2vw;
   }
 
@@ -360,5 +371,29 @@ button {
   .productImage {
     height: 23vh;
   }
+
+  .pagination {
+    margin: 1vh 0 5vh 0;
+    width: 90%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  button {
+    width: 4vh;
+    height: 4vh;
+    margin: 2vw;
+    padding: 0.6vw;
+    background-color: #fff;
+    color: #000;
+    cursor: pointer;
+    border-radius: 50px;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px,
+      rgba(0, 0, 0, 0.3) 0px 7px 13px -3px,
+      rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+    font-size: 2vh;
+  }
+
 }
 </style>
