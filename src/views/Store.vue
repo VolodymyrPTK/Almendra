@@ -282,9 +282,12 @@ label {
   height: 30vh;
   filter: drop-shadow(0 0.7vw 0.5vw rgba(0, 0, 0, 0.7));
   margin-top: -3vh;
+  pointer-events: none;
+  user-select: none;
 }
 
 .product-name {
+  text-wrap: balance;
   text-align: center;
   display: flex;
   align-items: center;

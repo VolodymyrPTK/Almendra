@@ -5,43 +5,56 @@
       <div> {{ total }}</div>
       <div>грн</div>
     </div>
+
     <Transition name="slide">
       <div v-if="isVisible" class="cart">
         <div class="cart-name">{{ show ? 'Оформлення замовлення' : 'Кошик' }}</div>
 
         <div v-if="!show" class="cart-container">
-          <div class="cart-items" v-for="item in items" :key="item.id">
-            <img :src="item.itemImage" />
-            <div>
-              <div>{{ item.name }}</div>
+          <div class="cart-items-container">
+            <div class="cart-items" v-for="item in items" :key="item.id">
+              <img inert :src="item.itemImage" />
               <div>
-                <div>{{ item.price }} грн</div>
-                <div style="display: flex; align-items: center;">
-                  <div class="round-btn" @click="reduceQuantity(item.id)">-</div>
-                  <div>{{ item.quantity }} шт</div>
-                  <div class="round-btn" @click="addQuantity(item.id)">+</div>
+                <div>{{ item.name }}</div>
+                <div>
+                  <div>{{ item.price }} грн</div>
+                  <div style="display: flex; align-items: center;">
+                    <div class="round-btn" @click="reduceQuantity(item.id)">-</div>
+                    <div>{{ item.quantity }} шт</div>
+                    <div class="round-btn" @click="addQuantity(item.id)">+</div>
+                  </div>
+                  <div>{{ item.price * item.quantity }} грн</div>
                 </div>
-                <div>{{ item.price * item.quantity }} грн</div>
+              </div>
+              <div id="trash" @click="deleteProduct(item.id)">
+                <img src="../assets/imgs/icons/trash.svg" alt="">
               </div>
             </div>
-            <div id="trash" @click="deleteProduct(item.id)">
-              <img src="../assets/imgs/icons/trash.svg" alt="">
+          </div>
+          <div class="button-container">
+            <div>
+              <div class="cart-name">До сплати</div>
+              <div class="cart-name">{{ total }} грн</div>
             </div>
-
+            <button style="width: 40%;" class="btn-primary" @click="saveCart()">Оформити</button>
+            <button class="btn-secondary" @click="closeCart()">Закрити</button>
           </div>
         </div>
 
         <div v-else="show" class="data-container">
           <div class="cart-name">До сплати {{ total }} грн</div>
+
           <div class="profile">
             <div class="user-name" v-if="!showModalFlag">
               <div class="headers">Дані отримувача</div>
               <div class="names">
                 <div>
                   <div><b>Ім'я:</b> {{ profile.firstName }} {{ profile.secondName }}</div>
-                  <div><b>Телефон:</b>{{ formattedPhoneNumber }}</div>
+                  <div><b>Телефон:</b> {{ formattedPhoneNumber }}</div>
                 </div>
-                <div style="cursor: pointer; " v-on:click="showModal()"><img src="../assets/edit.png" alt="edit"></div>
+                <div style="cursor: pointer;" v-on:click="showModal()" :title="'Редагувати'">
+                  <img src="../assets/edit.png" alt="edit">
+                </div>
               </div>
             </div>
 
@@ -66,15 +79,15 @@
           <div class="adress">
             <div class="headers" v-if="!expandedNovaPoshta && !expandedUkrPoshta">Адреса Доставки</div>
             <div class="delivery-adress" v-if="!expandedNovaPoshta && !expandedUkrPoshta">
-              <div class="expanded" v-if="profile.deliveryOption === 'novaPoshta'">
-                <div><b>Нова Пошта</b></div>
+              <div v-if="profile.deliveryOption === 'novaPoshta'">
+                <div style="text-align: center;"><b>Нова Пошта</b></div>
                 <div><b>Місто:</b> {{ profile.city }}</div>
-                <div v-if="profile.postType === 'Warehouse'"><b>Віділення</b> {{ profile.warehouse }}</div>
-                <div v-else-if="profile.postType === 'Postomat'"><b>Поштомат</b> {{ profile.warehouse }}</div>
+                <div v-if="profile.postType === 'Warehouse'"><b>Віділення:</b> {{ profile.warehouse }}</div>
+                <div v-else-if="profile.postType === 'Postomat'"><b>Поштомат:</b> {{ profile.warehouse }}</div>
               </div>
 
-              <div class="expanded" v-else-if="profile.deliveryOption === 'ukrPoshta'">
-                <div><b>УкрПошта</b></div>
+              <div v-else-if="profile.deliveryOption === 'ukrPoshta'">
+                <div style="text-align: center;"><b>УкрПошта</b></div>
                 <div><b>Місто:</b> {{ profile.city }}</div>
                 <div><b>Індекс:</b> {{ profile.cityIndex }}</div>
               </div>
@@ -154,6 +167,7 @@
               </div>
             </div>
           </div>
+
           <div class="radio-container2">
             <div class="headers">Оплата</div>
             <div class="pay-tabs">
@@ -171,22 +185,16 @@
           </div>
         </div>
 
-        <div class="button-container" :class="{ down: show }">
-          <div>
-            <div class="cart-name">До сплати</div>
-            <div class="cart-name">{{ total }} грн</div>
-          </div>
-          <button class="btn-primary" @click="saveCart()">Оформити</button>
-          <button class="btn-secondary" @click="closeCart()">Закрити</button>
-        </div>
-
         <div class="order-confiramtion" v-if="orderConfirmed">
           <img src="../assets/imgs/icons/done.png" alt="">
-          <h2>Дякуємо за замовлення</h2>
-          <RouterLink class="view-order" to="/user" @click="closeCart()">Переглянути замовлення</RouterLink>
+          <h3>Дякуємо за замовлення</h3>
+          <div>Ваше замовлення в процесі обробки.</div>
+          <div>Буде відправлено протягом наступних 48 годин і ви зможете його відстежувати в особистому кабінеті.</div>
+          <RouterLink class="btn-primary" to="/user" @click="closeCart()">Переглянути замовлення</RouterLink>
         </div>
       </div>
     </Transition>
+
   </div>
 </template>
 
@@ -253,9 +261,6 @@ export default {
   methods: {
     toggleModal() {
       this.isVisible = !this.isVisible;
-    },
-    closeCartOut() {
-      this.isVisible = false;
     },
     onNovaPoshtaClick() {
       this.selectedOption = 'novaPoshta';
@@ -457,9 +462,6 @@ export default {
         console.error("Error deleting product", error);
       }
     },
-    showModal() {
-      this.showModalFlag = true;
-    },
     async updateData() {
       this.loading = true;
       try {
@@ -487,15 +489,12 @@ export default {
         minute: "2-digit",
       });
 
-      // Get the last order document
       const queryD = query(orderReg, orderBy("orderId", "desc"), limit(1));
       const querySnapshot = await getDocs(queryD);
       let lastId = 0;
       querySnapshot.forEach((doc) => {
-        // Get the id of the last order
         lastId = doc.data().orderId;
       });
-      // Create a new order document with id = lastId + 1
       const order = {
         orderId: lastId + 1,
         uid: this.profile.uid,
@@ -551,17 +550,12 @@ export default {
             minute: "2-digit",
           }),
         };
-
         const cart = await addDoc(cartReg, cartInfo);
         this.cartId = cart.id;
       }
     };
-
     const fetchCartAndProducts = async () => {
-      // Fetch or create cart
       await checkAndCreateCart();
-
-      // Fetch cart products
       if (this.cartId) {
         const cartData = collection(cartReg, this.cartId, "cartProducts");
         onSnapshot(cartData, (snapshot) => {
@@ -571,8 +565,6 @@ export default {
           });
         });
       }
-
-      // Fetch products
       onSnapshot(dataBase, (snapshot) => {
         this.products = [];
         snapshot.docs.forEach((doc) => {
@@ -580,11 +572,9 @@ export default {
         });
       });
     };
-
     if (user) {
       this.profile.email = user.email;
       this.profile.uid = user.uid;
-
       const docRef = doc(profileReg, this.profile.uid);
       onSnapshot(docRef, (doc) => {
         this.profiles = [];
@@ -600,8 +590,6 @@ export default {
           this.profile.postType = doc.data().postType;
         }
       });
-
-      // Fetch cart and products
       fetchCartAndProducts();
     }
   },
@@ -643,10 +631,9 @@ export default {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: 0.5vw 0;
   top: 10vh;
   right: 0;
-  width: 28vw;
+  width: 30vw;
   height: 85vh;
   backdrop-filter: blur(25px);
   -webkit-backdrop-filter: blur(25px);
@@ -657,7 +644,13 @@ export default {
 }
 
 .cart-container {
-  height: 100%;
+  height: 95%;
+  display: flex;
+  flex-direction: column;
+}
+
+.cart-items-container {
+  height: 90%;
   overflow: hidden;
   overflow-y: scroll;
   scroll-behavior: smooth;
@@ -674,6 +667,55 @@ export default {
   }
 }
 
+.cart-items {
+  display: flex;
+  align-items: center;
+  padding: 5px 15px;
+  margin: 15px;
+  border-radius: 20px;
+  box-shadow: 0 5px 7px rgba(0, 0, 0, 0.2);
+  font-size: 2vh;
+  backdrop-filter: blur(35px);
+  background-color: rgba(253, 253, 253, 0.5);
+  z-index: 2;
+  height: 9vh;
+
+  >img {
+    width: 4vw;
+  }
+
+
+  >div:nth-child(2) {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    border-radius: 3vh;
+    width: 100%;
+    height: 7vh;
+    padding: 1vh;
+
+    >div:nth-child(1) {
+      font-weight: bold;
+      text-align: center;
+    }
+
+    >div:nth-child(2) {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+  }
+}
+
+.button-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  padding: 0 25px;
+  z-index: 1;
+}
+
 //user data container
 .data-container {
   display: flex;
@@ -681,10 +723,7 @@ export default {
   align-items: stretch;
   justify-content: space-between;
   padding: 0.5vh 2vw;
-
-  >div {
-    margin: 0.5vh 0;
-  }
+  height: 100%;
 }
 
 .radio-container2 {
@@ -701,18 +740,17 @@ export default {
 }
 
 .pay-tabs {
-  //background-color: skyblue;
-  width: 100%;
+  width: 90%;
   display: flex;
   position: relative;
 }
 
 .pay-tab {
-  height: 4vh;
-  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 3;
+  height: 4vh;
   width: 50%;
   font-size: 2vh;
   font-weight: 500;
@@ -722,9 +760,9 @@ export default {
 }
 
 .glider {
-  height: 4vh;
   position: absolute;
   display: flex;
+  height: 4vh;
   width: 50%;
   background-color: #ffffff;
   box-shadow: 0 5px 7px rgba(0, 0, 0, 0.2);
@@ -733,7 +771,7 @@ export default {
   transition: 0.25s ease-out;
 }
 
-//user data
+//user data //////////////////////////////////////
 .profile {
   width: 100%;
   height: 15vh;
@@ -750,39 +788,26 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-around;
   width: 100%;
+  font-size: 1.8vh;
   height: 12vh;
 }
 
 .names {
   display: flex;
-  width: 90%;
   align-items: center;
-  justify-content: space-around;
+  justify-content: space-between;
   background-color: #fff;
   border-radius: 20px;
   border: 2px solid rgba(78, 78, 78, 0.15);
-  padding: 5px;
-
-  >div {
-    gap: 10px;
-  }
+  width: 70%;
+  padding: 10px;
 }
 
 .edit-modal {
   display: flex;
   align-items: center;
   justify-content: center;
-
-  input {
-    border-radius: 25px;
-    border: none;
-    margin: 0.3vh 25px;
-    padding: 5px 10px;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
-    height: 3vh;
-  }
 }
 
 .edit-inputs {
@@ -824,12 +849,15 @@ export default {
   border-radius: 25px;
   box-shadow: 0 5px 7px rgba(0, 0, 0, 0.2);
   background-color: rgba(253, 253, 253, 0.5);
+  font-size: 1.8vh;
 }
 
 .delivery-adress {
   background-color: #fff;
   border-radius: 20px;
   border: 2px solid rgba(78, 78, 78, 0.15);
+  width: 70%;
+  padding: 10px;
 }
 
 .delivery-options {
@@ -845,10 +873,6 @@ export default {
   flex-direction: column;
   align-items: center;
   width: 15vw;
-
-  input {
-    margin: 10px 0;
-  }
 
   >div:nth-child(1) {
     font-weight: bold;
@@ -870,6 +894,7 @@ export default {
   width: 230px;
   display: flex;
   position: relative;
+  margin: 2vh;
 
   * {
     z-index: 2;
@@ -888,7 +913,6 @@ export default {
   transition: color 0.15s ease-in;
   color: #5f5f5f;
 }
-
 
 .glider2 {
   position: absolute;
@@ -935,81 +959,11 @@ export default {
   transition: 0.3s;
 }
 
-li {
-  cursor: pointer;
-  padding: 10px;
-  margin: 7px;
-  transition: 0.75s;
-  background-color: white;
-  box-shadow: 0 5px 7px rgba(0, 0, 0, 0.2);
-  border-radius: 20px;
-}
-
-li:hover {
-  transition: 0.5s;
-  background-color: #e9e9e9;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
-}
-
-ul {
-  position: absolute;
-  height: 200px;
-  width: 300px;
-  z-index: 10;
-  list-style: none;
-  padding: 5px 0 5px 0;
-  border-radius: 25px;
-  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
-  background-color: rgba(253, 253, 253, 1);
-  border: solid 15px rgba(253, 253, 253, 1);
-  overflow-y: scroll;
-  transition: 0.75s;
-}
-
-ul::-webkit-scrollbar {
-  display: none;
-}
-
-#ul-1 {
-  margin-top: -205px;
-}
-
-#ul-2 {
-  margin-top: -65px;
-  height: 150px;
-}
-
-h2,
-h3 {
-  margin: 5px 0 5px 0;
-}
-
-.button-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-evenly;
-  padding: 0 25px;
-  position: relative;
-  z-index: 1;
-}
-
 .box {
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.expanded {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-  margin: 1vw;
-
-  div {
-    margin-bottom: 5px;
-  }
 }
 
 .cart-img {
@@ -1022,14 +976,8 @@ input[type="radio"] {
   display: none;
 }
 
-.down {
-  transform: translateY(100px);
-  transition: 0.5s;
-  z-index: 1;
-}
-
 .cart-name {
-  padding: 3px;
+  margin: 1vh 0;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1048,51 +996,20 @@ input[type="radio"] {
   z-index: 1;
 }
 
-.cart-items {
-  display: flex;
-  align-items: center;
-  padding: 5px 15px;
-  margin: 15px;
-  border-radius: 20px;
-  box-shadow: 0 5px 7px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(35px);
-  background-color: rgba(253, 253, 253, 0.5);
-  z-index: 2;
-
-  >img {
-    height: 8vh;
-  }
-
-
-  >div:nth-child(2) {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    width: 100%;
-    height: 8vh;
-
-    >div:nth-child(1) {
-      font-weight: bold;
-    }
-
-    >div:nth-child(2) {
-      display: flex;
-      justify-content: space-around;
-    }
-  }
-
-}
-
-//cart items
-
 #trash {
   height: 6vh;
   width: 3vw;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: 1.5vh;
+  background-color: rgba(0, 0, 0, 0.1);
   cursor: pointer;
+  transition: background-color 0.5s;
+
+  &:hover {
+    background-color: rgba(255, 105, 105, 0.452);
+  }
 }
 
 .round-btn {
@@ -1126,17 +1043,18 @@ input[type="radio"] {
 .btn-primary {
   width: auto;
   height: 5vh;
-  margin: 0.5vw;
   border: none;
-  font-size: 2.2vh;
+  padding: 0 1vw;
+  font-size: 1.8vh;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   border-radius: 25px;
-  backdrop-filter: blur(35px);
-  -webkit-backdrop-filter: blur(35px);
-  background-color: rgba(253, 253, 253, 0.8);
+  background-color: rgba(253, 253, 253, 1);
   box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
   transition: 0.3s;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-primary:hover {
@@ -1154,12 +1072,11 @@ input[type="radio"] {
   width: auto;
   height: 5vh;
   margin: 10px;
+  padding: 0 1vw;
   border: none;
-  font-size: 2vh;
+  font-size: 1.8vh;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   border-radius: 25px;
-  backdrop-filter: blur(35px);
-  -webkit-backdrop-filter: blur(35px);
   background-color: rgba(253, 253, 253, 0.2);
   box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
   transition: 0.3s;
@@ -1180,9 +1097,12 @@ input[type="radio"] {
 input {
   border-radius: 25px;
   border: none;
-  margin: 5px 25px;
-  padding: 7px;
+  margin: 0.3vh 25px;
+  padding: 5px 10px;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+  height: 3vh;
+  width: 12dvw;
+  font-size: 1.8vh;
 }
 
 input[type="radio"] {
@@ -1237,28 +1157,17 @@ input[id="radio-p2"] {
   justify-content: center;
   position: absolute;
   z-index: 100;
-  width: 100%;
-  height: 100%;
+  height: 90%;
   background-color: rgb(255, 255, 255);
+  text-align: center;
+  font-size: 2vh;
+  gap: 2vh;
+  padding: 5vh;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
 
   img {
-    height: 12vw;
+    height: 20vh;
   }
-}
-
-.view-order {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: auto;
-  padding: 2vh 2vw;
-  border: none;
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
-  border-radius: 10vw;
-  background-color: rgba(253, 253, 253, 0.8);
-  box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.3), 0px -1px 5px rgba(0, 0, 0, 0.1), inset 0px 0px 0px rgba(0, 0, 0, 0);
-  transition: 0.3s;
-  margin-top: 2vh;
 }
 
 a {
@@ -1276,19 +1185,45 @@ a {
   transform: translateX(120%);
 }
 
+.menu-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  width: 100%;
+  height: 100%;
+}
+
 @media (max-width: 550px) {
+
+  #trash {
+    width: 12vw;
+  }
+
   .cart {
     width: 100%;
   }
 
   .cart-items {
     height: 10vh;
+    backdrop-filter: none;
+    background-color: rgba(253, 253, 253, 1);
+    padding: 5px 15px 5px 0;
+
+    >img {
+      width: 10dvh;
+
+    }
   }
 
-  .edit-modal {
-    input {
-      width: 40vw;
-    }
+  input {
+    width: 50vw;
   }
 
   .navButton {

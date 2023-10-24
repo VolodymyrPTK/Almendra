@@ -81,6 +81,8 @@ export default {
   },
 }; 
 </script>
+
+
 <style scoped lang="scss">
 .buy-button {
   margin-top: 0vw;

@@ -6,29 +6,24 @@
         <img alt="Almendra logo" class="logo" src="../assets/logoNav.png" />
       </RouterLink>
 
-
       <div class="buttons">
         <div class="search-container">
-          <transition name="fade" mode="out-in">
-            <div class="navButton" v-if="!this.searchInput" @click="toggleSearch"><img
-                src="../assets/imgs/icons/search.svg" alt=""></div>
-          </transition>
-          <transition name="fade">
-            <div class="search-input" v-if="searchInput">
-              <input type="text" v-model="searchTerm" @input="handleSearchInput" placeholder="Пошук">
-              <div class="navButton" @click="toggleSearch"><img src="../assets/imgs/icons/close.svg" alt=""></div>
-              <div v-if="showResults" class="searchResults">
-                <RouterLink class="rlink" v-for="(product, index) in filteredProducts" :key="index"
-                  :to="'/product/' + product.id" @click="hideResults">
-                  <img class="productImage" :src="product.image" />
-                  <div>
-                    <div style="font-weight: bold;">{{ product.name }}</div>
-                    <div>{{ product.detail }}</div>
-                  </div>
-                </RouterLink>
-              </div>
+          <div class="navButton" v-if="!this.searchInput" @click="toggleSearch"><img src="../assets/imgs/icons/search.svg"
+              alt=""></div>
+          <div class="search-input" v-if="searchInput">
+            <input type="text" v-model="searchTerm" @input="handleSearchInput" placeholder="Пошук">
+            <div class="navButton" @click="toggleSearch"><img src="../assets/imgs/icons/close.svg" alt=""></div>
+            <div v-if="showResults" class="searchResults">
+              <RouterLink class="rlink" v-for="(product, index) in filteredProducts" :key="index"
+                :to="'/product/' + product.id" @click="hideResults">
+                <img class="productImage" :src="product.image" />
+                <div>
+                  <div style="font-weight: bold;">{{ product.name }}</div>
+                  <div>{{ product.detail }}</div>
+                </div>
+              </RouterLink>
             </div>
-          </transition>
+          </div>
         </div>
 
         <RouterLink class="navButton" to="/store"><img src="../assets/imgs/icons/home.svg" alt=""></RouterLink>
@@ -124,11 +119,8 @@ export default {
     onAuthStateChanged(this.auth, (user) => {
       if (user) {
         this.isLoggedIn = true;
-
-        // User is authenticated, you can now safely access their properties
         this.profile.email = user.email;
         this.profile.uid = user.uid;
-
         const docRef = doc(profileReg, this.profile.uid);
         onSnapshot(docRef, (doc) => {
           this.profile.firstName = doc.data().firstName;
@@ -151,17 +143,14 @@ export default {
   computed: {
     filteredProducts() {
       return this.products.filter((product) => {
-        return (
-          product.name
-            .toLowerCase()
-            .includes(this.searchTerm.toLowerCase()) ||
-          product.description
-            .toLowerCase()
-            .includes(this.searchTerm.toLowerCase()) ||
-          product.brand
-            .toLowerCase()
-            .includes(this.searchTerm.toLowerCase())
-        );
+        const searchTerms = this.searchTerm.toLowerCase().split(' ');
+        return searchTerms.every((term) => {
+          return (
+            product.name.toLowerCase().includes(term) ||
+            product.description.toLowerCase().includes(term) ||
+            product.brand.toLowerCase().includes(term)
+          );
+        });
       });
     }
   },
@@ -301,8 +290,8 @@ export default {
 .searchResults {
   position: absolute;
   display: flex;
+  top: 9vh;
   flex-direction: column;
-  margin-top: 60vh;
   border-radius: 25px;
   padding: 10px;
   max-height: 50vh;
@@ -412,20 +401,6 @@ export default {
   transition: 0.3s;
 }
 
-.fade-enter-active {
-  transition: all 0.3s ease-out;
-}
-
-.fade-leave-active {
-  transition: all 0.3s;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-
-  opacity: 0;
-}
-
 @media (max-width: 550px) {
   .logo {
     height: 4.55vh;
@@ -437,7 +412,6 @@ export default {
 
   .search-container {
     width: 6vh;
-
   }
 
   .search-input {
@@ -450,10 +424,8 @@ export default {
     justify-content: center;
     width: 100%;
     height: 100%;
-    background-color: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(35px);
-    -webkit-backdrop-filter: blur(35px);
-    border-radius: 25px;
+    background-color: white;
+    border-radius: 20px;
 
     input {
       height: 4vh;
@@ -463,7 +435,7 @@ export default {
   }
 
   .searchResults {
-    width: 80vw;
+    width: 90vw;
   }
 
   .navButton {

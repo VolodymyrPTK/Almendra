@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <table class="main">
+    <div class="main">
+        <table>
             <tbody class="order-container" v-for="order in orders" :key="order.id">
                 <tr class="order-row">
                     <button @click="showDetails(order)"><img src="../assets/imgs/icons/expand.svg" alt=""></button>
@@ -166,14 +166,7 @@ export default {
 .main {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    width: 100%;
     padding: 1vw;
-    overflow: hidden;
-
-    &::-webkit-scrollbar {
-        display: none;
-    }
 }
 
 .order-container {
@@ -181,7 +174,7 @@ export default {
     margin: 0.2vw;
     border-radius: 25px;
     box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
-    //background-color: rgb(255, 228, 188);
+
 }
 
 .order-row {

@@ -2,7 +2,7 @@
   <div class="container" v-for="product in products" :key="product.id">
 
     <div id="card-1" class="cards">
-      <img class="productImage" :src="product.image" />
+      <img inert class="productImage" :src="product.image" />
       <div class="product-buy">
         <div>{{ product.sellPrice }} грн</div>
         <AddToCart :product-id="product.id" :sellPrice="product.sellPrice" :image="product.image" :name="product.name" />
@@ -12,7 +12,9 @@
     <div id="card-2" class="cards">
       <div>{{ product.name }}</div>
       <h2>{{ product.detail }}</h2>
-      <p>{{ product.description }}</p>
+      <p>{{ product.description.substring(0, 600) }}...</p>
+      <button popovertarget="foo">Читати далі</button>
+      <div id="foo" inert popover>{{ product.description }}</div>
       <p><b>Склад:</b> {{ product.sklad }}</p>
       <div class="lables-row">
         <img class="diet-lable" v-if="product.freeGluten == true"
@@ -36,7 +38,11 @@
     <div id="card-3" class="cards">
       <h2>Характеристики</h2>
       <div class="kcal">
-        <div class="kcal-items">
+        <div v-if="product.liquid" class="kcal-items">
+          <p>Об'єм:</p>
+          <p>{{ product.weight }} мл</p>
+        </div>
+        <div v-else class="kcal-items">
           <p>Вага:</p>
           <p>{{ product.weight }} г</p>
         </div>
@@ -108,6 +114,7 @@ export default {
         vegan: false,
         raw: false,
         protein: false,
+        showFullDescription: false,
       },
     };
   },
@@ -126,10 +133,11 @@ export default {
   font-family: Arial, Helvetica, sans-serif;
   display: flex;
   padding: 15px;
+  margin-top: 1vh;
 }
 
 .cards {
-  height: 40vw;
+  height: 40dvw;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
@@ -147,12 +155,14 @@ export default {
   width: 30%;
   margin-right: 15px;
   padding: 1vw;
+
 }
 
 #card-2 {
   padding: 1vw 2vw 1vw 2vw;
   width: 50%;
   margin-right: 15px;
+  user-select: none;
 
   >div:nth-child(1) {
     font-size: 2vw;
@@ -183,11 +193,14 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
+  user-select: none;
 }
 
 .productImage {
   height: 35vw;
   filter: drop-shadow(0 25px 25px rgba(0, 0, 0, 0.75));
+  user-select: none;
+  pointer-events: none;
 }
 
 .product-buy {
@@ -206,7 +219,6 @@ export default {
     font-size: 2.8vh;
     background-color: white;
     border-radius: 25px;
-    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.4);
     padding: 0 15px;
   }
 }
@@ -251,6 +263,7 @@ p {
   font-family: Arial, Helvetica, sans-serif;
   margin: 10px;
   color: rgb(0, 0, 0);
+  text-wrap: balance;
 }
 
 @media (max-width: 550px) {
@@ -334,7 +347,6 @@ p {
       font-size: 2.8vh;
       background-color: white;
       border-radius: 25px;
-      box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.4);
       padding: 0 15px;
     }
   }

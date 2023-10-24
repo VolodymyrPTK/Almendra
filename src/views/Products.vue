@@ -39,6 +39,7 @@ export default {
       freeLactosa: false,
       vegan: false,
       proteinik: "",
+      liquid: false
     });
     const modalVisible = ref(false);
     const isVisible = ref(false);
@@ -279,13 +280,17 @@ export default {
 
     const filteredProducts = computed(() => {
       return products.value.filter((product) => {
-        return (
-          product.name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
-          product.detail.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
-          product.brand.toLowerCase().includes(searchTerm.value.toLowerCase())
-        );
+        const searchTerms = searchTerm.value.toLowerCase().split(' ');
+        return searchTerms.every((term) => {
+          return (
+            product.name.toLowerCase().includes(term) ||
+            product.detail.toLowerCase().includes(term) ||
+            product.brand.toLowerCase().includes(term)
+          );
+        });
       });
     });
+
 
     const markUpPercent = computed(() => {
       const markupPercent = ((product.value.sellPrice - product.value.buyPrice) / product.value.buyPrice) * 100;
@@ -380,7 +385,10 @@ export default {
         <textarea type="text" v-model="product.sklad" placeholder="Склад"></textarea>
       </div>
       <div class="midle-inputs">
-        <input type="text" v-model="product.weight" placeholder="Вага" />
+        <input type="checkbox" id="liquid" name="liquid" v-model="product.liquid">
+        <label for="liquid">Рідина</label>
+        <input v-if="product.liquid" type="text" v-model="product.weight" placeholder="Об'єм" />
+        <input v-else type="text" v-model="product.weight" placeholder="Вага" />
         <input type="number" v-model="product.kcal" placeholder="Kcal" />
         <input type="number" v-model="product.fat" placeholder="Жири" />
         <input type="number" v-model="product.carbo" placeholder="Вуглеводи" />
@@ -389,35 +397,34 @@ export default {
       <input style="width: 50vw;" type="text" v-model="product.vitamins" placeholder="Вітаміни" />
       <div>
         <select v-model="product.country">
-          <option disabled value="" placeholder="Країна">Країна</option>
+          <option value="" disabled>Країна</option>
           <option v-for="country in countries">{{ country.id }}</option>
         </select>
         <select v-model="product.brand">
           <option disabled value="">Бренд</option>
-          <option v-for="brand in brands">{{ brand.id }}</option>
+          <option v-for=" brand  in  brands ">{{ brand.id }}</option>
         </select>
         <select class="menus" v-model="product.category">
           <option disabled value="">Категорія</option>
-          <option v-for="category in categories">{{ category.id }}</option>
+          <option v-for=" category  in  categories ">{{ category.id }}</option>
         </select>
       </div>
       <div>
-        <div>
-          <input type="checkbox" class="checkbox" v-model="product.freeGluten" />
-          <label for="checkbox">Free gluten</label>
-          <input type="checkbox" class="checkbox" v-model="product.freeSugar" />
-          <label for="checkbox">Free Sugar</label>
-          <input type="checkbox" class="checkbox" v-model="product.freeLactosa" />
-          <label for="checkbox">Free lactosa</label>
-          <input type="checkbox" class="checkbox" v-model="product.vegan" />
-          <label for="checkbox">Vegan</label>
-          <input type="checkbox" class="checkbox" v-model="product.proteinik" />
-          <label for="checkbox">Protein</label>
-        </div>
+        <input type="checkbox" class="checkbox" id="gluten" v-model="product.freeGluten" />
+        <label for="gluten">Free gluten</label>
+        <input type="checkbox" class="checkbox" id="sugar" v-model="product.freeSugar" />
+        <label for="sugar">Free Sugar</label>
+        <input type="checkbox" class="checkbox" id="lactosa" v-model="product.freeLactosa" />
+        <label for="lactosa">Free lactosa</label>
+        <input type="checkbox" class="checkbox" id="vegan" v-model="product.vegan" />
+        <label for="vegan">Vegan</label>
+        <input type="checkbox" class="checkbox" id="protein" v-model="product.proteinik" />
+        <label for="protein">Protein</label>
       </div>
       <div>
         <button :disabled="isSubmitDisabled" v-if="isVisible" @click="saveData">Зберегти</button>
         <button v-if="isVisible" @click="toggleModal">Закрити</button>
+        <button v-if="editVisible" @click="saveData">Дублювати</button>
         <button v-if="editVisible" @click="updateData">Оновити</button>
         <button v-if="editVisible" @click="closeModal">Закрити</button>
       </div>
@@ -427,7 +434,7 @@ export default {
       <div class="menu">
         <input type="text" v-model="brand" @keyup.enter="saveBrand()" placeholder="Новий Бренд" />
         <div class="menu-table">
-          <div v-for="brand in brands" :key="brand.id">
+          <div v-for=" brand  in  brands " :key="brand.id">
             <div> {{ brand.id }}
               <div class="deleteButton" @click="deleteBrand(brand.id)">
                 <img src="../assets/imgs/icons/delete.svg" alt="">
@@ -444,7 +451,7 @@ export default {
       <div class="menu">
         <input type="text" v-model="category" @keyup.enter="saveCategory()" placeholder="Нова Категорія" />
         <div class="menu-table">
-          <div v-for="category in categories" :key="category.id">
+          <div v-for=" category  in  categories " :key="category.id">
             <div> {{ category.id }}
               <div class="deleteButton" @click="deleteCategory(category.id)">
                 <img src="../assets/imgs/icons/delete.svg" alt="">
@@ -460,7 +467,7 @@ export default {
       <div class="menu">
         <input type="text" v-model="country" @keyup.enter="saveCountry()" placeholder="Новий Країна" />
         <div class="menu-table">
-          <div v-for="country in countries">
+          <div v-for=" country  in  countries ">
             <div> {{ country.id }}
               <div class="deleteButton" @click="deleteCountry(country.id)">
                 <img src="../assets/imgs/icons/delete.svg" alt="">
@@ -494,7 +501,8 @@ export default {
           </tr>
         </thead>
         <tbody>
-          <tr class="tableline" @dblclick="editModal(product.id)" v-for="product in filteredProducts" :key="product.id">
+          <tr class="tableline" @dblclick="editModal(product.id)" v-for=" product  in  filteredProducts "
+            :key="product.id">
             <td>
               <img class="productImage" :src="product.image" />
             </td>
@@ -585,6 +593,12 @@ export default {
 
 .midle-inputs {
   display: flex;
+  align-items: center;
+
+  input[type="checkbox"] {
+    width: auto;
+    height: auto;
+  }
 
   input {
     width: 10vw;
@@ -594,6 +608,7 @@ export default {
 textarea {
   width: 35vw;
   height: 30vh;
+  resize: none;
 }
 
 input,
