@@ -1,120 +1,48 @@
 <template>
-  <div class="overview">
-    <button popovertarget="foo">Toggle the popover</button>
-    <div id="foo" popover>Popover content</div>
-    <img src="../assets/facebook.png" alt="" inert>
-    <p inert>Using the details tag in HTML</p>
-    <details>
-      <summary>Click here to see more details</summary>
-      <p>The details tag can contain any HTML content, such as text, images, links, etc.</p>
+  <div>
+    <h2>Add a new brand</h2>
+    <form @submit.prevent="addBrand">
+      <label for="brandName">Brand name:</label>
+      <input type="text" id="brandName" v-model="newBrandName" />
+      <button type="submit">Add brand</button>
+    </form>
 
-    </details>
-    <button popovertarget="my-popover" class="trigger-btn"> Open Popover </button>
-
-    <div id="my-popover" popover=manual>
-      <button class="close-btn" popovertarget="my-popover" popovertargetaction="hide">
-        <span aria-hidden=”true”>❌</span>
-        <span class="sr-only">Close</span>
-      </button>
-      <p>I am a popover with more information.
-      </p>
-    </div>
-    <h3>Total Value: {{ totalValue }}</h3>
-    <h3>Number of Products: {{ productCount }}</h3>
-    <input type="text" v-model="name" @keyup.enter="saveBrand" placeholder="firz">
+    <h2>Brands</h2>
     <ul>
-      <li v-for="(brand, index) in brands" :key="index">{{ brand.name }}</li>
+      <li v-for="brand in brands" :key="brand.id">{{ brand.name }}</li>
     </ul>
   </div>
 </template>
 
 <script>
+import { ref } from 'vue'
 import supabase from '../supabaseClient';
-import { dataBase } from "../main";
-import { onSnapshot } from "firebase/firestore";
 
 export default {
-  name: 'Overview',
-  props: {
-    msg: String,
-  },
-  data() {
+  setup() {
+
+    const brands = ref([]);
+    const newBrandName = ref('');
+
+    async function getBrands() {
+      const { data } = await supabase.from('brands').select();
+      brands.value = data;
+    }
+
+    async function addBrand() {
+      await supabase.from('brands').insert({ name: newBrandName.value });
+      newBrandName.value = '';
+      await getBrands();
+    }
+
+    getBrands();
+
     return {
-      products: [],
-      brands: [],
-      name: '',
-      errorMessage: '',
+      brands,
+      newBrandName,
+      addBrand,
     };
   },
-  methods: {
-    async saveBrand() {
-      try {
-        const { data, error } = await supabase
-          .from('brands')
-          .insert([
-            { name: this.name, },
-          ]);
-        if (error) {
-          this.errorMessage = 'Error storing data: ' + error.message;
-        } else {
-          console.log('Data stored successfully:', data);
-          this.name = '';
-        }
-      } catch (error) {
-        this.errorMessage = 'Error: ' + error.message;
-      }
-    },
-    async fetchBrands() {
-      try {
-        const { data, error } = await supabase.from('brands').select('name');
-        if (error) {
-          console.error('Error fetching data:', error);
-        } else {
-          this.brands = data;
-        }
-      } catch (error) {
-        console.error('Error:', error.message);
-      }
-    },
-  },
-  mounted() {
-    this.fetchBrands();
-    supabase.auth.onAuthStateChange(() => {
-      this.fetchBrands();
-    });
-  },
-  async created() {
-    onSnapshot(dataBase, (snapshot) => {
-      this.products = [];
-      snapshot.docs.forEach((doc) => {
-        this.products.push({ ...doc.data(), id: doc.id });
-      });
-    });
-  },
-  computed: {
-    totalValue() {
-      return this.products.reduce((total, product) => {
-        return total + (product.sellPrice * product.quantity || 0);
-      }, 0);
-    },
-    productCount() {
-      const uniqueProductIds = new Set();
-      this.products.forEach((product) => {
-        uniqueProductIds.add(product.id);
-      });
-      return uniqueProductIds.size;
-    },
-  },
-
 };
+
 </script>
-  
-
-
-
-<style scoped>
-.overview {
-  padding: 1vh;
-  width: 100%;
-}
-</style>

@@ -9,25 +9,25 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.37.0",
+    "@supabase/supabase-js": "^2.38.2",
     "axios": "^1.5.1",
-    "esbuild": "^0.19.3",
-    "firebase": "^9.8.3",
+    "esbuild": "^0.19.5",
+    "firebase": "^10.5.0",
     "novaposhta": "^1.1.1",
-    "pinia": "^2.0.29",
-    "vite": "^4.2.1",
-    "vue": "^3.2.47",
-    "vue-router": "^4.0.15",
+    "pinia": "^2.1.7",
+    "vite": "^4.5.0",
+    "vue": "^3.3.6",
+    "vue-router": "^4.2.5",
     "vue-tidio": "^2.0.0"
   },
   "devDependencies": {
-    "@rushstack/eslint-patch": "^1.1.0",
-    "@vitejs/plugin-vue": "^4.1.0",
-    "@vue/eslint-config-prettier": "^7.0.0",
-    "eslint": "^8.5.0",
-    "eslint-plugin-vue": "^8.2.0",
-    "prettier": "^2.5.1",
-    "sass": "^1.52.3",
-    "sass-loader": "^13.0.0"
+    "@rushstack/eslint-patch": "^1.5.1",
+    "@vitejs/plugin-vue": "^4.4.0",
+    "@vue/eslint-config-prettier": "^8.0.0",
+    "eslint": "^8.52.0",
+    "eslint-plugin-vue": "^9.18.0",
+    "prettier": "^3.0.3",
+    "sass": "^1.69.4",
+    "sass-loader": "^13.3.2"
   }
 }
