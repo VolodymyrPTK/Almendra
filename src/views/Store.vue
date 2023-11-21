@@ -98,38 +98,31 @@ const nextPage = () => {
 const scrollToTop = () => {
   window.scrollTo({
     top: 0,
-    behavior: 'smooth', // Optional: Adds smooth scrolling animation
+    behavior: 'smooth',
   });
 };
 
-// Calculate total pages based on total products and products per page
 const totalPages = computed(() => {
   return Math.ceil(totalProducts.value / productsPerPage);
 });
 
 const filterProducts = (categoryFilter) => {
   currentCategory.value = categoryFilter;
-  currentPage.value = 1; // Reset to the first page
+  currentPage.value = 1;
 
   if (categoryFilter === null) {
-    // If categoryFilter is null, show all products
     products.value = [...originalProducts.value];
   } else {
-    // Filter products by category
     products.value = originalProducts.value.filter(
       (product) => product.category === categoryFilter
     );
   }
-
-  totalProducts.value = products.value.length; // Update totalProducts
+  totalProducts.value = products.value.length;
 };
 
-
 const resetFilter = () => {
-  currentCategory.value = null; // Reset the category filter
-  currentPage.value = 1; // Reset to the first page
-
-  // Update the products to show all products or the filtered products
+  currentCategory.value = null;
+  currentPage.value = 1;
   if (currentCategory.value === null) {
     products.value = [...originalProducts.value];
   } else {
@@ -137,7 +130,6 @@ const resetFilter = () => {
       (product) => product.category === currentCategory.value
     );
   }
-
   totalProducts.value = products.value.length; // Update totalProducts
 };
 
@@ -146,8 +138,6 @@ onSnapshot(dataBase, (snapshot) => {
   snapshot.docs.forEach((doc) => {
     originalProducts.value.push({ ...doc.data(), id: doc.id });
   });
-
-  // Update totalProducts
   totalProducts.value = originalProducts.value.length;
 });
 

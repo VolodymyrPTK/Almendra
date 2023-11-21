@@ -12,9 +12,7 @@
     <div id="card-2" class="cards">
       <div>{{ product.name }}</div>
       <h2>{{ product.detail }}</h2>
-      <p>{{ product.description.substring(0, 600) }}...</p>
-      <button popovertarget="foo">Читати далі</button>
-      <div id="foo" inert popover>{{ product.description }}</div>
+      <div>{{ product.description }}</div>
       <p><b>Склад:</b> {{ product.sklad }}</p>
       <div class="lables-row">
         <img class="diet-lable" v-if="product.freeGluten == true"
@@ -29,9 +27,6 @@
         <img class="diet-lable" v-if="product.vegan == true"
           src="https://firebasestorage.googleapis.com/v0/b/almendra-a411d.appspot.com/o/icons%2Fvegan.png?alt=media&token=95204665-ddb2-457e-b785-b1d062f3cdd5"
           alt="веган" />
-        <img class="diet-lable" v-if="product.protein == true"
-          src="https://firebasestorage.googleapis.com/v0/b/almendra-a411d.appspot.com/o/icons%2Fraw.png?alt=media&token=6c35501b-5854-4f0f-8155-e3a7d08f8740"
-          alt="protein" />
       </div>
     </div>
 
@@ -174,7 +169,7 @@ export default {
   }
 
   >div:nth-child(3) {
-    font-size: 1.5vw;
+    font-size: 1.2vw;
   }
 
   >div:nth-child(4) {

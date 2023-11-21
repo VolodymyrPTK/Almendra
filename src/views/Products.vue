@@ -291,7 +291,6 @@ export default {
       });
     });
 
-
     const markUpPercent = computed(() => {
       const markupPercent = ((product.value.sellPrice - product.value.buyPrice) / product.value.buyPrice) * 100;
       return markupPercent.toFixed(2);
@@ -354,33 +353,41 @@ export default {
   <div class="products">
     <div v-if="editVisible || isVisible" class="addproduct">
       <div class="top-inputs">
-        <input type="text" v-model="product.name" placeholder="Назва товару" />
-        <input type="text" v-model="product.detail" placeholder="Опис" />
+        <div id="group2">
+          <div id="group1">
+            <input type="text" v-model="product.name" placeholder="Назва товару" />
+            <input type="text" v-model="product.detail" placeholder="Опис" />
+          </div>
 
-        <div class="file-upload">
-          <input type="file" @change="uploadImage" />
-          <div :class="{ 'loading': isLoading, 'loaded': isLoaded }">
-            <span v-if="isLoading">
-              <div class="dot-spinner">
-                <div class="dot-spinner__dot"></div>
-                <div class="dot-spinner__dot"></div>
-                <div class="dot-spinner__dot"></div>
-                <div class="dot-spinner__dot"></div>
-                <div class="dot-spinner__dot"></div>
-                <div class="dot-spinner__dot"></div>
-                <div class="dot-spinner__dot"></div>
-                <div class="dot-spinner__dot"></div>
-              </div>
-            </span>
-            <span v-else-if="isLoaded"><img class="btnimg" src="../assets/imgs/icons/done.svg" alt="icon" /></span>
-            <span v-else><img class="btnimg" src="../assets/btnimg.png" alt="icon" /></span>
+          <div class="file-upload">
+            <input type="file" @change="uploadImage" />
+            <div :class="{ 'loading': isLoading, 'loaded': isLoaded }">
+              <span v-if="isLoading">
+                <div class="dot-spinner">
+                  <div class="dot-spinner__dot"></div>
+                  <div class="dot-spinner__dot"></div>
+                  <div class="dot-spinner__dot"></div>
+                  <div class="dot-spinner__dot"></div>
+                  <div class="dot-spinner__dot"></div>
+                  <div class="dot-spinner__dot"></div>
+                  <div class="dot-spinner__dot"></div>
+                  <div class="dot-spinner__dot"></div>
+                </div>
+              </span>
+              <span v-else-if="isLoaded"><img class="btnimg" src="../assets/imgs/icons/done.svg" alt="icon" /></span>
+              <span v-else><img class="btnimg" src="../assets/btnimg.png" alt="icon" /></span>
+            </div>
           </div>
         </div>
-        <input type="number" v-model="product.buyPrice" placeholder="Ціна Купівлі" />
-        <input type="number" v-model="product.sellPrice" placeholder="Ціна Продажу" />
-        <div class="markUp"> Націнка: {{ markUpPercent }}%</div>
+
+        <div id="group3">
+          <input type="number" v-model="product.buyPrice" placeholder="Ціна Купівлі" />
+          <input type="number" v-model="product.sellPrice" placeholder="Ціна Продажу" />
+          <div class="markUp"> Націнка: {{ markUpPercent }}%</div>
+        </div>
       </div>
-      <div style="display: flex;">
+
+      <div class="textareas">
         <textarea type="text" v-model="product.description" placeholder="Опис"></textarea>
         <textarea type="text" v-model="product.sklad" placeholder="Склад"></textarea>
       </div>
@@ -394,10 +401,10 @@ export default {
         <input type="number" v-model="product.carbo" placeholder="Вуглеводи" />
         <input type="number" v-model="product.protein" placeholder="Білки" />
       </div>
-      <input style="width: 50vw;" type="text" v-model="product.vitamins" placeholder="Вітаміни" />
-      <div>
+      <input style="width: 70vw;" type="text" v-model="product.vitamins" placeholder="Вітаміни" />
+      <div class="selects">
         <select v-model="product.country">
-          <option value="" disabled>Країна</option>
+          <option value="default" disabled>Країна</option>
           <option v-for="country in countries">{{ country.id }}</option>
         </select>
         <select v-model="product.brand">
@@ -481,12 +488,12 @@ export default {
 
     <div class="productlist">
       <div class="list-header">
-        <button @click="toggleModal">Створити продукт</button>
+        <button @click="toggleModal">Створити</button>
         <div class="center-flex">
           <input class="searchInput" v-model="searchTerm" placeholder="Пошук" />
-          <button @click="showBrands">Бренди</button>
-          <button @click="showCategory">Категорії</button>
-          <button @click="showCountry">Країни</button>
+          <button class="hiden-for-mobiles" @click="showBrands">Бренди</button>
+          <button class="hiden-for-mobiles" @click="showCategory">Категорії</button>
+          <button class="hiden-for-mobiles" @click="showCountry">Країни</button>
         </div>
       </div>
       <table class="fixed_headers">
@@ -508,8 +515,8 @@ export default {
             </td>
             <td v-bind:title="product.name">{{ product.name }}</td>
             <td v-bind:title="product.brand">{{ product.brand }}</td>
-            <td v-bind:title="product.category">{{ product.category }}</td>
-            <td v-bind:title="product.sellPrice">{{ product.sellPrice }}</td>
+            <td class="hiden-for-mobiles" v-bind:title="product.category">{{ product.category }}</td>
+            <td class="hiden-for-mobiles" v-bind:title="product.sellPrice">{{ product.sellPrice }}</td>
             <td>
               <div class="deleteButton" @click="deleteProduct(product.id)">
                 <img src="../assets/imgs/icons/delete.svg" alt="">
@@ -566,7 +573,7 @@ export default {
 }
 
 .searchInput {
-  width: 20vh;
+  width: 20vw;
   border-radius: 25px;
   text-align: center;
   box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3), inset 0px 0px 0px rgba(0, 0, 0, 0);
@@ -617,7 +624,7 @@ textarea {
   padding: 0.5vw;
   margin: 0.5vw;
   color: black;
-  font-size: 1vw;
+  font-size: 2vh;
   text-decoration: none;
   text-align: center;
   border-radius: 25px;
@@ -631,7 +638,7 @@ select {
   padding: 0.5vw;
   margin: 0.5vw;
   color: black;
-  font-size: 1vw;
+  font-size: 2vh;
   text-decoration: none;
   text-align: center;
   border-radius: 25px;
@@ -996,6 +1003,105 @@ label {
   50% {
     transform: scale(1);
     opacity: 1;
+  }
+}
+
+@media (max-width: 550px) {
+
+  .addproduct {
+    z-index: 100;
+    top: 0;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+  }
+
+  .top-inputs {
+    flex-direction: column;
+
+    #group1 {
+      display: flex;
+      flex-direction: column;
+
+      input {
+        width: 60vw;
+        height: 3vh;
+
+        &:first-child {
+          width: 60vw;
+        }
+      }
+    }
+
+    #group3 {
+      display: flex;
+
+      input {
+        width: 30vw;
+        margin: 1vh;
+      }
+    }
+
+    #group2 {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      width: 100%;
+    }
+  }
+
+  .midle-inputs {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+
+    input {
+      width: 20%;
+    }
+  }
+
+  .hiden-for-mobiles {
+    display: none;
+  }
+
+  .searchInput {
+    width: 40vw;
+    height: 4vh;
+    font-size: 2vh;
+  }
+
+  .markUp {
+    width: 20vw;
+  }
+
+  button {
+    height: 4vh;
+
+  }
+
+  .textareas {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+
+    textarea {
+      width: 95%;
+    }
+
+    textarea:last-child {
+      height: 15vh;
+    }
+  }
+
+  .selects {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+
+    select {
+      width: 30%;
+    }
   }
 }
 </style>
