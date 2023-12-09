@@ -17,8 +17,7 @@
     "pinia": "^2.1.7",
     "vite": "^4.5.0",
     "vue": "^3.3.6",
-    "vue-router": "^4.2.5",
-    "vue-tidio": "^2.0.0"
+    "vue-router": "^4.2.5"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.5.1",

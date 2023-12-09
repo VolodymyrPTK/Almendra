@@ -284,12 +284,19 @@ p {
     flex-direction: column;
     align-items: center;
 
-
     >div:nth-child(1) {
       margin-top: 3vw;
       font-size: 6vw;
       font-weight: bold;
       text-align: center;
+    }
+
+    >div:nth-child(3) {
+      font-size: 4vw;
+      background-color: white;
+      border-radius: 25px;
+      padding: 5px;
+      margin: 10px;
     }
 
     >h2 {

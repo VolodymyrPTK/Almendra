@@ -29,20 +29,17 @@
         </tbody>
       </table>
     </div>
-    <InventoryModal v-if="modalVisible" :visible="modalVisible" :product="currentProduct" :categories="categories"
-      :brands="brands" :countries="countries" @close="modalVisible = false" />
+
   </div>
 </template>
 
 <script>
 import { dataBase } from "../main";
 import { onSnapshot } from "firebase/firestore";
-import InventoryModal from "../components/InventoryModal.vue";
 
 export default {
   name: "Inventory",
   components: {
-    InventoryModal,
   },
   props: {
     msg: String,

@@ -34,7 +34,6 @@
       <button @click="nextPage" :class="{ 'disabled': currentPage === totalPages }"><img
           src="../assets/imgs/icons/right-arrow.png" alt=""></button>
     </div>
-
   </div>
 </template>
 

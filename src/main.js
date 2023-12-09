@@ -5,7 +5,6 @@ import router from "./router";
 import { initializeApp } from "firebase/app";
 import { collection, getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-import VueTidio from 'vue-tidio';
 
 
 
@@ -31,7 +30,6 @@ export const orderReg = collection(db, "orders");
 export const storage = getStorage();
 
 const app = createApp(App);
-app.use(VueTidio, { appKey: 'haebjyxim2piinclnrsi4grvvcgdahoy' });
 
 app.use(createPinia());
 app.use(router);
