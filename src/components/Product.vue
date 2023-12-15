@@ -108,7 +108,7 @@ export default {
         freeLactosa: false,
         vegan: false,
         raw: false,
-        protein: false,
+        proteinik: false,
         showFullDescription: false,
       },
     };

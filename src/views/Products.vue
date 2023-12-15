@@ -38,7 +38,7 @@ export default {
       freeSugar: false,
       freeLactosa: false,
       vegan: false,
-      proteinik: "",
+      proteinik: false,
       liquid: false
     });
     const modalVisible = ref(false);
