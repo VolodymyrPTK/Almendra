@@ -1,7 +1,7 @@
 <script>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, reactive } from "vue";
 import { dataBase, storage, dataReg, db } from "../main";
-import { addDoc, deleteDoc, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteField } from "firebase/firestore";
+import { addDoc, deleteDoc, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteField, getDocs, collection, FieldValue } from "firebase/firestore";
 import { ref as storageReference, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 export default {
@@ -10,12 +10,15 @@ export default {
     msg: String,
   },
   setup() {
+    const currentCategory = ref(null);
     const categories = ref([]);
     const category = ref("");
     const countries = ref([]);
     const country = ref("");
     const brands = ref([]);
     const brand = ref("");
+    const arrayData = ref([]);
+    const subcategory = ref([]);
     const products = ref([]);
     const product = ref({
       name: "",
@@ -41,18 +44,79 @@ export default {
       proteinik: false,
       liquid: false
     });
+    const items = ref([]);
+    const newItemValue = ref("");
     const modalVisible = ref(false);
     const isVisible = ref(false);
     const searchTerm = ref("");
     const editVisible = ref(false);
     const brandsMenu = ref(false);
     const categoryMenu = ref(false);
+    const showSubCategory = ref(false);
     const countryMenu = ref(false);
     const isLoading = ref(false);
     const isLoaded = ref(false);
     const requiredFields = ref([
       "name", "detail", "sellPrice", "buyPrice", "description", "sklad", "kcal", "protein", "carbo", "fat", "brand", "category", "country", "image", "weight", "vitamins"
     ]);
+
+    const fetchCategories = async () => {
+      try {
+        const categoriesDocRef = doc(dataReg, 'categories');
+        onSnapshot(categoriesDocRef, (snapshot) => {
+          const categoriesData = snapshot.data();
+          const categoriesArray = Object.keys(categoriesData).map((category) => ({
+            id: category,
+            ...categoriesData[category],
+          }));
+          categories.value = categoriesArray;
+        });
+
+      } catch (e) { console.error("Error fetching categories: ", e); }
+    };
+
+    onMounted(async () => {
+      await fetchCategories();
+    });
+
+    const fetchSubCategory = async (subcategory) => {
+      const docRef = doc(db, "data", "categories");
+      const docSnap = await getDoc(docRef);
+      const data = docSnap.data();
+      const arrayData = data[subcategory];
+      items.value = arrayData;
+      currentCategory.value = subcategory;
+      showSubCategory.value = true;
+    };
+
+    const addItem = async (category) => {
+      const valueToAdd = newItemValue.value.trim();
+      if (valueToAdd !== '') {
+        const docRef = doc(db, 'data', 'categories');
+        const docSnap = await getDoc(docRef);
+        const data = docSnap.data();
+        data[category].push(valueToAdd);
+        await setDoc(docRef, data);
+        items.value = data[category];
+        newItemValue.value = '';
+      }
+    };
+
+    const deleteItem = async (category, index) => {
+      const docRef = doc(db, 'data', 'categories');
+      const docSnap = await getDoc(docRef);
+      const data = docSnap.data();
+      data[category].splice(index, 1);
+      await setDoc(docRef, data);
+      items.value = data[category];
+    };
+
+    const closeMenu = () => {
+      showSubCategory.value = false;
+      newItemValue.value = '';
+    };
+
+    //  fetchSubCategory(subcategory.value);
 
     const showCategory = () => {
       categoryMenu.value = !categoryMenu.value;
@@ -240,20 +304,7 @@ export default {
       } catch (e) { console.error("Error fetching brands: ", e); }
     };
 
-    const fetchCategories = async () => {
-      try {
-        const categoriesDocRef = doc(dataReg, 'categories');
-        onSnapshot(categoriesDocRef, (snapshot) => {
-          const categoriesData = snapshot.data();
-          const categoriesArray = Object.keys(categoriesData).map((category) => ({
-            id: category,
-            ...categoriesData[category],
-          }));
-          categories.value = categoriesArray;
-        });
 
-      } catch (e) { console.error("Error fetching categories: ", e); }
-    };
 
     const fetchCountries = async () => {
       try {
@@ -297,7 +348,6 @@ export default {
     });
 
     onMounted(async () => {
-      await fetchCategories();
       await fetchProducts();
       await fetchBrands();
       await fetchCountries();
@@ -344,6 +394,16 @@ export default {
       currentProduct,
       filteredProducts,
       markUpPercent,
+      fetchSubCategory,
+      fetchCategories,
+      arrayData,
+      items,
+      newItemValue,
+      addItem,
+      deleteItem,
+      currentCategory,
+      closeMenu,
+      showSubCategory
     };
   },
 };
@@ -403,18 +463,28 @@ export default {
       </div>
       <input style="width: 70vw;" type="text" v-model="product.vitamins" placeholder="Вітаміни" />
       <div class="selects">
-        <select v-model="product.country">
-          <option value="default" disabled>Країна</option>
-          <option v-for="country in countries">{{ country.id }}</option>
-        </select>
-        <select v-model="product.brand">
-          <option disabled value="">Бренд</option>
-          <option v-for=" brand  in  brands ">{{ brand.id }}</option>
-        </select>
-        <select class="menus" v-model="product.category">
-          <option disabled value="">Категорія</option>
-          <option v-for=" category  in  categories ">{{ category.id }}</option>
-        </select>
+        <form>
+          <input v-model="product.country" placeholder="Країна" list="countries" name="country" id="country">
+          <datalist id="countries">
+            <option v-for="country in countries" :value="country.id">{{ country.id }}</option>
+          </datalist>
+        </form>
+
+        <form>
+          <input v-model="product.brand" placeholder="Бренд" list="brands" name="brand" id="brand">
+          <datalist id="brands">
+            <option v-for="brand in brands" :value="brand.id">{{ brand.id }}</option>
+          </datalist>
+        </form>
+
+        <form>
+          <input v-model="product.category" placeholder="Категорія" list="categories" name="category" id="category">
+          <datalist id="categories">
+            <option v-for="category in categories" :value="category.id">{{ category.id }}
+            </option>
+          </datalist>
+        </form>
+
       </div>
       <div>
         <input type="checkbox" class="checkbox" id="gluten" v-model="product.freeGluten" />
@@ -456,15 +526,19 @@ export default {
 
     <div v-if="categoryMenu">
       <div class="menu">
-        <input type="text" v-model="category" @keyup.enter="saveCategory()" placeholder="Нова Категорія" />
-        <div class="menu-table">
-          <div v-for=" category  in  categories " :key="category.id">
-            <div> {{ category.id }}
-              <div class="deleteButton" @click="deleteCategory(category.id)">
-                <img src="../assets/imgs/icons/delete.svg" alt="">
-              </div>
+        <ul v-for="category in categories" :key="category">
+          <li @click="fetchSubCategory(category.id)">{{ category.id }}</li>
+        </ul>
+        <div class="sub-category-menu" v-if="showSubCategory">
+          <input placeholder="Нова суб-категорія" type="text" v-model="newItemValue"
+            @keyup.enter="addItem(currentCategory, newItemValue)">
+          <div>
+            <div v-for="(item, index) in items" :key="index"> {{ item }}
+              <div class="deleteButton" @click="deleteItem(currentCategory, index)"><img
+                  src="../assets/imgs/icons/delete.svg" alt=""></div>
             </div>
           </div>
+          <button @click="closeMenu()">Закрити</button>
         </div>
       </div>
       <div class="menu-container" @click="showCategory"></div>
@@ -860,20 +934,65 @@ label {
 }
 
 .menu {
-  display: flex;
-  align-items: center;
   position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   z-index: 5;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  height: 60vh;
+  height: 70vh;
   width: 25vw;
   background-color: rgb(255, 255, 255);
-  display: flex;
-  flex-direction: column;
   box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.3), inset 0 0 0 rgba(0, 0, 0, 0.3);
   border-radius: 25px;
+
+  ul {
+    list-style-type: none;
+    padding-left: 0;
+  }
+
+  li {
+    width: 20vw;
+    height: 6vh;
+    box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.3), inset 0 0 0 rgba(0, 0, 0, 0.3);
+    border-radius: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2vh;
+  }
+}
+
+.sub-category-menu {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #fff;
+  height: 70vh;
+  width: 25vw;
+  border-radius: 25px;
+  border: none;
+
+  >div {
+    height: 60vh;
+    width: 23vw;
+
+    >div {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #dbdbdb;
+      margin: 2px;
+      padding: 2px 20px;
+      border-radius: 25px;
+    }
+  }
 }
 
 .menu-table {
@@ -1004,6 +1123,10 @@ label {
     transform: scale(1);
     opacity: 1;
   }
+}
+
+.selects {
+  display: flex;
 }
 
 @media (max-width: 550px) {

@@ -13,7 +13,7 @@
       <div>{{ product.name }}</div>
       <h2>{{ product.detail }}</h2>
       <div>{{ product.description }}</div>
-      <p><b>Склад:</b> {{ product.sklad }}</p>
+      <div><b>Склад:</b> {{ product.sklad }}</div>
       <div class="lables-row">
         <img class="diet-lable" v-if="product.freeGluten == true"
           src="https://firebasestorage.googleapis.com/v0/b/almendra-a411d.appspot.com/o/icons%2Fgluten.png?alt=media&token=9440b903-9314-404e-86b0-1f173ce75460"
@@ -81,7 +81,7 @@ import { doc, getDoc } from "firebase/firestore";
 import AddToCart from "../components/AddToCart.vue";
 
 export default {
-  name: "Product",
+  name: "Product-page",
   props: {
     msg: String,
   },
@@ -158,26 +158,34 @@ export default {
   width: 50%;
   margin-right: 15px;
   user-select: none;
+  display: flex;
+  align-items: baseline;
 
   >div:nth-child(1) {
-    font-size: 2vw;
+    font-size: 1.6vw;
     font-weight: bold;
+
   }
 
   >div:nth-child(2) {
-    font-size: 1.5vw;
+    font-size: 1.4vw;
+
   }
 
   >div:nth-child(3) {
-    font-size: 1.2vw;
+    font-size: 1.1vw;
+    background-color: white;
+    border-radius: 25px;
+    padding: 10px;
+    margin: 10px;
   }
 
   >div:nth-child(4) {
-    font-size: 1.2vw;
-  }
-
-  >div:nth-child(5) {
-    font-size: 1.2vw;
+    font-size: 1.1vw;
+    background-color: white;
+    border-radius: 25px;
+    padding: 10px;
+    margin: 10px;
   }
 }
 
@@ -299,18 +307,20 @@ p {
       margin: 10px;
     }
 
+    >div:nth-child(4) {
+      font-size: 4vw;
+      background-color: white;
+      border-radius: 25px;
+      padding: 5px;
+      margin: 10px;
+    }
+
     >h2 {
       text-align: center;
       font-size: 4.5vw;
       margin: 2vw 5vh;
     }
 
-    >p {
-      font-size: 4vw;
-      background-color: white;
-      border-radius: 25px;
-      padding: 5px;
-    }
 
     >div:nth-child(5) {
       margin-bottom: 15px;

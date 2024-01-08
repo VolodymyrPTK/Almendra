@@ -1,20 +1,3 @@
-<script>
-import { RouterView, RouterLink } from "vue-router";
-
-export default {
-  data() {
-    return {
-      showMenu: false,
-    };
-  },
-  computed: {
-    isDesktop() {
-      return window.innerWidth >= 550;
-    },
-  },
-};
-</script>
-
 <template>
   <div class="admin">
     <div class="menu" v-if="isDesktop">
@@ -41,6 +24,25 @@ export default {
     </div>
   </div>
 </template>
+
+<script>
+import { RouterView, RouterLink } from "vue-router";
+
+export default {
+  name: "admin-page",
+  data() {
+    return {
+      showMenu: false,
+    };
+  },
+  computed: {
+    isDesktop() {
+      return window.innerWidth >= 550;
+    },
+  },
+};
+</script>
+
 
 <style scoped>
 .admin {

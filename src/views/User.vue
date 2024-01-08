@@ -219,11 +219,9 @@ export default {
   },
   methods: {
     showDetails(order) {
-      // If the clicked order is already expanded, then collapse it
       if (this.orderDetails === order.id) {
         this.orderDetails = null;
       } else {
-        // Otherwise, show the details of the clicked order
         this.orderDetails = order.id;
       }
     },
@@ -401,6 +399,9 @@ export default {
       querySnapshot.docs.forEach((doc) => {
         this.orders.push({ ...doc.data(), id: doc.id });
       });
+
+      // Sort the orders by orderId
+      this.orders.sort((a, b) => b.orderId - a.orderId);
     }
   },
 

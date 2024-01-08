@@ -1,144 +1,138 @@
 <template>
   <div class="store-container">
-    <div class="filter-buttons">
+
+    <div class="filter-menus">
       <label @click="resetFilter(category.id)">
         <input type="radio" name="radio" checked />
-        <span>Всі товари</span>
+        <span>Всі Продукти</span>
       </label>
       <label v-for="category in categories" :key="category" @click="filterProducts(category.id)">
         <input type="radio" name="radio" />
         <span>{{ category.id }}</span>
       </label>
     </div>
+    <div>
+      <div class="checkbox-wrapper-16">
+        <label class="checkbox-wrapper">
+          <input class="checkbox-input" type="checkbox" v-model="freeGluten" id="freeGluten">
+          <span class="checkbox-tile">
+            <span class="checkbox-icon">
+              <img src="../assets/imgs/icons/freegluten.png">
+            </span>
+            <span class="checkbox-label">Без Глютену</span>
+          </span>
+        </label>
 
-    <section class="products" v-if="paginatedProducts.length > 0">
-      <div class="productCard" v-for="product in paginatedProducts" :key="product.id">
+        <label class="checkbox-wrapper">
+          <input class="checkbox-input" type="checkbox" v-model="freeSugar" id="freeSugar">
+          <span class="checkbox-tile">
+            <span class="checkbox-icon">
+              <img src="../assets/imgs/icons/freesugar.png">
+            </span>
+            <span class="checkbox-label">Без Цукру</span>
+          </span>
+        </label>
 
+        <label class="checkbox-wrapper">
+          <input class="checkbox-input" type="checkbox" v-model="freeLactosa" id="freeLactosa">
+          <span class="checkbox-tile">
+            <span class="checkbox-icon">
+              <img src="../assets/imgs/icons/freelactose.png">
+            </span>
+            <span class="checkbox-label">Без Лактози</span>
+          </span>
+        </label>
+
+        <label class="checkbox-wrapper">
+          <input class="checkbox-input" type="checkbox" v-model="vegan" id="vegan">
+          <span class="checkbox-tile">
+            <span class="checkbox-icon">
+              <img src="../assets/imgs/icons/veganbtn.png">
+            </span>
+            <span class="checkbox-label">Веган</span>
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <section class="products">
+      <div class="productCard" v-for="product in products" :key="product.id">
         <RouterLink :to="'/product/' + product.id">
           <img class="productImage" :src="product.image" />
           <div class="product-name">{{ product.name }}</div>
           <div class="product-name">{{ product.brand }}</div>
           <div style="font-size:2vh; margin 5px">₴ {{ product.sellPrice }}.00</div>
         </RouterLink>
-
         <AddToCart class="add-to-cart" :product-id="product.id" :sellPrice="product.sellPrice" :image="product.image"
           :name="product.name">
         </AddToCart>
       </div>
+
     </section>
-    <div class="pagination">
-      <button @click="prevPage" :class="{ 'disabled': currentPage === 1 }"><img src="../assets/imgs/icons/left-arrow.png"
-          alt=""></button>
-      <button @click="goToPage(pageNumber)" v-for="pageNumber in totalPages" :key="pageNumber"
-        :class="{ active: pageNumber === currentPage }">{{ pageNumber }}</button>
-      <button @click="nextPage" :class="{ 'disabled': currentPage === totalPages }"><img
-          src="../assets/imgs/icons/right-arrow.png" alt=""></button>
-    </div>
+    <button @click="loadMore">Показати більше</button>
   </div>
 </template>
 
-
 <script setup>
-import { ref, reactive, watch, onMounted, computed } from "vue";
-import { dataBase, dataReg } from "../main";
-import { onSnapshot, doc } from "firebase/firestore";
-import { RouterLink } from "vue-router";
+import { ref, onMounted, watch } from 'vue';
+import { collection, query, orderBy, startAfter, limit, getDocs, where, doc, onSnapshot } from 'firebase/firestore';
+import { db, dataReg } from '../main';
 import AddToCart from "../components/AddToCart.vue";
+import { RouterLink } from "vue-router";
 
-const originalProducts = ref([]);
+const products = ref([]);
+let lastDoc = ref(null);
 const categories = ref([]);
 const category = ref({});
-const products = ref([]);
-const product = reactive({
-  productId: "",
-  name: "",
-  detail: "",
-  sellPrice: 0,
-  brand: "",
-  category: "",
-  image: "",
-  freeGluten: false,
-  freeSugar: false,
-  freeLactosa: false,
-  vegan: false,
-  raw: false,
-});
-const currentPage = ref(1);
-const productsPerPage = 15;
-const totalProducts = ref(1);
-const currentCategory = ref(null);
-const paginatedProducts = computed(() => {
-  const startIndex = (currentPage.value - 1) * productsPerPage;
-  const endIndex = startIndex + productsPerPage;
-  return products.value.slice(startIndex, endIndex);
-});
 
-const goToPage = (pageNumber) => {
-  if (pageNumber >= 1 && pageNumber <= totalPages.value) {
-    currentPage.value = pageNumber;
-    scrollToTop();
+const freeGluten = ref(false);
+const freeSugar = ref(false);
+const freeLactosa = ref(false);
+const vegan = ref(false);
+
+const fetchProducts = async (loadMore = false) => {
+  let q = query(collection(db, 'products'), orderBy('id'), limit(15))
+
+  if (freeGluten.value) {
+    q = query(q, where('freeGluten', '==', true))
   }
-};
-
-const prevPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--;
-    scrollToTop();
+  if (freeSugar.value) {
+    q = query(q, where('freeSugar', '==', true))
   }
-};
-
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-    scrollToTop();
+  if (freeLactosa.value) {
+    q = query(q, where('freeLactosa', '==', true))
   }
-};
+  if (vegan.value) {
+    q = query(q, where('vegan', '==', true))
+  }
 
-const scrollToTop = () => {
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth',
-  });
-};
+  if (lastDoc.value && loadMore) {
+    q = query(q, startAfter(lastDoc.value))
+  }
 
-const totalPages = computed(() => {
-  return Math.ceil(totalProducts.value / productsPerPage);
-});
+  const querySnapshot = await getDocs(q)
+  lastDoc.value = querySnapshot.docs[querySnapshot.docs.length - 1]
 
-const filterProducts = (categoryFilter) => {
-  currentCategory.value = categoryFilter;
-  currentPage.value = 1;
-
-  if (categoryFilter === null) {
-    products.value = [...originalProducts.value];
+  if (loadMore) {
+    querySnapshot.forEach((doc) => {
+      products.value.push(doc.data())
+    })
   } else {
-    products.value = originalProducts.value.filter(
-      (product) => product.category === categoryFilter
-    );
+    products.value = []
+    querySnapshot.forEach((doc) => {
+      products.value.push(doc.data())
+    })
   }
-  totalProducts.value = products.value.length;
-};
+}
 
-const resetFilter = () => {
-  currentCategory.value = null;
-  currentPage.value = 1;
-  if (currentCategory.value === null) {
-    products.value = [...originalProducts.value];
-  } else {
-    products.value = originalProducts.value.filter(
-      (product) => product.category === currentCategory.value
-    );
-  }
-  totalProducts.value = products.value.length; // Update totalProducts
-};
+watch([freeGluten, freeSugar, freeLactosa, vegan], () => {
+  lastDoc.value = null; // Reset lastDoc when checkboxes change
+  fetchProducts();
+}, { immediate: true })
 
-onSnapshot(dataBase, (snapshot) => {
-  originalProducts.value = [];
-  snapshot.docs.forEach((doc) => {
-    originalProducts.value.push({ ...doc.data(), id: doc.id });
-  });
-  totalProducts.value = originalProducts.value.length;
-});
+const loadMore = () => {
+  fetchProducts(true)
+}
 
 const fetchCategories = async () => {
   try {
@@ -159,9 +153,6 @@ onMounted(async () => {
   await fetchCategories();
 });
 
-watch(originalProducts, () => {
-  products.value = originalProducts.value;
-});
 </script>
 
 <style scoped lang="scss">
@@ -169,14 +160,6 @@ watch(originalProducts, () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.filter-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  height: 10vh;
 }
 
 input[type="radio"] {
@@ -189,43 +172,44 @@ input[type="radio"] {
   &:checked+span {
     transition: 0.3s;
     color: #000000;
-    font-size: 25px;
     max-width: 250px;
+    padding: 5px 50px;
+    height: 5vh;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.7);
     text-shadow: 0 2px 5px rgba(0, 0, 0, 0.6), 0 -2px 3px rgba(255, 255, 255, 1);
   }
 
   &:hover+span {
-    font-size: 25px;
     transition: 0.3s;
     max-width: 250px;
-    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.6), 0 -2px 3px rgba(255, 255, 255, 1);
   }
 }
 
-label {
-  span {
-    display: block;
-    cursor: pointer;
-    background-color: transparent;
-    padding: 0 1.5vh;
-    gap: 0.1vw;
-    letter-spacing: 0.05em;
-    color: #3e4963;
-    font-size: 20px;
-    text-align: center;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 -2px 3px rgba(255, 255, 255, 1);
-    transition: 0.3s;
-  }
+.filter-menus {
+  display: flex;
+  font-size: 25px;
+  margin-top: 30px;
+  gap: 10px;
 
-  &:first-child {
-    span {
-      border-radius: 25px 0 0 25px;
-    }
-  }
+  label {
 
-  &:last-child {
     span {
-      border-radius: 0 25px 25px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: 0.05em;
+      font-size: 20px;
+      text-align: center;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 -2px 3px rgba(255, 255, 255, 1);
+      padding: 5px 20px;
+      width: 8vw;
+      height: 5vh;
+      color: #777;
+      background-color: #fff;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+      transition: 0.3s;
+      cursor: pointer;
+      border-radius: 25px;
     }
   }
 }
@@ -235,6 +219,7 @@ label {
   flex-wrap: wrap;
   width: 100%;
   justify-content: center;
+  margin-top: 60px;
 }
 
 .productCard {
@@ -245,7 +230,7 @@ label {
   height: 38vh;
   margin: 0vh 0.5vw 10vh 0.5vw;
   background: #ffffff;
-  border-radius: 25px;
+  border-radius: 3vh;
   box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px,
     rgba(0, 0, 0, 0.3) 0px 7px 13px -3px,
     rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
@@ -291,13 +276,6 @@ label {
   margin-top: 1.5vh;
 }
 
-.pagination {
-  margin: 0 0 5vh 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 img {
   height: 1.5vh;
 }
@@ -334,6 +312,101 @@ button {
   box-shadow: rgba(0, 0, 0, 0.4) 0px 1px 1px,
     rgba(0, 0, 0, 0.3) 0px 1px 1px -3px,
     rgba(0, 0, 0, 0.2) 0px -1px 0px inset;
+}
+
+.checkbox-wrapper-16 {
+  position: fixed;
+  left: 2vw;
+  margin-top: 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.51vw;
+}
+
+.checkbox-wrapper-16 .checkbox-input {
+  -webkit-clip-path: inset(100%);
+  clip-path: inset(100%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+
+}
+
+.checkbox-wrapper-16 .checkbox-input:checked+.checkbox-tile {
+  border-color: #777777;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 -2px 3px rgba(255, 255, 255, 1);
+  box-shadow: rgba(0, 0, 0, 0.4) 0px 4px 5px,
+    rgba(0, 0, 0, 0.3) 0px 7px 13px -3px,
+    rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+}
+
+
+.checkbox-wrapper-16 .checkbox-input:checked+.checkbox-tile .checkbox-icon,
+.checkbox-wrapper-16 .checkbox-input:checked+.checkbox-tile .checkbox-label {
+  color: #000000;
+
+  img {
+    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 1));
+    transition: 0.5s;
+  }
+}
+
+.checkbox-wrapper-16 .checkbox-input:focus+.checkbox-tile {
+  box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px;
+}
+
+.checkbox-wrapper-16 .checkbox-input:focus+.checkbox-tile:before {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.checkbox-wrapper-16 .checkbox-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  width: 5dvw;
+  height: 6dvw;
+  padding: 1vw;
+  border-radius: 3vh;
+  background-color: #fff;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+  transition: 0.15s ease;
+  cursor: pointer;
+  position: relative;
+
+}
+
+.checkbox-wrapper-16 .checkbox-tile:hover {
+  border-color: #646464;
+
+  img {
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.7));
+    transition: 0.5s;
+  }
+}
+
+.checkbox-wrapper-16 .checkbox-tile:hover:before {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.checkbox-wrapper-16 .checkbox-icon {
+  transition: 0.375s;
+  color: #494949;
+
+  img {
+    height: 3vw;
+    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.5));
+  }
+}
+
+.checkbox-wrapper-16 .checkbox-label {
+  color: #707070;
+  transition: 0.375s ease;
+  text-align: center;
 }
 
 @media (max-width: 550px) {
