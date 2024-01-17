@@ -6,10 +6,18 @@
         <input type="radio" name="radio" checked />
         <span>Всі Продукти</span>
       </label>
-      <label v-for="category in categories" :key="category" @click="filterProducts(category.id)">
-        <input type="radio" name="radio" />
-        <span>{{ category.id }}</span>
-      </label>
+
+      <div v-for="category in categories" :key="category.id">
+        <div @click="fetchSubCategory(category.id)">
+          <div class="filter-btn" v-if="selectedCategory !== category.id">{{ showSelectedOption ? selectedOption :
+            category.id }}</div>
+          <div v-if="selectedCategory === category.id" v-for="(item, index) in items" :key="index">
+            <div class="filter-btn">{{ item }}</div>
+          </div>
+        </div>
+
+      </div>
+
     </div>
     <div>
       <div class="checkbox-wrapper-16">
@@ -75,8 +83,8 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue';
-import { collection, query, orderBy, startAfter, limit, getDocs, where, doc, onSnapshot } from 'firebase/firestore';
-import { db, dataReg } from '../main';
+import { collection, query, orderBy, startAfter, limit, getDocs, where, doc, onSnapshot, getDoc } from 'firebase/firestore';
+import { db, dataReg, dataBase } from '../main';
 import AddToCart from "../components/AddToCart.vue";
 import { RouterLink } from "vue-router";
 
@@ -84,13 +92,63 @@ const products = ref([]);
 let lastDoc = ref(null);
 const categories = ref([]);
 const category = ref({});
-
 const freeGluten = ref(false);
 const freeSugar = ref(false);
 const freeLactosa = ref(false);
+const showSelectedOption = ref(false);
 const vegan = ref(false);
+const items = ref([]);
+const selectedCategory = ref([]);
 
-const fetchProducts = async (loadMore = false) => {
+const fetchProducts = () => {
+  // create a base query with the collection and filters
+  let q = query(collection(db, 'products'));
+
+  if (freeGluten.value) {
+    q = query(q, where('freeGluten', '==', true));
+  }
+  if (freeSugar.value) {
+    q = query(q, where('freeSugar', '==', true));
+  }
+  if (freeLactosa.value) {
+    q = query(q, where('freeLactosa', '==', true));
+  }
+  if (vegan.value) {
+    q = query(q, where('vegan', '==', true));
+  }
+
+  // add the limit and startAfter methods to the query
+  // you can adjust the limit value according to your needs
+  q = query(q, limit(10));
+
+  if (lastDoc) {
+    q = query(q, startAfter(lastDoc));
+  }
+
+  // fetch the documents and update the products and lastDoc variables
+  onSnapshot(q, (snapshot) => {
+    products.value = [...products.value, ...snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))];
+    lastDoc = snapshot.docs[snapshot.docs.length - 1];
+  });
+};
+
+// watch the filters and reset the lastDoc and products variables when they change
+watch([freeGluten, freeSugar, freeLactosa, vegan], () => {
+  lastDoc = null;
+  products.value = [];
+  fetchProducts();
+}, { immediate: true })
+
+// call the fetchProducts function when you want to load more products
+// for example, you can use a button or a scroll event
+
+
+const loadMore = () => {
+  fetchProducts(true)
+}
+
+
+/* const fetchProducts = async (loadMore = false) => {
   let q = query(collection(db, 'products'), orderBy('id'), limit(15))
 
   if (freeGluten.value) {
@@ -111,28 +169,22 @@ const fetchProducts = async (loadMore = false) => {
   }
 
   const querySnapshot = await getDocs(q)
-  lastDoc.value = querySnapshot.docs[querySnapshot.docs.length - 1]
 
   if (loadMore) {
+    const loadedProductIds = new Set(products.value.map((p) => p.id))
     querySnapshot.forEach((doc) => {
-      products.value.push(doc.data())
+      const productData = doc.data()
+      if (!loadedProductIds.has(productData.id)) {
+        products.value.push(productData)
+        loadedProductIds.add(productData.id)
+      }
     })
   } else {
-    products.value = []
-    querySnapshot.forEach((doc) => {
-      products.value.push(doc.data())
-    })
+    products.value = querySnapshot.docs.map((doc) => doc.data())
   }
-}
+  lastDoc.value = querySnapshot.docs[querySnapshot.docs.length - 1]
+}*/
 
-watch([freeGluten, freeSugar, freeLactosa, vegan], () => {
-  lastDoc.value = null; // Reset lastDoc when checkboxes change
-  fetchProducts();
-}, { immediate: true })
-
-const loadMore = () => {
-  fetchProducts(true)
-}
 
 const fetchCategories = async () => {
   try {
@@ -152,6 +204,16 @@ const fetchCategories = async () => {
 onMounted(async () => {
   await fetchCategories();
 });
+
+const fetchSubCategory = async (category) => {
+  const docRef = doc(db, "data", "categories");
+  const docSnap = await getDoc(docRef);
+  const data = docSnap.data();
+  const arrayData = data[category];
+  items.value = arrayData;
+  selectedCategory.value = category;
+};
+
 
 </script>
 
@@ -190,6 +252,27 @@ input[type="radio"] {
   font-size: 25px;
   margin-top: 30px;
   gap: 10px;
+
+  .filter-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0.05em;
+    font-size: 20px;
+    text-align: center;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 -2px 3px rgba(255, 255, 255, 1);
+    padding: 5px 20px;
+    width: 8vw;
+    height: 5vh;
+    color: #777;
+    background-color: #fff;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+    transition: 0.3s;
+    cursor: pointer;
+    border-radius: 25px;
+
+  }
 
   label {
 

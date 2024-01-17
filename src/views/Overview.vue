@@ -1,51 +1,85 @@
 <template>
-    <div>
-        <button popovertarget="foo">Toggle the popover</button>
-        <div id="foo" popover>Popover content</div>
+    <div class="overview">
+        <h3>Total Value: {{ totalValue }}</h3>
+        <h3>Number of Products: {{ productCount }}</h3>
 
-        <form>
-            <fieldset>
-                <legend>Details</legend>
-                Student Name: <input type="text"><br />
-                MCA Subjects:<input type="text"><br />
-                Course Link:<input type="url" name="websitelink">
-            </fieldset>
-        </form>
-
-        <form action="/action_page.php" method="get">
-            <label for="browser">Choose your browser from the list:</label>
-            <input placeholder="select" list="browsers" name="browser" id="browser">
-            <datalist id="browsers">
-                <option value="Edge"></option>
-                <option value="Firefox"></option>
-                <option value="Chrome"></option>
-                <option value="Opera"></option>
-                <option value="Safari"></option>
-            </datalist>
-            <input type="submit">
-        </form>
 
     </div>
 </template>
-
+  
 <script>
+import { dataBase } from "../main";
+import { onSnapshot } from "firebase/firestore";
 
+export default {
+    name: "Overview",
+    props: {
+        msg: String,
+    },
+    data() {
+        return {
+            products: [],
+
+
+        };
+    },
+    async created() {
+        onSnapshot(dataBase, (snapshot) => {
+            this.products = [];
+            snapshot.docs.forEach((doc) => {
+                this.products.push({ ...doc.data(), id: doc.id });
+            });
+        });
+    },
+    computed: {
+        totalValue() {
+            return this.products.reduce((total, product) => {
+                return total + (product.sellPrice * product.quantity || 0);
+            }, 0);
+        },
+        productCount() {
+            // Use a Set to store unique product IDs
+            const uniqueProductIds = new Set();
+
+            // Loop through the products and add their IDs to the Set
+            this.products.forEach((product) => {
+                uniqueProductIds.add(product.id);
+            });
+
+
+
+
+
+
+
+
+
+
+            // Return the size of the Set, which is the count of unique products
+            return uniqueProductIds.size;
+
+
+
+
+
+
+        },
+    },
+
+
+
+
+
+
+
+
+};
 </script>
+  
 
-<style>
-fieldset {
-    border: none;
-    box-shadow: 0 5px 5px grey;
-    margin: 10px;
-    background-color: bisque;
-    border-radius: 25px;
-}
-
-legend {
-    border: none;
-    border-radius: 25px;
-    margin: 10px;
-    background-color: bisque;
-    padding: 10px;
+<style scoped>
+.overview {
+    padding: 1vh;
+    width: 100%;
 }
 </style>

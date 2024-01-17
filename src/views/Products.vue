@@ -477,6 +477,7 @@ export default {
           </datalist>
         </form>
 
+
         <form>
           <input v-model="product.category" placeholder="Категорія" list="categories" name="category" id="category">
           <datalist id="categories">
@@ -588,6 +589,7 @@ export default {
               <img class="productImage" :src="product.image" />
             </td>
             <td v-bind:title="product.name">{{ product.name }}</td>
+            <td v-bind:title="product.name">{{ product.id }}</td>
             <td v-bind:title="product.brand">{{ product.brand }}</td>
             <td class="hiden-for-mobiles" v-bind:title="product.category">{{ product.category }}</td>
             <td class="hiden-for-mobiles" v-bind:title="product.sellPrice">{{ product.sellPrice }}</td>
