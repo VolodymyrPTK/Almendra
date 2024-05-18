@@ -5,6 +5,7 @@ import router from "./router";
 import { initializeApp } from "firebase/app";
 import { collection, getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { autoAnimatePlugin } from '@formkit/auto-animate/vue';
 
 
 
@@ -23,8 +24,8 @@ initializeApp(firebaseConfig);
 
 export const db = getFirestore();
 export const dataBase = collection(db, "products");
-export const profileReg = collection(db, "profiles");
 export const dataReg = collection(db, "data");
+export const profileReg = collection(db, "profiles");
 export const cartReg = collection(db, "carts");
 export const orderReg = collection(db, "orders");
 export const storage = getStorage();
@@ -34,4 +35,5 @@ const app = createApp(App);
 app.use(createPinia());
 app.use(router);
 
-app.mount("#app");
+//app.mount("#app");
+app.use(autoAnimatePlugin).mount('#app')

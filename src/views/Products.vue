@@ -1,416 +1,359 @@
-<script>
-import { ref, onMounted, computed, reactive } from "vue";
+<script setup>
+import { ref, onMounted, computed } from "vue";
 import { dataBase, storage, dataReg, db } from "../main";
-import { addDoc, deleteDoc, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteField, getDocs, collection, FieldValue } from "firebase/firestore";
+import { addDoc, deleteDoc, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteField } from "firebase/firestore";
 import { ref as storageReference, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
-export default {
-  name: "Products",
-  props: {
-    msg: String,
-  },
-  setup() {
-    const currentCategory = ref(null);
-    const categories = ref([]);
-    const category = ref("");
-    const countries = ref([]);
-    const country = ref("");
-    const brands = ref([]);
-    const brand = ref("");
-    const arrayData = ref([]);
-    const subcategory = ref([]);
-    const products = ref([]);
-    const product = ref({
-      name: "",
-      detail: "",
-      sellPrice: "",
-      buyPrice: "",
-      description: "",
-      sklad: "",
-      kcal: "",
-      protein: "",
-      carbo: "",
-      fat: "",
-      brand: "",
-      category: "",
-      country: "",
-      image: "",
-      weight: "",
-      vitamins: [],
-      freeGluten: false,
-      freeSugar: false,
-      freeLactosa: false,
-      vegan: false,
-      proteinik: false,
-      liquid: false
-    });
-    const items = ref([]);
-    const newItemValue = ref("");
-    const modalVisible = ref(false);
-    const isVisible = ref(false);
-    const searchTerm = ref("");
-    const editVisible = ref(false);
-    const brandsMenu = ref(false);
-    const categoryMenu = ref(false);
-    const showSubCategory = ref(false);
-    const countryMenu = ref(false);
-    const isLoading = ref(false);
-    const isLoaded = ref(false);
-    const requiredFields = ref([
-      "name", "detail", "sellPrice", "buyPrice", "description", "sklad", "kcal", "protein", "carbo", "fat", "brand", "category", "country", "image", "weight", "vitamins"
-    ]);
 
-    const fetchCategories = async () => {
-      try {
-        const categoriesDocRef = doc(dataReg, 'categories');
-        onSnapshot(categoriesDocRef, (snapshot) => {
-          const categoriesData = snapshot.data();
-          const categoriesArray = Object.keys(categoriesData).map((category) => ({
-            id: category,
-            ...categoriesData[category],
-          }));
-          categories.value = categoriesArray;
-        });
+const currentCategory = ref("Категорія");
+const categories = ref([]);
+const subcategories = ref({});
+const subCategory = ref("");
+const countries = ref([]);
+const country = ref("");
+const brands = ref([]);
+const brand = ref("");
+const products = ref([]);
+const product = ref({
+  name: "",
+  detail: "",
+  sellPrice: "",
+  buyPrice: "",
+  description: "",
+  sklad: "",
+  kcal: "",
+  protein: "",
+  carbo: "",
+  fat: "",
+  brand: "",
+  category: "",
+  country: "",
+  image: "",
+  weight: "",
+  vitamins: [],
+  freeGluten: false,
+  freeSugar: false,
+  freeLactosa: false,
+  vegan: false,
+  proteinik: false,
+  liquid: false
+});
+const items = ref([]);
+const isVisible = ref(false);
+const newItemValue = ref("");
+const categoryModal = ref(true);
+const searchTerm = ref("");
+const editVisible = ref(false);
+const brandsMenu = ref(false);
+const categoryMenu = ref(false);
+const showSubCategory = ref(false);
+const showDropdown = ref(false);
+const countryMenu = ref(false);
+const isLoading = ref(false);
+const isLoaded = ref(false);
 
-      } catch (e) { console.error("Error fetching categories: ", e); }
-    };
+const requiredFields = ref([
+  "name", "detail", "sellPrice", "buyPrice", "description", "sklad", "kcal", "protein", "carbo", "fat", "brand", "country", "image", "weight", "vitamins"
+]);
 
-    onMounted(async () => {
-      await fetchCategories();
+const fetchCategories = async () => {
+  categoryModal.value = !categoryModal.value;
+  try {
+    const categoriesDocRef = doc(dataReg, 'categories');
+    onSnapshot(categoriesDocRef, (snapshot) => {
+      const categoriesData = snapshot.data();
+      const categoriesArray = Object.keys(categoriesData).map((category) => ({
+        id: category,
+        ...categoriesData[category],
+      }));
+      categories.value = categoriesArray;
     });
 
-    const fetchSubCategory = async (subcategory) => {
-      const docRef = doc(db, "data", "categories");
-      const docSnap = await getDoc(docRef);
-      const data = docSnap.data();
-      const arrayData = data[subcategory];
-      items.value = arrayData;
-      currentCategory.value = subcategory;
-      showSubCategory.value = true;
-    };
-
-    const addItem = async (category) => {
-      const valueToAdd = newItemValue.value.trim();
-      if (valueToAdd !== '') {
-        const docRef = doc(db, 'data', 'categories');
-        const docSnap = await getDoc(docRef);
-        const data = docSnap.data();
-        data[category].push(valueToAdd);
-        await setDoc(docRef, data);
-        items.value = data[category];
-        newItemValue.value = '';
-      }
-    };
-
-    const deleteItem = async (category, index) => {
-      const docRef = doc(db, 'data', 'categories');
-      const docSnap = await getDoc(docRef);
-      const data = docSnap.data();
-      data[category].splice(index, 1);
-      await setDoc(docRef, data);
-      items.value = data[category];
-    };
-
-    const closeMenu = () => {
-      showSubCategory.value = false;
-      newItemValue.value = '';
-    };
-
-    //  fetchSubCategory(subcategory.value);
-
-    const showCategory = () => {
-      categoryMenu.value = !categoryMenu.value;
-    };
-
-    const hideCategory = () => {
-      categoryMenu.value = false;
-    };
-
-    const showBrands = () => {
-      brandsMenu.value = !brandsMenu.value;
-    };
-
-    const showCountry = () => {
-      countryMenu.value = !countryMenu.value;
-    };
-
-    const editModal = (id) => {
-      const selectedProduct = products.value.find(product => product.id === id);
-      if (selectedProduct) {
-        product.value = { ...selectedProduct };
-      }
-      editVisible.value = true;
-    };
-
-    const openModal = (id) => {
-      modalVisible.value = true;
-      currentProduct.value = id;
-      product.value = {};
-    };
-
-    const toggleModal = () => {
-      isVisible.value = !isVisible.value;
-      product.value = {};
-    };
-
-    const closeModal = () => {
-      editVisible.value = !editVisible.value;
-    };
-
-    const saveData = async () => {
-      try {
-        await addDoc(dataBase, product.value);
-      } catch (e) {
-        console.error("Error adding document: ", e);
-      }
-      product.value = {};
-      isLoaded.value = false;
-    };
-
-    const updateData = async () => {
-      try {
-        const refDoc = doc(db, "products", product.value.id);
-        await setDoc(refDoc, product.value, { merge: true });
-      } catch (error) {
-        console.error(error);
-      }
-      editVisible.value = !editVisible.value;
-      product.value = {};
-    };
-
-    const saveBrand = async () => {
-      try {
-        const brandsDocRef = doc(dataReg, 'brands');
-        const brandsDocSnapshot = await getDoc(brandsDocRef);
-        const brandsData = brandsDocSnapshot.exists() ? brandsDocSnapshot.data() : {};
-        brandsData[brand.value] = {};
-        await setDoc(brandsDocRef, brandsData);
-        brand.value = "";
-      } catch (e) {
-        console.error("Error adding brand: ", e);
-      }
-    };
-
-    const saveCountry = async () => {
-      try {
-        const countriesDocRef = doc(dataReg, 'countries');
-        const countriesDocSnapshot = await getDoc(countriesDocRef);
-        const countriesData = countriesDocSnapshot.exists() ? countriesDocSnapshot.data() : {};
-        countriesData[country.value] = {};
-        await setDoc(countriesDocRef, countriesData);
-        country.value = "";
-      } catch (e) {
-        console.error("Error adding country: ", e);
-      }
-    };
-
-    const saveCategory = async () => {
-      try {
-        const categoriesDocRef = doc(dataReg, 'categories');
-        const categoriesDocSnapshot = await getDoc(categoriesDocRef);
-        const categoriesData = categoriesDocSnapshot.exists() ? categoriesDocSnapshot.data() : {};
-        categoriesData[category.value] = {};
-        await setDoc(categoriesDocRef, categoriesData);
-        category.value = "";
-      } catch (e) {
-        console.error("Error adding category: ", e);
-      }
-    };
-
-    const deleteProduct = async (id) => {
-      if (confirm("Видалити ?")) {
-        await deleteDoc(doc(dataBase, id));
-        products.value = products.value.filter((product) => product.id !== id);
-      }
-    };
-
-    const deleteBrand = async (brandId) => {
-      if (confirm("Видалити ?")) {
-        try {
-          const brandsDocRef = doc(dataReg, 'brands');
-          await updateDoc(brandsDocRef, {
-            [brandId]: deleteField()
-          });
-        } catch (e) {
-          console.error("Error deleting brand: ", e);
-        }
-      }
-    };
-
-    const deleteCategory = async (categoryId) => {
-      if (confirm("Видалити ?")) {
-        try {
-          const categoriesDocRef = doc(dataReg, 'categories');
-          await updateDoc(categoriesDocRef, {
-            [categoryId]: deleteField()
-          });
-        } catch (e) {
-          console.error("Error deleting category: ", e);
-        }
-      }
-    };
-
-    const deleteCountry = async (countryId) => {
-      if (confirm("Видалити ?")) {
-        try {
-          const countriesDocRef = doc(dataReg, 'countries');
-          await updateDoc(countriesDocRef, {
-            [countryId]: deleteField()
-          });
-        } catch (e) {
-          console.error("Error deleting country: ", e);
-        }
-      }
-    };
-
-    const uploadImage = (e) => {
-      isLoading.value = true;
-      const file = e.target.files[0];
-      const storageRef = storageReference(storage, `products/${file.name}`);
-      const uploadTask = uploadBytesResumable(storageRef, file);
-
-      uploadTask.on(
-        'state_changed',
-        (snapshot) => { },
-        (error) => { },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            isLoading.value = false;
-            isLoaded.value = true;
-            product.value.image = downloadURL;
-          });
-        }
-      );
-    };
-
-    const fetchProducts = async () => {
-      onSnapshot(dataBase, (snapshot) => {
-        products.value = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-      });
-    };
-
-    const fetchBrands = async () => {
-      try {
-        const brandsDocRef = doc(dataReg, 'brands');
-        onSnapshot(brandsDocRef, (snapshot) => {
-          const brandsData = snapshot.data();
-          const brandsArray = Object.keys(brandsData).map((brandName) => ({
-            id: brandName,
-            ...brandsData[brandName],
-          }));
-          brands.value = brandsArray;
-        });
-
-      } catch (e) { console.error("Error fetching brands: ", e); }
-    };
-
-
-
-    const fetchCountries = async () => {
-      try {
-        const countriesDocRef = doc(dataReg, 'countries');
-        onSnapshot(countriesDocRef, (snapshot) => {
-          const countriesData = snapshot.data();
-          const countriesArray = Object.keys(countriesData).map((country) => ({
-            id: country,
-            ...countriesData[country],
-          }));
-          countries.value = countriesArray;
-        });
-
-      } catch (e) { console.error("Error fetching countries: ", e); }
-    };
-
-    const isSubmitDisabled = computed(() => {
-      return requiredFields.value.some((field) => !product.value[field]) || isLoading.value;
-    });
-
-    const currentProduct = computed(() => {
-      return products.value.find((product) => product.id === currentProduct.value);
-    });
-
-    const filteredProducts = computed(() => {
-      return products.value.filter((product) => {
-        const searchTerms = searchTerm.value.toLowerCase().split(' ');
-        return searchTerms.every((term) => {
-          return (
-            product.name.toLowerCase().includes(term) ||
-            product.detail.toLowerCase().includes(term) ||
-            product.brand.toLowerCase().includes(term)
-          );
-        });
-      });
-    });
-
-    const markUpPercent = computed(() => {
-      const markupPercent = ((product.value.sellPrice - product.value.buyPrice) / product.value.buyPrice) * 100;
-      return markupPercent.toFixed(2);
-    });
-
-    onMounted(async () => {
-      await fetchProducts();
-      await fetchBrands();
-      await fetchCountries();
-    });
-
-    return {
-      categories,
-      category,
-      countries,
-      country,
-      brands,
-      brand,
-      products,
-      product,
-      modalVisible,
-      isVisible,
-      searchTerm,
-      editVisible,
-      brandsMenu,
-      categoryMenu,
-      countryMenu,
-      isLoading,
-      isLoaded,
-      requiredFields,
-      showCategory,
-      hideCategory,
-      showBrands,
-      showCountry,
-      editModal,
-      openModal,
-      toggleModal,
-      closeModal,
-      saveData,
-      updateData,
-      saveBrand,
-      saveCountry,
-      saveCategory,
-      deleteProduct,
-      deleteBrand,
-      deleteCategory,
-      deleteCountry,
-      uploadImage,
-      isSubmitDisabled,
-      currentProduct,
-      filteredProducts,
-      markUpPercent,
-      fetchSubCategory,
-      fetchCategories,
-      arrayData,
-      items,
-      newItemValue,
-      addItem,
-      deleteItem,
-      currentCategory,
-      closeMenu,
-      showSubCategory
-    };
-  },
+  } catch (e) { console.error("Error fetching categories: ", e); }
 };
+
+const closeCategoryModal = () => {
+  categoryModal.value = !categoryModal.value;
+};
+
+onMounted(async () => {
+  await fetchCategories();
+  await fetchSubcategories();
+});
+
+const fetchSubCategory = async (subcategory) => {
+  const docRef = doc(dataReg, "categories");
+  const docSnap = await getDoc(docRef);
+  const data = docSnap.data();
+  const arrayData = data[subcategory];
+  items.value = arrayData;
+  currentCategory.value = subcategory;
+  showSubCategory.value = true;
+};
+
+const fetchSubcategories = async () => {
+  try {
+    const subcategoriesDocRef = doc(dataReg, 'categories');
+    onSnapshot(subcategoriesDocRef, (snapshot) => {
+      const subcategoriesData = snapshot.data();
+      for (const category in subcategoriesData) {
+        subcategories.value[category] = Object.values(subcategoriesData[category]);
+      }
+    });
+  } catch (e) {
+    console.error('Error fetching subcategories: ', e);
+  }
+};
+
+const selectSubCategory = (subcategory) => {
+  if (typeof product.value === 'object') { // Verifica que product.value sea un objeto
+    currentCategory.value = subcategory;
+    product.value.category = subcategory; // Asigna la subcategoría
+    categoryModal.value = false; // Cierra el modal
+  } else {
+    console.error('product.value debe ser un objeto');
+  }
+};
+
+
+const addItem = async (category) => {
+  const valueToAdd = newItemValue.value.trim();
+  if (valueToAdd !== '') {
+    const docRef = doc(dataReg, 'categories');
+    const docSnap = await getDoc(docRef);
+    const data = docSnap.data();
+    data[category].push(valueToAdd);
+    await setDoc(docRef, data);
+    items.value = data[category];
+    newItemValue.value = '';
+  }
+};
+
+const deleteItem = async (category, index) => {
+  const docRef = doc(dataReg, 'categories');
+  const docSnap = await getDoc(docRef);
+  const data = docSnap.data();
+  data[category].splice(index, 1);
+  await setDoc(docRef, data);
+  items.value = data[category];
+};
+
+const closeMenu = () => {
+  showSubCategory.value = false;
+  newItemValue.value = '';
+};
+
+
+const showCategory = () => {
+  categoryMenu.value = !categoryMenu.value;
+};
+
+const showBrands = () => {
+  brandsMenu.value = !brandsMenu.value;
+};
+
+const showCountry = () => {
+  countryMenu.value = !countryMenu.value;
+};
+
+const editModal = (id) => {
+  const selectedProduct = products.value.find(product => product.id === id);
+  if (selectedProduct) {
+    product.value = { ...selectedProduct };
+  }
+  editVisible.value = true;
+};
+
+const toggleModal = () => {
+  isVisible.value = !isVisible.value;
+  product.value = {};
+  currentCategory.value = 'Категорія';
+};
+
+const closeModal = () => {
+  editVisible.value = !editVisible.value;
+};
+
+const saveData = async () => {
+  try {
+    await addDoc(dataBase, product.value);
+    currentCategory.value = 'Категорія';
+  } catch (e) {
+    console.error("Error adding document: ", e);
+  }
+  product.value = {};
+  isLoaded.value = false;
+  editVisible.value = !editVisible.value;
+};
+
+const updateData = async () => {
+  try {
+    const refDoc = doc(db, "products", product.value.id);
+    await setDoc(refDoc, product.value, { merge: true });
+  } catch (error) {
+    console.error(error);
+  }
+  editVisible.value = !editVisible.value;
+  product.value = {};
+};
+
+const saveBrand = async () => {
+  try {
+    const brandsDocRef = doc(dataReg, 'brands');
+    const brandsDocSnapshot = await getDoc(brandsDocRef);
+    const brandsData = brandsDocSnapshot.exists() ? brandsDocSnapshot.data() : {};
+    brandsData[brand.value] = {};
+    await setDoc(brandsDocRef, brandsData);
+    brand.value = "";
+  } catch (e) {
+    console.error("Error adding brand: ", e);
+  }
+};
+
+const saveCountry = async () => {
+  try {
+    const countriesDocRef = doc(dataReg, 'countries');
+    const countriesDocSnapshot = await getDoc(countriesDocRef);
+    const countriesData = countriesDocSnapshot.exists() ? countriesDocSnapshot.data() : {};
+    countriesData[country.value] = {};
+    await setDoc(countriesDocRef, countriesData);
+    country.value = "";
+  } catch (e) {
+    console.error("Error adding country: ", e);
+  }
+};
+
+const deleteProduct = async (id) => {
+  if (confirm("Видалити ?")) {
+    await deleteDoc(doc(dataBase, id));
+    products.value = products.value.filter((product) => product.id !== id);
+  }
+};
+
+const deleteBrand = async (brandId) => {
+  if (confirm("Видалити ?")) {
+    try {
+      const brandsDocRef = doc(dataReg, 'brands');
+      await updateDoc(brandsDocRef, {
+        [brandId]: deleteField()
+      });
+    } catch (e) {
+      console.error("Error deleting brand: ", e);
+    }
+  }
+};
+
+
+
+const deleteCountry = async (countryId) => {
+  if (confirm("Видалити ?")) {
+    try {
+      const countriesDocRef = doc(dataReg, 'countries');
+      await updateDoc(countriesDocRef, {
+        [countryId]: deleteField()
+      });
+    } catch (e) {
+      console.error("Error deleting country: ", e);
+    }
+  }
+};
+
+const uploadImage = (e) => {
+  isLoading.value = true;
+  const file = e.target.files[0];
+  const storageRef = storageReference(storage, `products/${file.name}`);
+  const uploadTask = uploadBytesResumable(storageRef, file);
+
+  uploadTask.on(
+    'state_changed',
+    (snapshot) => { },
+    (error) => { },
+    () => {
+      getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+        isLoading.value = false;
+        isLoaded.value = true;
+        product.value.image = downloadURL;
+      });
+    }
+  );
+};
+
+const fetchProducts = async () => {
+  onSnapshot(dataBase, (snapshot) => {
+    products.value = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+  });
+};
+
+const fetchBrands = async () => {
+  try {
+    const brandsDocRef = doc(dataReg, 'brands');
+    onSnapshot(brandsDocRef, (snapshot) => {
+      const brandsData = snapshot.data();
+      const brandsArray = Object.keys(brandsData).map((brandName) => ({
+        id: brandName,
+        ...brandsData[brandName],
+      }));
+      brands.value = brandsArray;
+    });
+
+  } catch (e) { console.error("Error fetching brands: ", e); }
+};
+
+
+
+const fetchCountries = async () => {
+  try {
+    const countriesDocRef = doc(dataReg, 'countries');
+    onSnapshot(countriesDocRef, (snapshot) => {
+      const countriesData = snapshot.data();
+      const countriesArray = Object.keys(countriesData).map((country) => ({
+        id: country,
+        ...countriesData[country],
+      }));
+      countries.value = countriesArray;
+    });
+
+  } catch (e) { console.error("Error fetching countries: ", e); }
+};
+
+const isSubmitDisabled = computed(() => {
+  return requiredFields.value.some((field) => !product.value[field]) || isLoading.value;
+});
+
+const currentProduct = computed(() => {
+  return products.value.find((product) => product.id === currentProduct.value);
+});
+
+const filteredProducts = computed(() => {
+  return products.value.filter((product) => {
+    const searchTerms = searchTerm.value.toLowerCase().split(' ');
+    return searchTerms.every((term) => {
+      return (
+        product.name.toLowerCase().includes(term) ||
+        product.detail.toLowerCase().includes(term) ||
+        product.brand.toLowerCase().includes(term)
+      );
+    });
+  });
+});
+
+const markUpPercent = computed(() => {
+  const markupPercent = ((product.value.sellPrice - product.value.buyPrice) / product.value.buyPrice) * 100;
+  return markupPercent.toFixed(2);
+});
+
+onMounted(async () => {
+  await fetchProducts();
+  await fetchBrands();
+  await fetchCountries();
+});
+
 </script>
 
 <template>
+
   <div class="products">
+
     <div v-if="editVisible || isVisible" class="addproduct">
       <div class="top-inputs">
         <div id="group2">
@@ -477,15 +420,21 @@ export default {
           </datalist>
         </form>
 
-
-        <form>
-          <input v-model="product.category" placeholder="Категорія" list="categories" name="category" id="category">
-          <datalist id="categories">
-            <option v-for="category in categories" :value="category.id">{{ category.id }}
-            </option>
-          </datalist>
-        </form>
-
+        <div class="button" @click="fetchCategories">
+          <div>{{ product.category || currentCategory }}</div>
+        </div>
+        <div v-if="categoryModal" class="categoryModal">
+          <div>
+            <div v-for="category in categories" :key="category.id">
+              {{ category.id }}
+              <div v-for="(subcategory, index) in subcategories[category.id]" :key="index"
+                @click="() => selectSubCategory(subcategory)">
+                {{ subcategory }}
+              </div>
+            </div>
+          </div>
+          <button style="width: 200px; height: 50px" @click="closeCategoryModal">Закрити</button>
+        </div>
       </div>
       <div>
         <input type="checkbox" class="checkbox" id="gluten" v-model="product.freeGluten" />
@@ -512,7 +461,7 @@ export default {
       <div class="menu">
         <input type="text" v-model="brand" @keyup.enter="saveBrand()" placeholder="Новий Бренд" />
         <div class="menu-table">
-          <div v-for=" brand  in  brands " :key="brand.id">
+          <div v-for=" brand in brands " :key="brand.id">
             <div> {{ brand.id }}
               <div class="deleteButton" @click="deleteBrand(brand.id)">
                 <img src="../assets/imgs/icons/delete.svg" alt="">
@@ -549,7 +498,7 @@ export default {
       <div class="menu">
         <input type="text" v-model="country" @keyup.enter="saveCountry()" placeholder="Новий Країна" />
         <div class="menu-table">
-          <div v-for=" country  in  countries ">
+          <div v-for=" country in countries ">
             <div> {{ country.id }}
               <div class="deleteButton" @click="deleteCountry(country.id)">
                 <img src="../assets/imgs/icons/delete.svg" alt="">
@@ -583,13 +532,12 @@ export default {
           </tr>
         </thead>
         <tbody>
-          <tr class="tableline" @dblclick="editModal(product.id)" v-for=" product  in  filteredProducts "
+          <tr class="tableline" @dblclick="editModal(product.id)" v-for=" product in filteredProducts "
             :key="product.id">
             <td>
               <img class="productImage" :src="product.image" />
             </td>
             <td v-bind:title="product.name">{{ product.name }}</td>
-            <td v-bind:title="product.name">{{ product.id }}</td>
             <td v-bind:title="product.brand">{{ product.brand }}</td>
             <td class="hiden-for-mobiles" v-bind:title="product.category">{{ product.category }}</td>
             <td class="hiden-for-mobiles" v-bind:title="product.sellPrice">{{ product.sellPrice }}</td>
@@ -607,6 +555,57 @@ export default {
 
 
 <style scoped lang="scss">
+.categoryModal {
+  position: absolute;
+  z-index: 20;
+  height: 500px;
+  width: 500px;
+  background-color: #ffffff;
+  border: solid 3px rgb(168, 168, 168);
+  border-radius: 25px;
+  padding: 4vh;
+  gap: 2vw;
+  top: 15%;
+  left: 25%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgb(245, 245, 245);
+
+  >div {
+    align-content: space-between;
+    justify-content: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+
+    >div {
+      font-weight: bold;
+      background-color: #fff;
+      padding: 10px;
+      text-align: center;
+      border-radius: 25px;
+
+
+      >div {
+        font-weight: normal;
+        margin: 5px;
+        color: #183153;
+        cursor: pointer;
+        width: 150px;
+        transition: 0.5s;
+        text-align: center;
+
+        &:hover {
+          background-color: antiquewhite;
+          border-radius: 25px;
+        }
+      }
+    }
+  }
+}
+
 .products {
   display: flex;
   justify-content: center;
@@ -663,13 +662,30 @@ export default {
 }
 
 .top-inputs {
+  width: 100%;
   display: flex;
-  justify-content: space-around;
   align-items: center;
+  justify-content: center;
 
-  input {
-    &:first-child {
-      width: 20vw;
+  #group1 {
+    input {
+      &:first-child {
+        width: 20vw;
+      }
+    }
+  }
+
+  #group2 {
+    display: flex;
+    align-items: center;
+  }
+
+
+  #group3 {
+    display: flex;
+
+    input {
+      width: 10vw;
     }
   }
 }
@@ -709,6 +725,7 @@ textarea {
 }
 
 button,
+.button,
 select {
   border: none;
   padding: 0.5vw;

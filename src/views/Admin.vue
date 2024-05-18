@@ -25,22 +25,14 @@
   </div>
 </template>
 
-<script>
-import { RouterView, RouterLink } from "vue-router";
+<script setup>
+import { ref, computed } from 'vue'
+import { RouterView, RouterLink } from 'vue-router'
 
-export default {
-  name: "admin-page",
-  data() {
-    return {
-      showMenu: false,
-    };
-  },
-  computed: {
-    isDesktop() {
-      return window.innerWidth >= 550;
-    },
-  },
-};
+const showMenu = ref(false)
+
+const isDesktop = computed(() => window.innerWidth >= 550)
+
 </script>
 
 

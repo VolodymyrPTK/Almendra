@@ -92,7 +92,7 @@ export default {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 -2px 3px rgba(255, 255, 255, 1);
   font-size: 2.8vh;
   border-radius: 25px;
-  background-color: rgb(255, 255, 255);
+  background-color: #fff;
   box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.4);
   border: none;
   transition: 0.2s;

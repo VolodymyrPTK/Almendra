@@ -2,6 +2,7 @@
   <div class="store-container">
 
     <div class="filter-menus">
+      <div>{{ selectedSubcategory }}</div>
       <label @click="resetFilter(category.id)">
         <input type="radio" name="radio" checked />
         <span>Всі Продукти</span>
@@ -9,18 +10,29 @@
 
       <div v-for="category in categories" :key="category.id">
         <div @click="fetchSubCategory(category.id)">
-          <div class="filter-btn" v-if="selectedCategory !== category.id">{{ showSelectedOption ? selectedOption :
-            category.id }}</div>
-          <div v-if="selectedCategory === category.id" v-for="(item, index) in items" :key="index">
-            <div class="filter-btn">{{ item }}</div>
+          <div class="filter-btn" v-if="selectedSubcategories[category.id]">
+            {{ selectedSubcategories[category.id][0] || category.id }}
+          </div>
+          <div class="filter-btn" v-else>{{ category.id }} </div>
+          <div v-auto-animate class="subcategory-menu" @click="selectSubCategory(category.id, item)"
+            v-show="showDropdown" v-if="selectedCategory === category.id" v-for="(item, index) in items" :key="index">
+            <div>{{ item }}</div>
           </div>
         </div>
-
       </div>
-
     </div>
+
     <div>
       <div class="checkbox-wrapper-16">
+        <!-- <label class="checkbox-wrapper">
+          <input class="checkbox-input" type="checkbox" v-model="categoryF" id="category">
+          <span class="checkbox-tile">
+            <span class="checkbox-icon">
+              <img src="../assets/imgs/icons/freegluten.png">
+            </span>
+            <span class="checkbox-label">cookies</span>
+          </span>
+        </label>-->
         <label class="checkbox-wrapper">
           <input class="checkbox-input" type="checkbox" v-model="freeGluten" id="freeGluten">
           <span class="checkbox-tile">
@@ -69,7 +81,7 @@
           <img class="productImage" :src="product.image" />
           <div class="product-name">{{ product.name }}</div>
           <div class="product-name">{{ product.brand }}</div>
-          <div style="font-size:2vh; margin 5px">₴ {{ product.sellPrice }}.00</div>
+          <div style="font-size: 2vh; margin: 5px">₴ {{ product.sellPrice }}.00</div>
         </RouterLink>
         <AddToCart class="add-to-cart" :product-id="product.id" :sellPrice="product.sellPrice" :image="product.image"
           :name="product.name">
@@ -88,20 +100,23 @@ import { db, dataReg, dataBase } from '../main';
 import AddToCart from "../components/AddToCart.vue";
 import { RouterLink } from "vue-router";
 
+
 const products = ref([]);
 let lastDoc = ref(null);
 const categories = ref([]);
 const category = ref({});
+const categoryF = ref("");
+const selectedSubcategory = ref("");
 const freeGluten = ref(false);
 const freeSugar = ref(false);
 const freeLactosa = ref(false);
-const showSelectedOption = ref(false);
 const vegan = ref(false);
 const items = ref([]);
-const selectedCategory = ref([]);
+const showDropdown = ref(false);
+const selectedSubcategories = ref({});
+const selectedCategory = ref(null);
 
 const fetchProducts = () => {
-  // create a base query with the collection and filters
   let q = query(collection(db, 'products'));
 
   if (freeGluten.value) {
@@ -116,75 +131,31 @@ const fetchProducts = () => {
   if (vegan.value) {
     q = query(q, where('vegan', '==', true));
   }
+  //if (category.value) {
+  //q = query(q, where('category', '==', selectedSubcategory));
+  //}
 
-  // add the limit and startAfter methods to the query
-  // you can adjust the limit value according to your needs
   q = query(q, limit(10));
 
   if (lastDoc) {
     q = query(q, startAfter(lastDoc));
   }
 
-  // fetch the documents and update the products and lastDoc variables
   onSnapshot(q, (snapshot) => {
     products.value = [...products.value, ...snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))];
     lastDoc = snapshot.docs[snapshot.docs.length - 1];
   });
 };
 
-// watch the filters and reset the lastDoc and products variables when they change
-watch([freeGluten, freeSugar, freeLactosa, vegan], () => {
+watch([freeGluten, freeSugar, freeLactosa, vegan, categoryF], () => {
   lastDoc = null;
   products.value = [];
   fetchProducts();
 }, { immediate: true })
 
-// call the fetchProducts function when you want to load more products
-// for example, you can use a button or a scroll event
-
-
 const loadMore = () => {
   fetchProducts(true)
 }
-
-
-/* const fetchProducts = async (loadMore = false) => {
-  let q = query(collection(db, 'products'), orderBy('id'), limit(15))
-
-  if (freeGluten.value) {
-    q = query(q, where('freeGluten', '==', true))
-  }
-  if (freeSugar.value) {
-    q = query(q, where('freeSugar', '==', true))
-  }
-  if (freeLactosa.value) {
-    q = query(q, where('freeLactosa', '==', true))
-  }
-  if (vegan.value) {
-    q = query(q, where('vegan', '==', true))
-  }
-
-  if (lastDoc.value && loadMore) {
-    q = query(q, startAfter(lastDoc.value))
-  }
-
-  const querySnapshot = await getDocs(q)
-
-  if (loadMore) {
-    const loadedProductIds = new Set(products.value.map((p) => p.id))
-    querySnapshot.forEach((doc) => {
-      const productData = doc.data()
-      if (!loadedProductIds.has(productData.id)) {
-        products.value.push(productData)
-        loadedProductIds.add(productData.id)
-      }
-    })
-  } else {
-    products.value = querySnapshot.docs.map((doc) => doc.data())
-  }
-  lastDoc.value = querySnapshot.docs[querySnapshot.docs.length - 1]
-}*/
-
 
 const fetchCategories = async () => {
   try {
@@ -212,6 +183,20 @@ const fetchSubCategory = async (category) => {
   const arrayData = data[category];
   items.value = arrayData;
   selectedCategory.value = category;
+  showDropdown.value = !showDropdown.value;
+};
+
+const selectSubCategory = (categoryID, item) => {
+  // Desseleccionar la subcategoría anterior
+  if (selectedSubcategories.value[selectedCategory.value]) {
+    selectedSubcategories.value[selectedCategory.value] = [];
+  }
+
+  // Seleccionar la nueva subcategoría
+  selectedSubcategories.value[categoryID] = [item];
+  selectedCategory.value = categoryID;
+  const selectedSubcategory = selectedSubcategories.value[categoryID][0];
+  console.log('Subcategoría seleccionada:', selectedSubcategory);
 };
 
 
@@ -248,10 +233,12 @@ input[type="radio"] {
 }
 
 .filter-menus {
+  position: absolute;
   display: flex;
   font-size: 25px;
   margin-top: 30px;
   gap: 10px;
+  z-index: 2;
 
   .filter-btn {
     display: flex;
@@ -271,7 +258,20 @@ input[type="radio"] {
     transition: 0.3s;
     cursor: pointer;
     border-radius: 25px;
+  }
 
+  .subcategory-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 0.2vw;
+    border-radius: 25px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    box-shadow: 0 5px 7px rgba(0, 0, 0, 0.5), 0 -1px 20px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
   }
 
   label {
@@ -302,7 +302,7 @@ input[type="radio"] {
   flex-wrap: wrap;
   width: 100%;
   justify-content: center;
-  margin-top: 60px;
+  margin-top: 120px;
 }
 
 .productCard {
@@ -312,7 +312,7 @@ input[type="radio"] {
   width: 15vw;
   height: 38vh;
   margin: 0vh 0.5vw 10vh 0.5vw;
-  background: #ffffff;
+  background-color: #fff;
   border-radius: 3vh;
   box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px,
     rgba(0, 0, 0, 0.3) 0px 7px 13px -3px,
@@ -357,6 +357,7 @@ input[type="radio"] {
 
 .add-to-cart {
   margin-top: 1.5vh;
+
 }
 
 img {
@@ -367,11 +368,11 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: auto;
+  width: 35vw;
   height: 4vh;
   border: none;
-  margin: 0.6vw;
-  padding: 0.6vw;
+  margin: 0.5vw 0 2.5vw 0;
+  padding: 1.5vw;
   background-color: #fff;
   color: #000;
   cursor: pointer;
@@ -379,7 +380,7 @@ button {
   box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px,
     rgba(0, 0, 0, 0.3) 0px 7px 13px -3px,
     rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
-  font-size: 2vh;
+  font-size: 3vh;
 }
 
 .active {
