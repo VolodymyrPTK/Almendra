@@ -7,9 +7,28 @@
       </RouterLink>
 
       <div class="buttons">
+        <div class="search-container">
+          <div class="navButton" v-if="!this.searchInput" @click="toggleSearch"><img src="../assets/imgs/icons/search.svg"
+              alt=""></div>
+          <div class="search-input" v-if="searchInput">
+            <input type="text" v-model="searchTerm" @input="handleSearchInput" placeholder="Пошук">
+            <div class="navButton" @click="toggleSearch"><img src="../assets/imgs/icons/close.svg" alt=""></div>
+            <div v-if="showResults" class="searchResults">
+              <RouterLink class="rlink" v-for="(product, index) in filteredProducts" :key="index"
+                :to="'/product/' + product.id" @click="hideResults">
+                <img class="productImage" :src="product.image" />
+                <div>
+                  <div style="font-weight: bold;">{{ product.name }}</div>
+                  <div>{{ product.detail }}</div>
+                </div>
+              </RouterLink>
+            </div>
+          </div>
+        </div>
 
-        <RouterLink v-if="!isLoggedIn" style="width: 15vw; color: black;" class="navButton" to="/login">Увійти
-        </RouterLink>
+        <RouterLink class="navButton" to="/store"><img src="../assets/imgs/icons/home.svg" alt=""></RouterLink>
+        <slot name="cart" v-if="isLoggedIn" @close="isVisible = false" />
+        <RouterLink v-if="!isLoggedIn" style="width: 15vw; color: black;" class="navButton" to="/user">Увійти</RouterLink>
         <div v-if="isLoggedIn" class="menu-container">
           <div class="navButton" @click="openMenu"><img src="../assets/imgs/icons/menu.svg" alt=""></div>
           <div v-if="menuDropdown" class="menu-dropdown">
@@ -19,6 +38,7 @@
               {{ profile.secondName }}</h3>
             <RouterLink v-if="profile.userAdmin" class="menuButton" to="/admin/overview">Admin
             </RouterLink>
+            <RouterLink class="menuButton" to="/user">Мій кабінет</RouterLink>
             <RouterLink class="menuButton" to="/" @click="handSignOut" v-if="isLoggedIn">Вийти
             </RouterLink>
           </div>
@@ -35,8 +55,12 @@ import { RouterLink } from "vue-router";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { dataBase, profileReg } from "../main";
 import { doc, onSnapshot } from "firebase/firestore";
+import Cart from "./Cart.vue";
 
 export default {
+  components: {
+    Cart,
+  },
   props: {
     msg: String,
   },
@@ -236,6 +260,79 @@ export default {
   }
 }
 
+.search-container {
+  width: 25vw;
+  display: flex;
+  justify-content: end;
+}
+
+.search-input {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 25px;
+
+  input {
+    height: 3vh;
+    padding: 0.6vw;
+    margin: 0 0.5vh;
+    width: 15vw;
+    border: none;
+    box-shadow: inset 0 3px 5px grey;
+    border-radius: 25px;
+  }
+}
+
+.productImage {
+  width: 40px;
+}
+
+.searchResults {
+  position: absolute;
+  display: flex;
+  top: 9vh;
+  flex-direction: column;
+  border-radius: 25px;
+  padding: 10px;
+  max-height: 50vh;
+  width: 20vw;
+  overflow: hidden;
+  overflow-y: scroll;
+  background-color: rgba(255, 255, 255, 1);
+  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
+  animation-name: swing-in-top-fwd;
+  animation-duration: 0.7s;
+  animation-timing-function: ease;
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+}
+
+.searchResults::-webkit-scrollbar {
+  display: none;
+}
+
+.rlink {
+  display: flex;
+  align-items: center;
+  border-radius: 20px;
+  padding: 0.5vw;
+  margin: 5px;
+  height: auto;
+  cursor: pointer;
+  transition: 0.75s;
+  font-size: 15px;
+  background-color: white;
+  box-shadow: 0 5px 7px grey;
+
+}
+
+.rlink:hover {
+  background-color: #e9e9e9;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+}
 
 .profilePic {
   height: 10vh;
@@ -313,6 +410,33 @@ export default {
     border-radius: 50px;
   }
 
+  .search-container {
+    width: 6vh;
+  }
+
+  .search-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    border-radius: 20px;
+
+    input {
+      height: 4vh;
+      width: 50vw;
+      padding: 1vw 1vh;
+    }
+  }
+
+  .searchResults {
+    width: 90vw;
+  }
 
   .navButton {
     height: 4vh;
