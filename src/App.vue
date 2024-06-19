@@ -1,10 +1,5 @@
 <template>
   <div class="mainPage">
-    <NavBar class="navbar-comp">
-      <template v-slot:cart>
-        <Cart />
-      </template>
-    </NavBar>
     <div class="home">
       <RouterView :key="$route.fullPath" />
     </div>
@@ -13,14 +8,10 @@
 
 <script>
 import { RouterView } from "vue-router";
-import NavBar from "./components/NavBar.vue";
-import Cart from "./components/Cart.vue"
 
 export default {
   components: {
     RouterView,
-    NavBar,
-    Cart
   },
 };
 </script>

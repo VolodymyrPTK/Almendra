@@ -1,3 +1,50 @@
+<script setup>
+import { onSnapshot, deleteDoc, doc, updateDoc } from "firebase/firestore";
+import { orderReg } from "../main";
+import { ref, onMounted } from "vue";
+
+const orderDetails = ref(null);
+const orders = ref([]);
+const order = ref({ orderId: "" });
+
+function showDetails(order) {
+    if (orderDetails.value === order.id) {
+        orderDetails.value = null;
+    } else {
+        orderDetails.value = order.id;
+    }
+}
+
+async function deleteOrder(id) {
+    if (confirm("Видалити ?")) {
+        await deleteDoc(doc(orderReg, id));
+        orders.value = orders.value.filter((order) => order.id !== id);
+    }
+}
+
+async function updateOrderStatus(id, newStatus) {
+    try {
+        await updateDoc(doc(orderReg, id), {
+            orderStatus: newStatus
+        });
+    } catch (error) {
+        console.error("Error updating order status:", error);
+    }
+    order.value.orderStatus = newStatus;
+}
+
+onMounted(() => {
+    onSnapshot(orderReg, (snapshot) => {
+        orders.value = [];
+        snapshot.docs.forEach((doc) => {
+            orders.value.push({ ...doc.data(), id: doc.id });
+        });
+        orders.value.sort((b, a) => a.orderId - b.orderId);
+    });
+});
+</script>
+
+
 <template>
     <div class="main">
         <table>
@@ -43,12 +90,12 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="item in order.items">
+                            <tr v-for="product in order.products">
                                 <input type="checkbox">
-                                <td>{{ item.id }}</td>
-                                <td>{{ item.price }}</td>
-                                <td>{{ item.quantity }}</td>
-                                <td>{{ item.quantity * item.price }}</td>
+                                <td>{{ product.id }}</td>
+                                <td>{{ product.price }}</td>
+                                <td>{{ product.quantity }}</td>
+                                <td>{{ product.quantity * product.price }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -59,7 +106,8 @@
                             <div v-if="order.deliveryOption === 'novaPoshta'">
                                 <div>Нова Пошта <b>{{ order.city }}</b></div>
                                 <div v-if="order.postType === 'Warehouse'">Віділення <b>{{ order.warehouse }}</b></div>
-                                <div v-else-if="order.postType === 'Postomat'">Поштомат <b>{{ order.warehouse }}</b></div>
+                                <div v-else-if="order.postType === 'Postomat'">Поштомат <b>{{ order.warehouse }}</b>
+                                </div>
                                 <div v-else></div>
                             </div>
                             <div v-if="order.deliveryOption === 'ukrPoshta'">
@@ -73,74 +121,7 @@
         </table>
     </div>
 </template>
-  
 
-<script>
-import { onSnapshot, deleteDoc, doc, updateDoc } from "firebase/firestore";
-import { orderReg } from "../main";
-import { ref, onMounted } from "vue";
-
-export default {
-    name: "Orders",
-    props: { msg: String, },
-    setup() {
-        const profiles = ref([]);
-        const profile = ref({ firstName: "", secondName: "", phone: "", city: "", warehouse: "", cityIndex: "", postType: "" });
-        const orderDetails = ref(null);
-        const orders = ref([]);
-        const order = ref({ orderId: "" });
-
-        function showDetails(order) {
-            if (orderDetails.value === order.id) {
-                orderDetails.value = null;
-            } else {
-                orderDetails.value = order.id;
-            }
-        }
-
-        async function deleteOrder(id) {
-            if (confirm("Видалити ?")) {
-                await deleteDoc(doc(orderReg, id));
-                orders.value = orders.value.filter((order) => order.id !== id);
-            } else {
-            }
-        }
-
-        async function updateOrderStatus(id, newStatus) {
-            try {
-                await updateDoc(doc(orderReg, id), {
-                    orderStatus: newStatus
-                });
-            } catch (error) {
-                console.error("Error updating order status:", error);
-            }
-            this.order.orderStatus = newStatus;
-        }
-
-        onMounted(() => {
-            onSnapshot(orderReg, (snapshot) => {
-                orders.value = [];
-                snapshot.docs.forEach((doc) => {
-                    orders.value.push({ ...doc.data(), id: doc.id });
-                });
-                orders.value.sort((b, a) => a.orderId - b.orderId);
-            });
-        });
-
-        return {
-            profiles,
-            profile,
-            orderDetails,
-            orders,
-            order,
-            showDetails,
-            deleteOrder,
-            updateOrderStatus
-        };
-    },
-}; 
-</script>
-  
 <style scoped lang="scss">
 .select-container {
     display: flex;
@@ -273,5 +254,3 @@ td {
     border: none;
 }
 </style>
-
-

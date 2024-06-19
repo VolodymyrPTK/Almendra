@@ -183,7 +183,6 @@ const saveData = async () => {
   }
   product.value = {};
   isLoaded.value = false;
-  editVisible.value = !editVisible.value;
 };
 
 const updateData = async () => {
@@ -243,8 +242,6 @@ const deleteBrand = async (brandId) => {
   }
 };
 
-
-
 const deleteCountry = async (countryId) => {
   if (confirm("Видалити ?")) {
     try {
@@ -283,7 +280,7 @@ const fetchProducts = async () => {
     products.value = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
   });
 };
-
+  
 const fetchBrands = async () => {
   try {
     const brandsDocRef = doc(dataReg, 'brands');
@@ -298,8 +295,6 @@ const fetchBrands = async () => {
 
   } catch (e) { console.error("Error fetching brands: ", e); }
 };
-
-
 
 const fetchCountries = async () => {
   try {

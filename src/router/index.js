@@ -1,17 +1,13 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import Home from "../views/Home.vue";
-import Store from "../views/Store.vue";
 import Login from "../views/Login.vue";
 import Register from "../views/Register.vue";
-import User from "../views/User.vue";
 import Admin from "../views/Admin.vue";
 import Overview from "../views/Overview.vue";
 import NovaPoshta from "../views/NovaPoshta.vue";
 import Products from "../views/Products.vue";
 import Orders from "../views/Orders.vue";
 import Clients from "../views/Clients.vue";
-import Product from "../components/Product.vue";
 import Inventory from "../views/Inventory.vue";
 
 const router = createRouter({
@@ -19,41 +15,11 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      name: "home",
-      component: Home,
-    },
-    {
-      path: "/store",
-      name: "store",
-      component: Store,
-    },
-    {
-      path: "/login",
-      name: "login",
-      component: Login,
-    },
-    {
-      path: "/register",
-      name: "register",
-      component: Register,
-    },
-    {
-      path: "/product/:id",
-      name: "product",
-      component: Product,
-    },
-    {
-      path: "/user",
-      name: "user",
-      component: User,
+      name: "admin",
+      component: Admin,
       meta: {
         requiresAuth: true,
       },
-    },
-    {
-      path: "/admin",
-      name: "admin",
-      component: Admin,
       children: [
         {
           path: "overview",
@@ -87,6 +53,18 @@ const router = createRouter({
         },
       ],
     },
+    {
+      path: "/login",
+      name: "login",
+      component: Login,
+    },
+    {
+      path: "/register",
+      name: "register",
+      component: Register,
+    },
+    
+    
   ],
 });
 

@@ -16,7 +16,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="tableline" @click="openModal(product.id)" v-for="product in filteredProducts" :key="product.id">
+          <tr class="tableline" v-for="product in filteredProducts" :key="product.id">
             <td>
               <img class="productImage" :src="product.image" />
             </td>
@@ -33,74 +33,47 @@
   </div>
 </template>
 
-<script>
-import { dataBase } from "../main";
-import { onSnapshot } from "firebase/firestore";
+<script setup>
+import { ref, computed, onMounted } from 'vue';
+import { onSnapshot } from 'firebase/firestore';
+import { dataBase, dataReg } from '../main';
 
-export default {
-  name: "Inventory",
-  components: {
-  },
-  props: {
-    msg: String,
-  },
-  data() {
-    return {
-      products: [],
-      product: {
-        name: "",
-        brand: "",
-        buyPrice: 0,
-        sellPrice: 0,
-        quantity: 0,
-      },
-      modalVisible: false,
-      isVisible: false,
-      searchTerm: "",
-    };
-  },
-  computed: {
-    currentProduct() {
-      return this.products.find(
-        (product) => product.id === this.currentProductId
-      );
-    },
-    filteredProducts() {
-      return this.products.filter((product) =>
-        product.name.toLowerCase().includes(this.searchTerm.toLowerCase())
-      );
-    },
-  },
-  methods: {
-    openModal(id) {
-      this.modalVisible = true;
-      this.currentProductId = id;
-    },
-    toggleModal() {
-      this.isVisible = !this.isVisible;
-    },
-  },
-  async created() {
-    onSnapshot(dataBase, (snapshot) => {
-      this.products = [];
-      snapshot.docs.forEach((doc) => {
-        this.products.push({ ...doc.data(), id: doc.id });
-      });
-    });
-    onSnapshot(brandReg, (snapshot) => {
-      this.brands = [];
-      snapshot.docs.forEach((doc) => {
-        this.brands.push({ ...doc.data(), id: doc.id });
-      });
-    });
-  },
-};
+const msg = defineProps({
+  msg: String
+});
+
+const products = ref([]);
+const product = ref({
+  name: '',
+  brand: '',
+  buyPrice: 0,
+  sellPrice: 0,
+  quantity: 0,
+});
+const searchTerm = ref('');
+const brands = ref([]);
+
+const filteredProducts = computed(() =>
+  products.value.filter(product =>
+    product.name.toLowerCase().includes(searchTerm.value.toLowerCase())
+  )
+);
+
+onMounted(() => {
+  onSnapshot(dataBase, (snapshot) => {
+    products.value = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+  });
+  onSnapshot(dataReg, 'brands', (snapshot) => {
+    brands.value = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+  });
+});
 </script>
 
 <style scoped lang="scss">
 .products {
   display: flex;
   width: 100%;
+  padding: 1vw;
 }
 
 .productlist {
@@ -108,12 +81,6 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  border-radius: 25px;
-  background-color: rgba(253, 253, 253, 0.75);
-  box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.125);
-  margin-left: 20px;
 }
 
 .list-header {

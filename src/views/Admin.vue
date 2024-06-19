@@ -1,22 +1,22 @@
 <template>
   <div class="admin">
     <div class="menu" v-if="isDesktop">
-      <RouterLink class="navButton" to="/admin/overview">Огляд</RouterLink>
-      <RouterLink class="navButton" to="/admin/products">Продукти</RouterLink>
-      <RouterLink class="navButton" to="/admin/inventory">Iнвентар</RouterLink>
-      <RouterLink class="navButton" to="/admin/clients">Кліенти</RouterLink>
-      <RouterLink class="navButton" to="/admin/orders">Замовлення</RouterLink>
-      <RouterLink class="navButton" to="/admin/novaposhta">Нова Пошта</RouterLink>
+      <RouterLink class="navButton" to="/overview">Огляд</RouterLink>
+      <RouterLink class="navButton" to="/products">Продукти</RouterLink>
+      <RouterLink class="navButton" to="/inventory">Iнвентар</RouterLink>
+      <RouterLink class="navButton" to="/clients">Кліенти</RouterLink>
+      <RouterLink class="navButton" to="/orders">Замовлення</RouterLink>
+      <RouterLink class="navButton" to="/novaposhta">Нова Пошта</RouterLink>
     </div>
     <div v-else>
       <button class="menu-btn" @click="showMenu = !showMenu"><img src="../assets/imgs/icons/menu.svg" alt=""></button>
       <div class="menu" v-if="showMenu">
-        <RouterLink class="navButton" to="/admin/overview">Огляд</RouterLink>
-        <RouterLink class="navButton" to="/admin/products">Продукти</RouterLink>
-        <RouterLink class="navButton" to="/admin/inventory">Iнвентар</RouterLink>
-        <RouterLink class="navButton" to="/admin/clients">Кліенти</RouterLink>
-        <RouterLink class="navButton" to="/admin/orders">Замовлення</RouterLink>
-        <RouterLink class="navButton" to="/admin/novaposhta">Нова Пошта</RouterLink>
+        <RouterLink class="navButton" to="/overview">Огляд</RouterLink>
+        <RouterLink class="navButton" to="/products">Продукти</RouterLink>
+        <RouterLink class="navButton" to="/inventory">Iнвентар</RouterLink>
+        <RouterLink class="navButton" to="/clients">Кліенти</RouterLink>
+        <RouterLink class="navButton" to="/orders">Замовлення</RouterLink>
+        <RouterLink class="navButton" to="/novaposhta">Нова Пошта</RouterLink>
       </div>
     </div>
     <div class="admincontent">
@@ -39,6 +39,7 @@ const isDesktop = computed(() => window.innerWidth >= 550)
 <style scoped>
 .admin {
   display: flex;
+  flex-direction: column;
   align-items: center;
   margin-top: 3vh;
   gap: 15px;
@@ -46,9 +47,8 @@ const isDesktop = computed(() => window.innerWidth >= 550)
 
 .menu {
   display: flex;
-  flex-direction: column;
-  height: 80vh;
-  width: 10%;
+  width: 90vw;
+  height: 10%;
   margin: 0;
   text-align: center;
   border-radius: 25px;
@@ -57,8 +57,8 @@ const isDesktop = computed(() => window.innerWidth >= 550)
 }
 
 .admincontent {
-  width: 90%;
-  height: 80vh;
+  width: 90vw;
+  height: 85vh;
   border-radius: 25px;
   background-color: rgba(253, 253, 253, 1);
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.4), 0 -1px 20px rgba(0, 0, 0, 0.2);
