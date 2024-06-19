@@ -90,12 +90,12 @@ onMounted(() => {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="product in order.products">
+                            <tr v-for="item in order.items">
                                 <input type="checkbox">
-                                <td>{{ product.id }}</td>
-                                <td>{{ product.price }}</td>
-                                <td>{{ product.quantity }}</td>
-                                <td>{{ product.quantity * product.price }}</td>
+                                <td>{{ item.name }}</td>
+                                <td>{{ item.price }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ item.quantity * item.price }}</td>
                             </tr>
                         </tbody>
                     </table>
