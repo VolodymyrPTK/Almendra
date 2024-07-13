@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@formkit/auto-animate": "^0.8.2",
+    "axios": "^1.7.2",
+    "bitcoinjs-lib": "^6.1.6",
     "firebase": "^10.12.2",
     "pinia": "^2.1.7",
     "vue": "^3.4.27",

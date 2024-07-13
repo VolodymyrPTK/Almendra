@@ -36,7 +36,9 @@ const product = ref({
   freeLactosa: false,
   vegan: false,
   proteinik: false,
-  liquid: false
+  liquid: false,
+  popular: false,
+  new: false
 });
 const items = ref([]);
 const isVisible = ref(false);
@@ -280,7 +282,7 @@ const fetchProducts = async () => {
     products.value = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
   });
 };
-  
+
 const fetchBrands = async () => {
   try {
     const brandsDocRef = doc(dataReg, 'brands');
@@ -342,6 +344,40 @@ onMounted(async () => {
   await fetchBrands();
   await fetchCountries();
 });
+
+
+const togglePopular = async (productId) => {
+  const product = products.value.find(p => p.id === productId);
+  if (product) {
+    product.popular = !product.popular;
+    await updateProductStatus(product.id, product.popular);
+  }
+};
+
+const updateProductStatus = async (id, updatePopular) => {
+  try {
+    await updateDoc(doc(dataBase, id), { popular: updatePopular });
+  } catch (error) {
+    console.error("Error updating product status:", error);
+  }
+};
+
+const toggleNew = async (productId) => {
+  const product = products.value.find(p => p.id === productId);
+  if (product) {
+    product.isNew = !product.isNew;
+    await productIsNew(product.id, product.isNew);
+  }
+};
+
+const productIsNew = async (id, newProduct) => {
+  try {
+    await updateDoc(doc(dataBase, id), { isNew: newProduct });
+  } catch (error) {
+    console.error("Error updating product status:", error);
+  }
+};
+
 
 </script>
 
@@ -537,8 +573,15 @@ onMounted(async () => {
             <td class="hiden-for-mobiles" v-bind:title="product.category">{{ product.category }}</td>
             <td class="hiden-for-mobiles" v-bind:title="product.sellPrice">{{ product.sellPrice }}</td>
             <td>
-              <div class="deleteButton" @click="deleteProduct(product.id)">
-                <img src="../assets/imgs/icons/delete.svg" alt="">
+              <div style="display: inline-flex;">
+
+                <div class="status-button" :class="{ 'active': product.isNew }" @click="toggleNew(product.id)"
+                  :title="'top'">New</div>
+                <div class="status-button" :class="{ 'active': product.popular }" @click="togglePopular(product.id)"
+                  :title="'top'">Top</div>
+                <div class="deleteButton" @click="deleteProduct(product.id)">
+                  <img src="../assets/imgs/icons/delete.svg" alt="">
+                </div>
               </div>
             </td>
           </tr>
@@ -550,6 +593,27 @@ onMounted(async () => {
 
 
 <style scoped lang="scss">
+.status-button {
+  display: flex;
+  align-items: center;
+  background-color: rgb(245, 245, 245);
+  box-shadow: 0 3px 3px rgba(116, 116, 116, 0.5);
+  border: solid 0px;
+  border-radius: 25px;
+  padding: 0.3vw;
+  cursor: pointer;
+}
+
+.active {
+  display: flex;
+  align-items: center;
+  background-color: rgb(228, 228, 228);
+  box-shadow: 0 3px 3px rgba(116, 116, 116, 0.5);
+  border: solid 2px;
+  border-radius: 25px;
+  padding: 0.3vw;
+}
+
 .categoryModal {
   position: absolute;
   z-index: 20;
@@ -871,7 +935,7 @@ label {
 
   td:nth-child(1),
   th:nth-child(1) {
-    width: 15%;
+    width: 5%;
   }
 
   td:nth-child(2),
@@ -881,7 +945,7 @@ label {
 
   td:nth-child(3),
   th:nth-child(3) {
-    width: 25%;
+    width: 15%;
   }
 
   td:nth-child(4),
@@ -891,12 +955,20 @@ label {
 
   td:nth-child(5),
   th:nth-child(5) {
-    width: 10%;
+    width: 5%;
   }
 
   td:nth-child(6),
   th:nth-child(6) {
-    width: 5vw;
+    width: 10%;
+    height: 3vh;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    div {
+      margin: 2px;
+    }
   }
 
   thead {
@@ -904,9 +976,11 @@ label {
     color: #fdfdfd;
 
 
-    tr {
-      display: flex;
-    }
+  }
+
+  tr {
+    display: flex;
+    justify-content: space-between;
   }
 
   .tableline {
