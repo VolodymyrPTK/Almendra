@@ -58,13 +58,14 @@ const router = createRouter({
       name: "login",
       component: Login,
     },
+// feat!: migrate to pure ESM (#3850) ([3423735](https://github.com/conventional-changelog/commitlint/commit/342373559bdf7c783c4ef37ff05dc38a5f681159)), closes [#3850](https://github.com/conventional-changelog/commitlint/issues/3850) by @JounQin
+
     {
       path: "/register",
       name: "register",
       component: Register,
     },
-    
-    
+
   ],
 });
 
@@ -87,6 +88,11 @@ router.beforeEach(async (to, from, next) => {
       next();
     } else {
       next("/login");
+}
+} else {
+  next();
+}
+});
     }
   } else {
     next();
