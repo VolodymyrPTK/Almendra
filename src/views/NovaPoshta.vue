@@ -78,10 +78,12 @@ onMounted(fetchPackages);
 
     <ul v-if="!loading && !error">
       <li v-for="pkg in packages" :key="pkg.Ref">
-        <strong>Document Number:</strong> {{ pkg.IntDocNumber }}<br />
-        <strong>Recipient:</strong> {{ pkg.RecipientContactPerson }}<br />
-        <strong>Recipient:</strong> {{ pkg.RecipientAddressDescription }}<br />
-        <strong>Status:</strong> {{ pkg.StateName }}<br />
+        <div class="li-item">
+          <strong>Document Number:</strong> {{ pkg.IntDocNumber }}<br />
+          <strong>Recipient:</strong> {{ pkg.RecipientContactPerson }}<br />
+          <strong>Recipient:</strong> {{ pkg.RecipientAddressDescription }}<br />
+          <strong>Status:</strong> {{ pkg.StateName }}<br />
+        </div>
       </li>
     </ul>
 
@@ -100,7 +102,8 @@ onMounted(fetchPackages);
   color: red;
 }
 
-li {
-  margin: 10px;
+.li-item {
+  margin: 25px;
+  background-color: aqua;
 }
 </style>

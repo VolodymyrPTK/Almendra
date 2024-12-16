@@ -6,6 +6,7 @@ import Admin from "../views/Admin.vue";
 import Overview from "../views/Overview.vue";
 import NovaPoshta from "../views/NovaPoshta.vue";
 import Products from "../views/Products.vue";
+import POS from "../views/POS.vue";
 import Orders from "../views/Orders.vue";
 import Clients from "../views/Clients.vue";
 import Inventory from "../views/Inventory.vue";
@@ -30,6 +31,11 @@ const router = createRouter({
           path: "products",
           name: "products",
           component: Products,
+        },
+        {
+          path: "pos",
+          name: "pos",
+          component: POS,
         },
         {
           path: "clients",
