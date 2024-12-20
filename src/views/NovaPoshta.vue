@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 
 // Nova Poshta API key
 const apiKey = '8f56fa87480210ab93cf355cabfe24be';
@@ -12,6 +12,25 @@ const currentPage = ref(1); // Start with the first page
 const totalPages = ref(1); // Will be updated after the first API call
 const searchQuery = ref('');
 const filteredPackages = ref([]);
+const selectedStatus = ref('all');
+
+// Add this formatting function in the script section
+const formatPhoneNumber = (phone) => {
+  if (!phone) return '';
+
+  // Remove all non-digit characters
+  const cleaned = phone.replace(/\D/g, '');
+
+  // Check if it's a Ukrainian number
+  if (cleaned.length === 12 && cleaned.startsWith('380')) {
+    return `+38 (${cleaned.slice(2, 5)}) ${cleaned.slice(5, 8)}-${cleaned.slice(8, 10)}-${cleaned.slice(10, 12)}`;
+  } else if (cleaned.length === 10) {
+    return `+38 (${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6, 8)}-${cleaned.slice(8, 10)}`;
+  }
+
+  // If format doesn't match, return original
+  return phone;
+};
 
 // Fetch packages with pagination
 const fetchPackages = async () => {
@@ -21,7 +40,7 @@ const fetchPackages = async () => {
   try {
     const currentDate = new Date();
     const lastWeekDate = new Date(currentDate);
-    lastWeekDate.setDate(currentDate.getDate() - 7); // Resta 7 días a la fecha actual
+    lastWeekDate.setDate(currentDate.getDate() - 7);
 
     const formattedCurrentDate = currentDate.toLocaleDateString('uk-UA');
     const formattedLastWeekDate = lastWeekDate.toLocaleDateString('uk-UA');
@@ -38,8 +57,8 @@ const fetchPackages = async () => {
         methodProperties: {
           Page: currentPage.value,
           Limit: 10,
-          DateTimeFrom: formattedLastWeekDate, // Fecha de hace una semana
-          DateTimeTo: formattedCurrentDate,    // Fecha actual
+          DateTimeFrom: formattedLastWeekDate,
+          DateTimeTo: formattedCurrentDate,
           GetFullList: "1"
         },
       }),
@@ -50,11 +69,18 @@ const fetchPackages = async () => {
     }
 
     const data = await response.json();
+    console.log('API Response:', data);
 
     if (data.success) {
-      packages.value = [...packages.value, ...data.data]; // Append new data to existing list
-      filteredPackages.value = packages.value; // Initialize filtered packages
-      totalPages.value = Math.ceil(data.info.totalCount / 10); // Calculate total pages
+      // If it's the first page, reset packages
+      if (currentPage.value === 1) {
+        packages.value = data.data;
+      } else {
+        packages.value = [...packages.value, ...data.data];
+      }
+      totalPages.value = Math.ceil(data.info.totalCount / 10);
+      // Apply filters after updating packages
+      applyFilters();
     } else {
       throw new Error(data.errors?.[0] || 'Unknown error');
     }
@@ -73,20 +99,60 @@ const loadMore = () => {
   }
 };
 
-// Add new search function
-const searchPackages = () => {
-  if (!searchQuery.value.trim()) {
-    filteredPackages.value = packages.value;
-    return;
+// Create a new function to apply filters
+const applyFilters = () => {
+  console.log('Applying filters. Status:', selectedStatus.value);
+  console.log('Total packages:', packages.value.length);
+
+  let filtered = [...packages.value];
+
+  if (selectedStatus.value !== 'all') {
+    filtered = filtered.filter(pkg => {
+      const stateId = String(pkg.StateId);
+      console.log('Package StateId:', stateId, 'StateName:', pkg.StateName);
+
+      switch (selectedStatus.value) {
+        case 'delivered':
+          return stateId === '9';
+        case 'in_transit':
+          return ['2', '3', '4', '41'].includes(stateId);
+        case 'at_post_office':
+          return ['5', '6', '7', '8'].includes(stateId);
+        default:
+          return true;
+      }
+    });
   }
 
-  const query = searchQuery.value.toLowerCase();
-  filteredPackages.value = packages.value.filter(pkg =>
-    pkg.RecipientContactPerson?.toLowerCase().includes(query) ||
-    pkg.RecipientAddressDescription?.toLowerCase().includes(query) ||
-    pkg.RecipientsPhone?.toLowerCase().includes(query)
-  );
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase();
+    filtered = filtered.filter(pkg =>
+      (pkg.RecipientContactPerson || '').toLowerCase().includes(query) ||
+      (pkg.RecipientAddressDescription || '').toLowerCase().includes(query) ||
+      (pkg.RecipientsPhone || '').toLowerCase().includes(query)
+    );
+  }
+
+  console.log('Filtered results:', filtered.length);
+  filteredPackages.value = filtered;
 };
+
+// Update the filterByStatus function
+const filterByStatus = (status) => {
+  console.log('Filtering by status:', status);
+  selectedStatus.value = status;
+  applyFilters();
+};
+
+// Update search handler
+const handleSearch = () => {
+  applyFilters();
+};
+
+// Watch for changes in searchQuery
+watch(searchQuery, () => {
+  applyFilters();
+});
 
 // Add scroll handler
 const handleScroll = () => {
@@ -113,8 +179,17 @@ onUnmounted(() => {
     <h1>Nova Poshta Packages</h1>
 
     <div class="search-container">
-      <input type="text" v-model="searchQuery" @input="searchPackages"
+      <input type="text" v-model="searchQuery" @input="handleSearch"
         placeholder="Search by city, name or phone number..." class="search-input" />
+    </div>
+
+    <div class="filter-buttons">
+      <button v-for="status in ['all', 'delivered', 'in_transit', 'at_post_office']" :key="status"
+        :class="['filter-btn', selectedStatus === status ? 'active' : '']" @click="filterByStatus(status)">
+        {{ status === 'all' ? 'All Packages' :
+          status === 'delivered' ? 'Delivered' :
+            status === 'in_transit' ? 'In Transit' : 'At Post Office' }}
+      </button>
     </div>
 
     <div v-if="loading && !packages.length" class="loading-indicator">
@@ -133,6 +208,14 @@ onUnmounted(() => {
           <div class="package-info-row">
             <strong>Recipient:</strong>
             <span>{{ pkg.RecipientContactPerson }}</span>
+          </div>
+          <div class="package-info-row">
+            <strong>City:</strong>
+            <span>{{ pkg.CityRecipientDescription }}</span>
+          </div>
+          <div class="package-info-row">
+            <strong>Phone:</strong>
+            <span>{{ formatPhoneNumber(pkg.RecipientsPhone) }}</span>
           </div>
           <div class="package-info-row">
             <strong>Address:</strong>
@@ -225,18 +308,21 @@ ul {
   font-weight: 500;
   font-size: 14px;
   display: inline-block;
-  width: 120px;
+  width: 100px;
+  flex-shrink: 0;
 }
 
 .li-item span {
   color: #1d1d1f;
   font-size: 15px;
+  flex: 1;
 }
 
 .package-info-row {
   margin: 8px 0;
   display: flex;
   align-items: baseline;
+  line-height: 1.4;
 }
 
 /* Status badge */
@@ -274,5 +360,35 @@ ul {
   padding: 40px 20px;
   color: #86868b;
   font-size: 16px;
+}
+
+/* Add filter buttons styles */
+.filter-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.filter-btn {
+  padding: 8px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  background: white;
+  color: #1d1d1f;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+  background: #f5f5f7;
+}
+
+.filter-btn.active {
+  background: #007AFF;
+  color: white;
+  border-color: #007AFF;
 }
 </style>
