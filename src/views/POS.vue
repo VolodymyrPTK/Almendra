@@ -2,7 +2,16 @@
     <div class="pos-container">
         <div class="products-section">
             <div class="search-container">
-                <input type="text" v-model="searchQuery" placeholder="Search products..." class="search-input">
+                <input type="text" v-model="searchQuery" placeholder="Search products..." class="search-input"
+                    @keydown.enter.prevent="addSelectedResult" @keydown.down.prevent="selectNextResult"
+                    @keydown.up.prevent="selectPreviousResult">
+                <div v-if="searchQuery && filteredProducts.length > 0" class="search-results-dropdown">
+                    <div v-for="(product, index) in filteredProducts" :key="product.id" class="search-result-item"
+                        :class="{ 'selected': selectedIndex === index }" @click="addToCart(product)">
+                        <span>{{ product.name }}</span>
+                        <span>${{ product.sellPrice }}</span>
+                    </div>
+                </div>
             </div>
 
             <div class="products-grid">
@@ -18,13 +27,16 @@
             <div class="cart-header">
                 <div class="cart-header-buttons">
                     <button @click="newCart" class="neo-button new-cart-btn">
-                        New Cart
+                        Новий
+                    </button>
+                    <button @click="saveCart" class="neo-button save-btn">
+                        Зберегти
                     </button>
                     <button @click="showSavedCarts = true" class="neo-button view-saved-btn">
-                        View Saved Carts
+                        Збережені
                     </button>
                     <button @click="generateInvoice" class="neo-button invoice-btn">
-                        Generate Invoice
+                        Рахунок
                     </button>
                 </div>
             </div>
@@ -45,8 +57,42 @@
             <div class="cart-summary">
                 <h3>Total: ${{ cartStore.total }}</h3>
                 <div class="cart-actions">
-                    <button @click="saveCart" class="neo-button save-btn">Save Cart</button>
-                    <button @click="checkout" class="neo-button checkout-btn">Checkout</button>
+                    <button @click="checkout('cash')" class="neo-button payment-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor">
+                            <rect x="2" y="6" width="20" height="12" rx="2" />
+                            <circle cx="12" cy="12" r="2" />
+                            <path d="M6 12h.01M18 12h.01" />
+                        </svg>
+                        Cash
+                    </button>
+                    <button @click="checkout('card')" class="neo-button payment-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor">
+                            <rect x="2" y="5" width="20" height="14" rx="2" />
+                            <line x1="2" y1="10" x2="22" y2="10" />
+                        </svg>
+                        Card
+                    </button>
+                    <button @click="checkout('split')" class="neo-button payment-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor">
+                            <line x1="12" y1="4" x2="12" y2="20" />
+                            <polyline points="8 8 4 12 8 16" />
+                            <polyline points="16 16 20 12 16 8" />
+                        </svg>
+                        Split
+                    </button>
+                    <button @click="checkout('online')" class="neo-button payment-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M2 12h20" />
+                            <path
+                                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                        </svg>
+                        Online
+                    </button>
                 </div>
             </div>
         </div>
@@ -76,6 +122,68 @@
                 </div>
             </div>
         </div>
+
+        <!-- Cash Payment Modal -->
+        <div v-if="showCashModal" class="modal-overlay">
+            <div class="modal-content cash-modal">
+                <div class="modal-header">
+                    <h2>Cash Payment</h2>
+                    <button @click="showCashModal = false" class="neo-button close-btn">×</button>
+                </div>
+                <div class="cash-payment-form">
+                    <div class="amount-row">
+                        <span>Total: ${{ cartStore.total }}</span>
+                        <button @click="exactAmount" class="neo-button">Без Решти</button>
+                    </div>
+                    <div class="input-group">
+                        <label>Amount Received:</label>
+                        <input type="number" v-model="amountReceived" class="neo-input" @input="calculateChange">
+                    </div>
+                    <div class="change-display">
+                        <label>Change:</label>
+                        <span>${{ change }}</span>
+                    </div>
+                    <button @click="completeCashPayment" class="neo-button complete-btn" :disabled="!isValidPayment">
+                        Complete Payment
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Split Payment Modal -->
+        <div v-if="showSplitModal" class="modal-overlay">
+            <div class="modal-content split-modal">
+                <div class="modal-header">
+                    <h2>Split Payment</h2>
+                    <button @click="showSplitModal = false" class="neo-button close-btn">×</button>
+                </div>
+                <div class="split-payment-form">
+                    <div class="amount-row">
+                        <span>Total: ${{ cartStore.total }}</span>
+                    </div>
+                    <div class="input-group">
+                        <label>Card Amount:</label>
+                        <input type="number" v-model="cardAmount" class="neo-input" @input="calculateCashAmount">
+                    </div>
+                    <div class="input-group">
+                        <label>Cash Amount:</label>
+                        <input type="number" v-model="cashAmount" class="neo-input" readonly>
+                    </div>
+                    <div class="input-group" v-if="cashAmount > 0">
+                        <label>Cash Received:</label>
+                        <input type="number" v-model="cashReceived" class="neo-input" @input="calculateSplitChange">
+                        <div class="change-display" v-if="cashReceived > 0">
+                            <label>Change:</label>
+                            <span>${{ splitChange }}</span>
+                        </div>
+                    </div>
+                    <button @click="completeSplitPayment" class="neo-button complete-btn"
+                        :disabled="!isValidSplitPayment">
+                        Complete Split Payment
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -92,6 +200,15 @@ const cartStore = useCartStore()
 const showSavedCarts = ref(false)
 const savedCarts = ref([])
 const searchQuery = ref('')
+const selectedIndex = ref(-1)
+const showCashModal = ref(false)
+const amountReceived = ref(0)
+const change = ref(0)
+const showSplitModal = ref(false)
+const cardAmount = ref(0)
+const cashAmount = ref(0)
+const cashReceived = ref(0)
+const splitChange = ref(0)
 
 const filteredProducts = computed(() => {
     if (!searchQuery.value) return products.value
@@ -127,8 +244,18 @@ const decreaseQuantity = (item) => {
     cartStore.decreaseQuantity(item)
 }
 
-const checkout = () => {
-    console.log('Checkout:', cartStore.items)
+const checkout = (method) => {
+    if (method === 'cash') {
+        showCashModal.value = true
+        return
+    }
+    if (method === 'split') {
+        showSplitModal.value = true
+        cardAmount.value = 0
+        cashAmount.value = cartStore.total
+        return
+    }
+    console.log('Checkout:', cartStore.items, method)
     cartStore.clearCart()
 }
 
@@ -275,9 +402,120 @@ const generateInvoice = async () => {
     }
 }
 
+const addSelectedResult = () => {
+    if (filteredProducts.value.length > 0) {
+        const indexToAdd = selectedIndex.value >= 0 ? selectedIndex.value : 0
+        addToCart(filteredProducts.value[indexToAdd])
+        searchQuery.value = '' // Clear search after adding
+        selectedIndex.value = -1 // Reset selection
+    }
+}
+
+const selectNextResult = () => {
+    if (filteredProducts.value.length > 0) {
+        selectedIndex.value = (selectedIndex.value + 1) % filteredProducts.value.length
+    }
+}
+
+const selectPreviousResult = () => {
+    if (filteredProducts.value.length > 0) {
+        selectedIndex.value = selectedIndex.value <= 0
+            ? filteredProducts.value.length - 1
+            : selectedIndex.value - 1
+    }
+}
+
+watch(searchQuery, () => {
+    selectedIndex.value = -1
+})
+
 onMounted(() => {
     fetchProducts()
 })
+
+const isValidPayment = computed(() => {
+    return amountReceived.value >= cartStore.total
+})
+
+const calculateChange = () => {
+    change.value = (amountReceived.value - cartStore.total).toFixed(2)
+}
+
+const exactAmount = () => {
+    amountReceived.value = cartStore.total
+    calculateChange()
+}
+
+const completeCashPayment = () => {
+    if (isValidPayment.value) {
+        checkout('cash')
+        showCashModal.value = false
+        amountReceived.value = 0
+        change.value = 0
+    }
+}
+
+const isValidSplitPayment = computed(() => {
+    // Convert values to numbers and round to 2 decimal places
+    const cardAmountNum = Math.round(Number(cardAmount.value) * 100) / 100
+    const cashAmountNum = Math.round(Number(cashAmount.value) * 100) / 100
+    const cashReceivedNum = Math.round(Number(cashReceived.value) * 100) / 100
+    const totalNum = Math.round(Number(cartStore.total) * 100) / 100
+
+    // If there's a cash amount
+    if (cashAmountNum > 0) {
+        return (
+            // Check if card + cash equals total (within 1 cent tolerance)
+            Math.abs((cardAmountNum + cashAmountNum) - totalNum) < 0.01 &&
+            // Check if cash received is sufficient
+            cashReceivedNum >= cashAmountNum
+        )
+    }
+
+    // If card only payment, check if card amount equals total
+    return Math.abs(cardAmountNum - totalNum) < 0.01
+})
+
+const calculateCashAmount = () => {
+    // Ensure cardAmount is not negative
+    if (cardAmount.value < 0) {
+        cardAmount.value = 0
+    }
+    // Ensure cardAmount doesn't exceed total
+    if (cardAmount.value > cartStore.total) {
+        cardAmount.value = cartStore.total
+    }
+    // Calculate cash amount and round to 2 decimal places
+    cashAmount.value = Math.round((cartStore.total - cardAmount.value) * 100) / 100
+    // Reset cash received and change
+    cashReceived.value = 0
+    splitChange.value = 0
+}
+
+const calculateSplitChange = () => {
+    if (cashReceived.value < 0) {
+        cashReceived.value = 0
+    }
+    // Calculate and round change to 2 decimal places
+    splitChange.value = Math.round((cashReceived.value - cashAmount.value) * 100) / 100
+}
+
+const completeSplitPayment = () => {
+    if (isValidSplitPayment.value) {
+        console.log('Split payment completed:', {
+            card: cardAmount.value,
+            cash: cashAmount.value,
+            cashReceived: cashReceived.value,
+            change: splitChange.value
+        })
+        cartStore.clearCart()
+        showSplitModal.value = false
+        cardAmount.value = 0
+        cashAmount.value = 0
+        cashReceived.value = 0
+        splitChange.value = 0
+    }
+}
 </script>
 
 <style scoped>
@@ -286,11 +524,13 @@ onMounted(() => {
     grid-template-columns: 2.2fr 0.8fr;
     gap: 2rem;
     padding: 2rem;
-    background-color: rgba(214, 214, 214, 0.80);
+    background-color: white;
+    position: relative;
 }
 
 .products-section {
     padding-right: 1.8rem;
+    padding-top: 3rem;
 }
 
 .cart-section {
@@ -303,7 +543,7 @@ onMounted(() => {
     flex-direction: column;
     padding: 1.2rem;
     border-radius: 25px;
-    background: #e0e5ec;
+    background: white;
     box-shadow:
         inset 8px 8px 15px #a3b1c6,
         inset -8px -8px 15px #ffffff;
@@ -337,7 +577,7 @@ onMounted(() => {
     margin-top: 0.9rem;
     padding: 0.9rem;
     border-radius: 10px;
-    background: #e0e5ec;
+    background: white;
     box-shadow:
         inset 5px 5px 10px #a3b1c6,
         inset -5px -5px 10px #ffffff;
@@ -348,7 +588,7 @@ onMounted(() => {
     margin-bottom: 1.5rem;
     padding: 1rem;
     border-radius: 10px;
-    background: #e0e5ec;
+    background: white;
     box-shadow:
         8px 8px 15px #a3b1c6,
         -8px -8px 15px #ffffff;
@@ -363,7 +603,7 @@ onMounted(() => {
 .product-card {
     padding: 1rem;
     border-radius: 15px;
-    background: #e0e0e0;
+    background: white;
     box-shadow:
         8px 8px 15px #a3b1c6,
         -8px -8px 15px #ffffff;
@@ -389,7 +629,7 @@ onMounted(() => {
     padding: 0.6rem 0.8rem;
     margin-bottom: 0.6rem;
     border-radius: 12px;
-    background: #e0e5ec;
+    background: white;
     box-shadow:
         5px 5px 10px #a3b1c6,
         -5px -5px 10px #ffffff;
@@ -433,7 +673,7 @@ onMounted(() => {
     padding: 0.5rem 1rem;
     border: none;
     border-radius: 8px;
-    background: #e0e5ec;
+    background: white;
     box-shadow:
         5px 5px 10px #a3b1c6,
         -5px -5px 10px #ffffff;
@@ -448,8 +688,9 @@ onMounted(() => {
 }
 
 .cart-actions {
-    display: flex;
-    gap: 1rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.8rem;
     margin-top: 1rem;
 }
 
@@ -458,12 +699,14 @@ onMounted(() => {
     flex: 1;
     padding: 1rem;
     font-size: 1.1rem;
-    font-weight: bold;
     color: #2d3436;
 }
 
 .save-btn {
-    background: #e0e5ec;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    background: white;
 }
 
 .checkout-btn {
@@ -491,7 +734,7 @@ onMounted(() => {
 }
 
 .modal-content {
-    background: #e0e5ec;
+    background: white;
     padding: 2rem;
     border-radius: 15px;
     width: 80%;
@@ -519,7 +762,7 @@ onMounted(() => {
     padding: 1rem;
     margin-bottom: 1rem;
     border-radius: 10px;
-    background: #e0e5ec;
+    background: white;
     box-shadow:
         5px 5px 10px #a3b1c6,
         -5px -5px 10px #ffffff;
@@ -549,7 +792,7 @@ onMounted(() => {
 .load-btn {
     width: 100%;
     margin-top: 1rem;
-    background: #e0e5ec;
+    background: white;
     color: #2d3436;
 }
 
@@ -560,17 +803,26 @@ onMounted(() => {
 .cart-header-buttons {
     display: flex;
     gap: 0.8rem;
+    width: 100%;
 }
 
 .new-cart-btn,
-.view-saved-btn {
+.save-btn,
+.view-saved-btn,
+.invoice-btn {
     padding: 0.5rem 1rem;
     font-size: 0.9rem;
     white-space: nowrap;
+    flex: 1;
 }
 
 .search-container {
-    margin-bottom: 1.5rem;
+    position: absolute;
+    top: 0;
+    left: 2rem;
+    width: 300px;
+    z-index: 100;
+    margin-bottom: 1rem;
 }
 
 .search-input {
@@ -578,7 +830,7 @@ onMounted(() => {
     padding: 0.8rem 1.2rem;
     border: none;
     border-radius: 12px;
-    background: #e0e5ec;
+    background: white;
     box-shadow:
         inset 5px 5px 10px #a3b1c6,
         inset -5px -5px 10px #ffffff;
@@ -602,6 +854,148 @@ onMounted(() => {
     padding: 0.5rem 1rem;
     font-size: 0.9rem;
     white-space: nowrap;
-    background: #e0e5ec;
+    background: white;
+}
+
+.search-results-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow:
+        8px 8px 15px #a3b1c6,
+        -8px -8px 15px #ffffff;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.search-result-item {
+    padding: 0.8rem 1.2rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.search-result-item:hover {
+    background-color: #f5f6fa;
+}
+
+.search-result-item.selected {
+    background-color: #f0f2f5;
+}
+
+.payment-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem;
+    font-size: 0.9rem;
+}
+
+.payment-btn svg {
+    stroke-width: 1.5;
+}
+
+.cash-modal {
+    max-width: 400px;
+}
+
+.cash-payment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.amount-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.neo-input {
+    padding: 0.8rem;
+    border: none;
+    border-radius: 8px;
+    background: white;
+    box-shadow: inset 5px 5px 10px #a3b1c6,
+        inset -5px -5px 10px #ffffff;
+    font-size: 1rem;
+}
+
+.change-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.2rem;
+    padding: 1rem;
+    border-radius: 8px;
+    background: #f0f2f5;
+}
+
+.complete-btn {
+    width: 100%;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.complete-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.split-modal {
+    max-width: 400px;
+}
+
+.split-payment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.split-payment-form .amount-row {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.split-payment-form .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.split-payment-form .neo-input {
+    padding: 0.8rem;
+    border: none;
+    border-radius: 8px;
+    background: white;
+    box-shadow: inset 5px 5px 10px #a3b1c6,
+        inset -5px -5px 10px #ffffff;
+    font-size: 1rem;
+}
+
+.split-payment-form .complete-btn {
+    width: 100%;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.split-payment-form .complete-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 </style>
