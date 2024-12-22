@@ -842,6 +842,7 @@ const deleteSavedCart = async (cartId) => {
         -5px -5px 10px #ffffff;
     cursor: pointer;
     transition: all 0.2s;
+    width: 25%;
 }
 
 .neo-button:active {
@@ -853,7 +854,7 @@ const deleteSavedCart = async (cartId) => {
 .cart-actions {
     display: flex;
     gap: 0.5rem;
-    justify-content: flex-end;
+    justify-content: center;
 }
 
 .save-btn,
@@ -871,9 +872,6 @@ const deleteSavedCart = async (cartId) => {
     background: white;
 }
 
-.checkout-btn {
-    width: auto;
-}
 
 .view-saved-btn {
     position: static;
@@ -954,7 +952,7 @@ const deleteSavedCart = async (cartId) => {
     transition: background-color 0.2s;
 }
 
-.cart-header:hover {
+.neo-button:hover {
     background-color: #f5f6fa;
 }
 
@@ -999,6 +997,7 @@ const deleteSavedCart = async (cartId) => {
 .load-btn {
     padding: 0.5rem 1rem;
     white-space: nowrap;
+    width: 5vw;
 }
 
 .neo-title {
@@ -1251,6 +1250,7 @@ const deleteSavedCart = async (cartId) => {
     background: #fff0f0;
     color: #dc3545;
     transition: all 0.2s;
+    width: auto;
 }
 
 .delete-btn:hover {

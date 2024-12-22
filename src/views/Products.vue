@@ -592,7 +592,131 @@ const productIsNew = async (id, newProduct) => {
 </template>
 
 
-<style scoped lang="scss">
+<style scoped>
+/* Base container styling */
+.products-container {
+  padding: 2rem;
+  background-color: white;
+}
+
+/* Card styling */
+.product-card {
+  padding: 1rem;
+  border-radius: 15px;
+  background: white;
+  box-shadow:
+    8px 8px 15px #a3b1c6,
+    -8px -8px 15px #ffffff;
+  transition: transform 0.2s;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Button styling */
+.neo-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background: white;
+  box-shadow:
+    5px 5px 10px #a3b1c6,
+    -5px -5px 10px #ffffff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.neo-button:active {
+  box-shadow:
+    inset 5px 5px 10px #a3b1c6,
+    inset -5px -5px 10px #ffffff;
+}
+
+/* Input styling */
+.neo-input {
+  padding: 0.8rem;
+  border: none;
+  border-radius: 8px;
+  background: white;
+  box-shadow:
+    inset 5px 5px 10px #a3b1c6,
+    inset -5px -5px 10px #ffffff;
+  font-size: 1rem;
+}
+
+/* Modal styling */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 25px;
+  padding: 2rem;
+  width: 500px;
+  max-width: 90%;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+/* Delete button styling */
+.delete-btn {
+  padding: 0.5rem;
+  background: #fff0f0;
+  color: #dc3545;
+  transition: all 0.2s;
+}
+
+.delete-btn:hover {
+  background: #ffe0e0;
+}
+
+/* Form group styling */
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+/* Grid layout */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Close button */
+.close-btn {
+  font-size: 1.5rem;
+  padding: 0.5rem 1rem;
+}
+
+/* Action buttons container */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
 .status-button {
   display: flex;
   align-items: center;
@@ -914,8 +1038,6 @@ label {
   width: 5vw;
   border-radius: 25px;
 }
-
-//table
 
 .fixed_headers {
   width: 90%;
