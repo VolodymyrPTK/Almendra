@@ -4,7 +4,7 @@
             <div class="search-container">
                 <input type="text" v-model="searchQuery" placeholder="Search products..." class="search-input"
                     @keydown.enter.prevent="addSelectedResult" @keydown.down.prevent="selectNextResult"
-                    @keydown.up.prevent="selectPreviousResult">
+                    @keydown.up.prevent="selectPreviousResult" ref="searchInput" autofocus>
                 <div v-if="searchQuery && filteredProducts.length > 0" class="search-results-dropdown">
                     <div v-for="(product, index) in filteredProducts" :key="product.id" class="search-result-item"
                         :class="{ 'selected': selectedIndex === index }" @click="addToCart(product)">
@@ -105,19 +105,33 @@
                     <button @click="showSavedCarts = false" class="neo-button close-btn">×</button>
                 </div>
                 <div class="saved-carts-list">
-                    <div v-for="cart in savedCarts" :key="cart.id" class="saved-cart-item">
-                        <div class="cart-info">
-                            <p>Created: {{ new Date(cart.created_at).toLocaleString() }}</p>
-                            <p>Total: ${{ cart.total }}</p>
+                    <div class="saved-cart-item" v-for="(cart, index) in savedCarts" :key="cart.id"
+                        :class="{ expanded: expandedCart === index }">
+                        <div class="cart-header" @click="toggleCartExpansion(index)">
+                            <div class="cart-info">{{ new Date(cart.created_at).toLocaleDateString() }}</div>
+                            <div class="cart-info">{{ new Date(cart.created_at).toLocaleTimeString() }}</div>
+                            <div class="cart-info">#{{ cart.id }}</div>
+                            <div class="cart-info">${{ cart.total }}</div>
+                            <div class="cart-info cart-actions">
+                                <button @click.stop="loadSavedCart(cart)" class="neo-button load-btn">Load Cart</button>
+                                <button @click.stop.prevent="deleteSavedCart(cart.id)" class="neo-button delete-btn"
+                                    type="button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2">
+                                        <path
+                                            d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                         <div class="cart-items-preview">
                             <div v-for="item in cart.items" :key="item.product_name" class="preview-item">
-                                <span>{{ item.product_name }}</span>
-                                <span>x{{ item.quantity }}</span>
-                                <span>${{ item.price }}</span>
+                                <div>{{ item.product_name }}</div>
+                                <div>Quantity: {{ item.quantity }}</div>
+                                <div>${{ item.price }}</div>
+                                <div>Total: ${{ (item.quantity * item.price).toFixed(2) }}</div>
                             </div>
                         </div>
-                        <button @click="loadSavedCart(cart)" class="neo-button load-btn">Load Cart</button>
                     </div>
                 </div>
             </div>
@@ -184,11 +198,38 @@
                 </div>
             </div>
         </div>
+
+        <!-- Online Payment Modal -->
+        <div v-if="showOnlineModal" class="modal-overlay">
+            <div class="modal-content online-modal">
+                <div class="modal-header">
+                    <h2>Online Payment</h2>
+                    <button @click="showOnlineModal = false" class="neo-button close-btn">×</button>
+                </div>
+                <div class="online-payment-form">
+                    <div class="amount-row">
+                        <span>Total: ${{ cartStore.total }}</span>
+                    </div>
+                    <div class="input-group">
+                        <label>Передплата:</label>
+                        <input type="number" v-model="prepaidAmount" class="neo-input" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label>Післяплата:</label>
+                        <input type="number" v-model="postpaidAmount" class="neo-input" min="0">
+                    </div>
+                    <button @click="completeOnlinePayment" class="neo-button complete-btn"
+                        :disabled="!isValidOnlinePayment">
+                        Complete Payment
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, watch, computed, nextTick, onUnmounted } from 'vue'
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from "../main";
 import { useCartStore } from '../stores/cart'
@@ -209,6 +250,12 @@ const cardAmount = ref(0)
 const cashAmount = ref(0)
 const cashReceived = ref(0)
 const splitChange = ref(0)
+const showOnlineModal = ref(false)
+const prepaidAmount = ref(0)
+const postpaidAmount = ref(0)
+const searchInput = ref(null)
+const expandedCart = ref(null)
+const currentLoadedCartId = ref(null)
 
 const filteredProducts = computed(() => {
     if (!searchQuery.value) return products.value
@@ -255,6 +302,10 @@ const checkout = (method) => {
         cashAmount.value = cartStore.total
         return
     }
+    if (method === 'online') {
+        showOnlineModal.value = true
+        return
+    }
     console.log('Checkout:', cartStore.items, method)
     cartStore.clearCart()
 }
@@ -274,24 +325,37 @@ const saveCart = async () => {
 
         console.log('Saving items:', formattedItems)
 
-        const { data, error } = await supabase
-            .from('saved_carts')
-            .insert([
-                {
+        if (currentLoadedCartId.value) {
+            // Update existing cart
+            const { error } = await supabase
+                .from('saved_carts')
+                .update({
+                    items: formattedItems,
+                    total: cartStore.total
+                })
+                .eq('id', currentLoadedCartId.value)
+
+            if (error) throw error
+            alert('Cart updated successfully!')
+        } else {
+            // Create new cart
+            const { error } = await supabase
+                .from('saved_carts')
+                .insert([{
                     items: formattedItems,
                     total: cartStore.total,
-                    status: 'saved',
-                    created_at: new Date().toISOString()
-                }
-            ])
+                    status: 'saved'
+                }])
 
-        if (error) throw error
+            if (error) throw error
+            alert('Cart saved successfully!')
+        }
 
-        alert('Cart saved successfully!')
-        cartStore.items = [];
+        cartStore.clearCart()
+        currentLoadedCartId.value = null
     } catch (error) {
         console.error('Error saving cart:', error)
-        alert('Failed to save cart')
+        alert('Failed to save cart: ' + error.message)
     }
 }
 
@@ -302,10 +366,15 @@ const fetchSavedCarts = async () => {
             .select('*')
             .order('created_at', { ascending: false })
 
-        if (error) throw error
-        savedCarts.value = data
+        if (error) {
+            throw error
+        }
+
+        // Update the ref with new data
+        savedCarts.value = data || []
     } catch (error) {
         console.error('Error fetching saved carts:', error)
+        alert('Failed to fetch saved carts')
     }
 }
 
@@ -313,15 +382,23 @@ const loadSavedCart = (savedCart) => {
     cartStore.clearCart()
     console.log('Loading saved cart items:', savedCart.items)
     savedCart.items.forEach(item => {
-        const productToAdd = {
-            id: Date.now() + Math.random(),
-            name: item.product_name,
-            sellPrice: item.price,
-            quantity: item.quantity
-        }
-        cartStore.addToCart(productToAdd)
-    })
+        // Buscar el producto original para obtener toda la información necesaria
+        const originalProduct = products.value.find(p => p.name === item.product_name)
 
+        if (originalProduct) {
+            const productToAdd = {
+                ...originalProduct, // Mantener toda la información original del producto
+                quantity: item.quantity // Sobrescribir la cantidad con la guardada
+            }
+            // Usar addToCart con la cantidad específica
+            for (let i = 0; i < item.quantity; i++) {
+                cartStore.addToCart(productToAdd)
+            }
+        } else {
+            console.warn(`Product not found: ${item.product_name}`)
+        }
+    })
+    currentLoadedCartId.value = savedCart.id
     showSavedCarts.value = false
 }
 
@@ -335,6 +412,7 @@ const newCart = () => {
     if (cartStore.items.length > 0) {
         if (confirm('Are you sure you want to clear the current cart?')) {
             cartStore.clearCart()
+            currentLoadedCartId.value = null
         }
     }
 }
@@ -408,6 +486,9 @@ const addSelectedResult = () => {
         addToCart(filteredProducts.value[indexToAdd])
         searchQuery.value = '' // Clear search after adding
         selectedIndex.value = -1 // Reset selection
+        nextTick(() => {
+            focusSearch() // Maintain focus after adding item
+        })
     }
 }
 
@@ -431,6 +512,13 @@ watch(searchQuery, () => {
 
 onMounted(() => {
     fetchProducts()
+    focusSearch()
+    // Keep focus on search input when clicking anywhere
+    document.addEventListener('click', focusSearch)
+})
+
+onUnmounted(() => {
+    document.removeEventListener('click', focusSearch)
 })
 
 const isValidPayment = computed(() => {
@@ -514,6 +602,80 @@ const completeSplitPayment = () => {
         cashAmount.value = 0
         cashReceived.value = 0
         splitChange.value = 0
+    }
+}
+
+const isValidOnlinePayment = computed(() => {
+    return prepaidAmount.value >= cartStore.total
+})
+
+const completeOnlinePayment = () => {
+    if (isValidOnlinePayment.value) {
+        checkout('online')
+        showOnlineModal.value = false
+        prepaidAmount.value = 0
+        postpaidAmount.value = 0
+    }
+}
+
+const focusSearch = () => {
+    if (searchInput.value) {
+        searchInput.value.focus()
+    }
+}
+
+const toggleCartExpansion = (index) => {
+    expandedCart.value = expandedCart.value === index ? null : index
+}
+
+const deleteSavedCart = async (cartId) => {
+    console.log('Attempting to delete cart:', cartId)
+
+    if (!confirm('Are you sure you want to delete this cart?')) {
+        return
+    }
+
+    try {
+        console.log('Sending delete request to Supabase...')
+
+        // First, verify the cart exists
+        const { data: existingCart, error: fetchError } = await supabase
+            .from('saved_carts')
+            .select('*')
+            .eq('id', cartId)
+            .single()
+
+        if (fetchError || !existingCart) {
+            throw new Error('Cart not found')
+        }
+
+        // Perform the deletion
+        const { error: deleteError } = await supabase
+            .from('saved_carts')
+            .delete()
+            .eq('id', cartId)
+
+        if (deleteError) {
+            throw deleteError
+        }
+
+        console.log('Cart deleted successfully')
+
+        // Update local state immediately
+        savedCarts.value = savedCarts.value.filter(cart => cart.id !== cartId)
+
+        // If the deleted cart was the currently loaded cart, clear it
+        if (currentLoadedCartId.value === cartId) {
+            cartStore.clearCart()
+            currentLoadedCartId.value = null
+        }
+
+        // Optional: Fetch fresh data from server
+        await fetchSavedCarts()
+
+    } catch (error) {
+        console.error('Error deleting cart:', error)
+        alert('Failed to delete cart: ' + error.message)
     }
 }
 </script>
@@ -651,6 +813,7 @@ const completeSplitPayment = () => {
     margin: 0;
     font-size: 0.9rem;
     color: #666;
+
 }
 
 .quantity-controls {
@@ -688,10 +851,9 @@ const completeSplitPayment = () => {
 }
 
 .cart-actions {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0.8rem;
-    margin-top: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
 }
 
 .save-btn,
@@ -734,16 +896,27 @@ const completeSplitPayment = () => {
 }
 
 .modal-content {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    width: 75%;
+    height: 80%;
+    max-height: calc(100vh - 4rem);
     background: white;
+    border-radius: 25px;
     padding: 2rem;
-    border-radius: 15px;
-    width: 80%;
-    max-width: 800px;
-    max-height: 80vh;
-    overflow-y: auto;
-    box-shadow:
-        8px 8px 15px #a3b1c6,
-        -8px -8px 15px #ffffff;
+    overflow: auto;
+
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+.modal-content::-webkit-scrollbar {
+    display: none;
 }
 
 .modal-header {
@@ -758,42 +931,74 @@ const completeSplitPayment = () => {
     padding: 0.5rem 1rem;
 }
 
+.saved-carts-list {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 0.5rem;
+}
+
 .saved-cart-item {
-    padding: 1rem;
-    margin-bottom: 1rem;
-    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    margin-bottom: 0.5rem;
     background: white;
-    box-shadow:
-        5px 5px 10px #a3b1c6,
-        -5px -5px 10px #ffffff;
+    box-shadow: 5px 5px 10px #a3b1c6, -5px -5px 10px #ffffff;
+    overflow: hidden;
+}
+
+.cart-header {
+    display: flex;
+    padding: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.cart-header:hover {
+    background-color: #f5f6fa;
 }
 
 .cart-info {
+    flex: 1;
+    padding: 0 1rem;
     display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
+    align-items: center;
 }
 
 .cart-items-preview {
-    margin: 1rem 0;
+    display: none;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-top: 1px solid #e0e0e0;
+}
+
+.saved-cart-item.expanded .cart-items-preview {
+    display: block;
 }
 
 .preview-item {
     display: flex;
     justify-content: space-between;
-    padding: 0.5rem;
-    border-bottom: 1px solid #ccc;
+    align-items: center;
+    padding: 0.8rem;
+    margin-bottom: 0.5rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 2px 2px 5px #a3b1c6;
 }
 
 .preview-item:last-child {
-    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.preview-item>div {
+    flex: 1;
+    padding: 0 0.5rem;
 }
 
 .load-btn {
-    width: 100%;
-    margin-top: 1rem;
-    background: white;
-    color: #2d3436;
+    padding: 0.5rem 1rem;
+    white-space: nowrap;
 }
 
 .neo-title {
@@ -997,5 +1202,62 @@ const completeSplitPayment = () => {
 .split-payment-form .complete-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+.online-modal {
+    max-width: 400px;
+}
+
+.online-payment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.online-payment-form .amount-row {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.online-payment-form .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.online-payment-form .neo-input {
+    padding: 0.8rem;
+    border: none;
+    border-radius: 8px;
+    background: white;
+    box-shadow: inset 5px 5px 10px #a3b1c6,
+        inset -5px -5px 10px #ffffff;
+    font-size: 1rem;
+}
+
+.online-payment-form .complete-btn {
+    width: 100%;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.online-payment-form .complete-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.delete-btn {
+    padding: 0.5rem;
+    background: #fff0f0;
+    color: #dc3545;
+    transition: all 0.2s;
+}
+
+.delete-btn:hover {
+    background: #ffe0e0;
+}
+
+.delete-btn svg {
+    display: block;
 }
 </style>

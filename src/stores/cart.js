@@ -2,12 +2,12 @@ import { defineStore } from 'pinia'
 
 export const useCartStore = defineStore('cart', {
   state: () => ({
-    items: JSON.parse(localStorage.getItem('cart')) || []
+    items: []
   }),
   
   actions: {
     addToCart(product) {
-      const existingItem = this.items.find(item => item.id === product.id)
+      const existingItem = this.items.find(item => item.name === product.name)
       if (existingItem) {
         existingItem.quantity++
       } else {
@@ -16,42 +16,36 @@ export const useCartStore = defineStore('cart', {
           quantity: 1
         })
       }
-      this.saveToLocalStorage()
     },
 
     increaseQuantity(item) {
-      const cartItem = this.items.find(i => i.id === item.id)
-      if (cartItem) {
-        cartItem.quantity++
-        this.saveToLocalStorage()
+      const existingItem = this.items.find(i => i.name === item.name)
+      if (existingItem) {
+        existingItem.quantity++
       }
     },
 
     decreaseQuantity(item) {
-      const cartItem = this.items.find(i => i.id === item.id)
-      if (cartItem) {
-        if (cartItem.quantity > 1) {
-          cartItem.quantity--
+      const existingItem = this.items.find(i => i.name === item.name)
+      if (existingItem) {
+        if (existingItem.quantity > 1) {
+          existingItem.quantity--
         } else {
-          this.items = this.items.filter(i => i.id !== item.id)
+          this.items = this.items.filter(i => i.name !== item.name)
         }
-        this.saveToLocalStorage()
       }
     },
 
     clearCart() {
       this.items = []
-      this.saveToLocalStorage()
-    },
-
-    saveToLocalStorage() {
-      localStorage.setItem('cart', JSON.stringify(this.items))
     }
   },
 
   getters: {
     total: (state) => {
-      return state.items.reduce((sum, item) => sum + (item.sellPrice * item.quantity), 0)
+      return state.items.reduce((total, item) => {
+        return total + (item.sellPrice * item.quantity)
+      }, 0).toFixed(2)
     }
   }
 })
