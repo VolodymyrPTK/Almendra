@@ -101,14 +101,15 @@ onMounted(() => {
                     </table>
                     <div>
                         <div>
-                            <div>{{ order.phone }}</div>
-                            <div>{{ order.firstName }} {{ order.secondName }}</div>
+                            <div><b>{{ order.phone }}</b></div>
+                            <div><b>{{ order.firstName }} {{ order.secondName }}</b></div>
                             <div v-if="order.deliveryOption === 'novaPoshta'">
                                 <div>Нова Пошта <b>{{ order.city }}</b></div>
                                 <div v-if="order.postType === 'Warehouse'">Віділення <b>{{ order.warehouse }}</b></div>
                                 <div v-else-if="order.postType === 'Postomat'">Поштомат <b>{{ order.warehouse }}</b>
                                 </div>
                                 <div v-else></div>
+                                <div>Цифрова Адреса: <b>{{ order.warehouseIndex }}</b></div>
                             </div>
                             <div v-if="order.deliveryOption === 'ukrPoshta'">
                                 <div>УкрПошта <b>{{ order.city }}</b></div>
