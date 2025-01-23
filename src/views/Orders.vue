@@ -1,7 +1,7 @@
 <script setup>
 import { onSnapshot, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { orderReg } from "../main";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 
 const orderDetails = ref(null);
 const orders = ref([]);
@@ -33,6 +33,20 @@ async function updateOrderStatus(id, newStatus) {
     order.value.orderStatus = newStatus;
 }
 
+const formatPhoneNumber = (phoneNumber) => {
+    if (!phoneNumber) return '';
+
+    // Remove all non-digit characters
+    const cleaned = phoneNumber.replace(/\D/g, '');
+
+    // Format the number
+    const match = cleaned.match(/^(\d{2})(\d{3})(\d{3})(\d{4})$/);
+    if (match) {
+        return `+${match[1]} (${match[2]}) ${match[3]} ${match[4]}`;
+    }
+    return phoneNumber;
+};
+
 onMounted(() => {
     onSnapshot(orderReg, (snapshot) => {
         orders.value = [];
@@ -50,7 +64,12 @@ onMounted(() => {
         <table>
             <tbody class="order-container" v-for="order in orders" :key="order.id">
                 <tr class="order-row">
-                    <button @click="showDetails(order)"><img src="../assets/imgs/icons/expand.svg" alt=""></button>
+
+                    <td>
+                        <button @click="showDetails(order)">
+                            <img src="../assets/imgs/icons/expand.svg" alt="">
+                        </button>
+                    </td>
                     <td>Замовлення № <b>{{ order.orderId }}</b></td>
                     <td><b>{{ order.secondName }} {{ order.firstName }}</b></td>
                     <td>Оформлено <b>{{ order.time }}</b></td>
@@ -76,7 +95,8 @@ onMounted(() => {
                     <td>Сума <b>{{ order.total }}</b></td>
                     <td v-if="order.payment === 'payLater'">Післяплата</td>
                     <td v-if="order.payment === 'payNow'">За Реквізитами</td>
-                    <button @click="deleteOrder(order.id)"><img src="../assets/imgs/icons/delete.svg" alt=""></button>
+                    <td><button @click="deleteOrder(order.id)"><img src="../assets/imgs/icons/delete.svg"
+                                alt=""></button></td>
                 </tr>
                 <div class="order-info" v-if="orderDetails === order.id">
                     <table>
@@ -91,7 +111,7 @@ onMounted(() => {
                         </thead>
                         <tbody>
                             <tr v-for="item in order.items">
-                                <input type="checkbox">
+                                <td><input type="checkbox"></td>
                                 <td>{{ item.name }}</td>
                                 <td>{{ item.price }}</td>
                                 <td>{{ item.quantity }}</td>
@@ -101,7 +121,7 @@ onMounted(() => {
                     </table>
                     <div>
                         <div>
-                            <div><b>{{ order.phone }}</b></div>
+                            <div><b>{{ formatPhoneNumber(order.phone) }}</b></div>
                             <div><b>{{ order.firstName }} {{ order.secondName }}</b></div>
                             <div v-if="order.deliveryOption === 'novaPoshta'">
                                 <div>Нова Пошта <b>{{ order.city }}</b></div>

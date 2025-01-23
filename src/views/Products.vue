@@ -1,14 +1,13 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { dataBase, storage, dataReg, db } from "../main";
-import { addDoc, deleteDoc, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteField } from "firebase/firestore";
+import { addDoc, deleteDoc, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteField, getDocs, query, orderBy, limit, startAfter } from "firebase/firestore";
 import { ref as storageReference, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 
 const currentCategory = ref("Категорія");
 const categories = ref([]);
 const subcategories = ref({});
-const subCategory = ref("");
 const countries = ref([]);
 const country = ref("");
 const brands = ref([]);
@@ -38,7 +37,9 @@ const product = ref({
   proteinik: false,
   liquid: false,
   popular: false,
-  new: false
+  new: false,
+  outOfStock: false,
+  noBarCode: false
 });
 const items = ref([]);
 const isVisible = ref(false);
@@ -53,6 +54,9 @@ const showDropdown = ref(false);
 const countryMenu = ref(false);
 const isLoading = ref(false);
 const isLoaded = ref(false);
+const lastDoc = ref(null);
+const hasMore = ref(true);
+const batchSize = 20; // Number of products to load per batch
 
 const requiredFields = ref([
   "name", "detail", "sellPrice", "buyPrice", "description", "sklad", "kcal", "protein", "carbo", "fat", "brand", "country", "image", "weight", "vitamins"
@@ -158,12 +162,23 @@ const showCountry = () => {
   countryMenu.value = !countryMenu.value;
 };
 
-const editModal = (id) => {
-  const selectedProduct = products.value.find(product => product.id === id);
+const editModal = async (id) => {
+  // Try to find the product in filtered products first
+  let selectedProduct = filteredProducts.value.find(product => product.id === id);
+
+  // If not found in filtered products and we're not searching, try to find in database
+  if (!selectedProduct && !searchTerm.value) {
+    const docRef = doc(dataBase, id);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      selectedProduct = { ...docSnap.data(), id: docSnap.id };
+    }
+  }
+
   if (selectedProduct) {
     product.value = { ...selectedProduct };
+    editVisible.value = true;
   }
-  editVisible.value = true;
 };
 
 const toggleModal = () => {
@@ -178,7 +193,17 @@ const closeModal = () => {
 
 const saveData = async () => {
   try {
-    await addDoc(dataBase, product.value);
+    const docRef = await addDoc(dataBase, product.value);
+    const newProduct = { ...product.value, id: docRef.id };
+
+    // Add to both arrays
+    products.value.unshift(newProduct);
+    if (searchTerm.value) {
+      filteredProducts.value.unshift(newProduct);
+    } else {
+      filteredProducts.value = products.value;
+    }
+
     currentCategory.value = 'Категорія';
   } catch (e) {
     console.error("Error adding document: ", e);
@@ -191,10 +216,21 @@ const updateData = async () => {
   try {
     const refDoc = doc(db, "products", product.value.id);
     await setDoc(refDoc, product.value, { merge: true });
+
+    // Update both arrays
+    const index = products.value.findIndex(p => p.id === product.value.id);
+    if (index !== -1) {
+      products.value[index] = { ...product.value };
+    }
+
+    const filteredIndex = filteredProducts.value.findIndex(p => p.id === product.value.id);
+    if (filteredIndex !== -1) {
+      filteredProducts.value[filteredIndex] = { ...product.value };
+    }
   } catch (error) {
     console.error(error);
   }
-  editVisible.value = !editVisible.value;
+  editVisible.value = false;
   product.value = {};
 };
 
@@ -226,8 +262,14 @@ const saveCountry = async () => {
 
 const deleteProduct = async (id) => {
   if (confirm("Видалити ?")) {
-    await deleteDoc(doc(dataBase, id));
-    products.value = products.value.filter((product) => product.id !== id);
+    try {
+      await deleteDoc(doc(dataBase, id));
+      // Remove from both arrays
+      products.value = products.value.filter((product) => product.id !== id);
+      filteredProducts.value = filteredProducts.value.filter((product) => product.id !== id);
+    } catch (error) {
+      console.error("Error deleting product:", error);
+    }
   }
 };
 
@@ -278,10 +320,83 @@ const uploadImage = (e) => {
 };
 
 const fetchProducts = async () => {
-  onSnapshot(dataBase, (snapshot) => {
-    products.value = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-  });
+  if (isLoading.value || !hasMore.value) return;
+
+  isLoading.value = true;
+  try {
+    let baseQuery = query(
+      dataBase,
+      orderBy('name'),
+      limit(batchSize)
+    );
+
+    if (lastDoc.value) {
+      baseQuery = query(
+        dataBase,
+        orderBy('name'),
+        startAfter(lastDoc.value),
+        limit(batchSize)
+      );
+    }
+
+    const snapshot = await getDocs(baseQuery);
+
+    // Check if we got any documents
+    if (snapshot.empty) {
+      hasMore.value = false;
+      isLoading.value = false;
+      return;
+    }
+
+    // Update lastDoc with the last document from this batch
+    lastDoc.value = snapshot.docs[snapshot.docs.length - 1];
+
+    const newProducts = snapshot.docs.map(doc => ({
+      ...doc.data(),
+      id: doc.id
+    }));
+
+    // Append new products to existing ones
+    products.value = [...products.value, ...newProducts];
+    
+    // Update filtered products if no search is active
+    if (!searchTerm.value) {
+      filteredProducts.value = products.value;
+    }
+
+    // Update hasMore based on whether we received a full batch
+    hasMore.value = snapshot.docs.length === batchSize;
+
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    hasMore.value = false;
+  } finally {
+    isLoading.value = false;
+  }
 };
+
+// Update the handleScroll function to be more precise
+const handleScroll = async (e) => {
+  const element = e.target;
+  const nearBottom = element.scrollHeight - element.scrollTop <= element.clientHeight * 1.5;
+  
+  if (nearBottom && !isLoading.value && hasMore.value) {
+    await fetchProducts();
+  }
+};
+
+// Update the initial mounting to reset the state
+onMounted(async () => {
+  // Reset pagination state
+  lastDoc.value = null;
+  hasMore.value = true;
+  products.value = [];
+  filteredProducts.value = [];
+  
+  await fetchProducts();
+  await fetchBrands();
+  await fetchCountries();
+});
 
 const fetchBrands = async () => {
   try {
@@ -321,9 +436,26 @@ const currentProduct = computed(() => {
   return products.value.find((product) => product.id === currentProduct.value);
 });
 
-const filteredProducts = computed(() => {
-  return products.value.filter((product) => {
-    const searchTerms = searchTerm.value.toLowerCase().split(' ');
+const filteredProducts = ref([]);
+
+// Watch for changes in the search term
+watch(searchTerm, async (newSearchTerm) => {
+  if (!newSearchTerm) {
+    await fetchProducts(); // Reset to lazy loading when no search
+    filteredProducts.value = products.value;
+    return;
+  }
+
+  // When searching, get all products from database
+  const q = query(dataBase);
+  const querySnapshot = await getDocs(q);
+  const allProducts = querySnapshot.docs.map(doc => ({
+    ...doc.data(),
+    id: doc.id
+  }));
+
+  const searchTerms = newSearchTerm.toLowerCase().split(' ');
+  filteredProducts.value = allProducts.filter((product) => {
     return searchTerms.every((term) => {
       return (
         product.name.toLowerCase().includes(term) ||
@@ -332,6 +464,14 @@ const filteredProducts = computed(() => {
       );
     });
   });
+});
+
+// Initialize filteredProducts with all products
+onMounted(async () => {
+  await fetchProducts();
+  filteredProducts.value = products.value;
+  await fetchBrands();
+  await fetchCountries();
 });
 
 const markUpPercent = computed(() => {
@@ -347,32 +487,96 @@ onMounted(async () => {
 
 
 const togglePopular = async (productId) => {
-  const product = products.value.find(p => p.id === productId);
-  if (product) {
-    product.popular = !product.popular;
-    await updateProductStatus(product.id, product.popular);
-  }
-};
-
-const updateProductStatus = async (id, updatePopular) => {
   try {
-    await updateDoc(doc(dataBase, id), { popular: updatePopular });
+    const productToUpdate = products.value.find(p => p.id === productId) ||
+      filteredProducts.value.find(p => p.id === productId);
+    if (productToUpdate) {
+      const newPopularState = !productToUpdate.popular;
+      await updateDoc(doc(dataBase, productId), { popular: newPopularState });
+
+      // Update both arrays
+      const updateArrays = (arr) => {
+        const index = arr.findIndex(p => p.id === productId);
+        if (index !== -1) {
+          arr[index] = { ...arr[index], popular: newPopularState };
+        }
+      };
+
+      updateArrays(products.value);
+      updateArrays(filteredProducts.value);
+    }
   } catch (error) {
     console.error("Error updating product status:", error);
   }
 };
 
 const toggleNew = async (productId) => {
-  const product = products.value.find(p => p.id === productId);
-  if (product) {
-    product.isNew = !product.isNew;
-    await productIsNew(product.id, product.isNew);
+  try {
+    const productToUpdate = products.value.find(p => p.id === productId) ||
+      filteredProducts.value.find(p => p.id === productId);
+    if (productToUpdate) {
+      const newState = !productToUpdate.isNew;
+      await updateDoc(doc(dataBase, productId), { isNew: newState });
+
+      // Update both arrays
+      const updateArrays = (arr) => {
+        const index = arr.findIndex(p => p.id === productId);
+        if (index !== -1) {
+          arr[index] = { ...arr[index], isNew: newState };
+        }
+      };
+
+      updateArrays(products.value);
+      updateArrays(filteredProducts.value);
+    }
+  } catch (error) {
+    console.error("Error updating product status:", error);
   }
 };
 
-const productIsNew = async (id, newProduct) => {
+const toggleOutOfStock = async (productId) => {
   try {
-    await updateDoc(doc(dataBase, id), { isNew: newProduct });
+    const productToUpdate = products.value.find(p => p.id === productId) ||
+      filteredProducts.value.find(p => p.id === productId);
+    if (productToUpdate) {
+      const newState = !productToUpdate.outOfStock;
+      await updateDoc(doc(dataBase, productId), { outOfStock: newState });
+
+      // Update both arrays
+      const updateArrays = (arr) => {
+        const index = arr.findIndex(p => p.id === productId);
+        if (index !== -1) {
+          arr[index] = { ...arr[index], outOfStock: newState };
+        }
+      };
+
+      updateArrays(products.value);
+      updateArrays(filteredProducts.value);
+    }
+  } catch (error) {
+    console.error("Error updating product status:", error);
+  }
+};
+
+const toggleNoBarCode = async (productId) => {
+  try {
+    const productToUpdate = products.value.find(p => p.id === productId) ||
+      filteredProducts.value.find(p => p.id === productId);
+    if (productToUpdate) {
+      const newState = !productToUpdate.noBarCode;
+      await updateDoc(doc(dataBase, productId), { noBarCode: newState });
+
+      // Update both arrays
+      const updateArrays = (arr) => {
+        const index = arr.findIndex(p => p.id === productId);
+        if (index !== -1) {
+          arr[index] = { ...arr[index], noBarCode: newState };
+        }
+      };
+
+      updateArrays(products.value);
+      updateArrays(filteredProducts.value);
+    }
   } catch (error) {
     console.error("Error updating product status:", error);
   }
@@ -562,9 +766,8 @@ const productIsNew = async (id, newProduct) => {
             <th>Зміни</th>
           </tr>
         </thead>
-        <tbody>
-          <tr class="tableline" @dblclick="editModal(product.id)" v-for=" product in filteredProducts "
-            :key="product.id">
+        <tbody @scroll="handleScroll">
+          <tr class="tableline" @dblclick="editModal(product.id)" v-for="product in filteredProducts" :key="product.id">
             <td>
               <img class="productImage" :src="product.image" />
             </td>
@@ -574,15 +777,37 @@ const productIsNew = async (id, newProduct) => {
             <td class="hiden-for-mobiles" v-bind:title="product.sellPrice">{{ product.sellPrice }}</td>
             <td>
               <div style="display: inline-flex;">
-
                 <div class="status-button" :class="{ 'active': product.isNew }" @click="toggleNew(product.id)"
                   :title="'top'">New</div>
                 <div class="status-button" :class="{ 'active': product.popular }" @click="togglePopular(product.id)"
                   :title="'top'">Top</div>
+                <div class="status-button" :class="{ 'active': product.outOfStock }"
+                  @click="toggleOutOfStock(product.id)" :title="'stock'">Stock</div>
+                <div class="status-button" :class="{ 'active': product.noBarCode }" @click="toggleNoBarCode(product.id)"
+                  :title="'barcode'">POS</div>
                 <div class="deleteButton" @click="deleteProduct(product.id)">
                   <img src="../assets/imgs/icons/delete.svg" alt="">
                 </div>
               </div>
+            </td>
+          </tr>
+          <tr v-if="isLoading">
+            <td colspan="6" style="text-align: center;">
+              <div class="dot-spinner">
+                <div class="dot-spinner__dot"></div>
+                <div class="dot-spinner__dot"></div>
+                <div class="dot-spinner__dot"></div>
+                <div class="dot-spinner__dot"></div>
+                <div class="dot-spinner__dot"></div>
+                <div class="dot-spinner__dot"></div>
+                <div class="dot-spinner__dot"></div>
+                <div class="dot-spinner__dot"></div>
+              </div>
+            </td>
+          </tr>
+          <tr v-if="!hasMore && products.length > 0">
+            <td colspan="6" style="text-align: center;">
+              No more products to load
             </td>
           </tr>
         </tbody>
@@ -1062,12 +1287,12 @@ label {
 
   td:nth-child(2),
   th:nth-child(2) {
-    width: 35%;
+    width: 30%;
   }
 
   td:nth-child(3),
   th:nth-child(3) {
-    width: 15%;
+    width: 10%;
   }
 
   td:nth-child(4),
@@ -1082,7 +1307,7 @@ label {
 
   td:nth-child(6),
   th:nth-child(6) {
-    width: 10%;
+    width: 20%;
     height: 3vh;
     display: flex;
     justify-content: space-between;

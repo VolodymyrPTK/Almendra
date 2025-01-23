@@ -2,9 +2,8 @@
     <div class="pos-container">
         <div class="products-section">
             <div class="search-container">
-                <input type="text" v-model="searchQuery" placeholder="Search products..." class="search-input"
-                    @keydown.enter.prevent="addSelectedResult" @keydown.down.prevent="selectNextResult"
-                    @keydown.up.prevent="selectPreviousResult" ref="searchInput" autofocus>
+                <input type="text" v-model="barcodeInput" placeholder="Scan barcode..." class="search-input"
+                    ref="searchInput" @keydown="handleKeyDown" @input="handleInput" autofocus>
                 <div v-if="searchQuery && filteredProducts.length > 0" class="search-results-dropdown">
                     <div v-for="(product, index) in filteredProducts" :key="product.id" class="search-result-item"
                         :class="{ 'selected': selectedIndex === index }" @click="addToCart(product)">
@@ -240,7 +239,6 @@ const products = ref([])
 const cartStore = useCartStore()
 const showSavedCarts = ref(false)
 const savedCarts = ref([])
-const searchQuery = ref('')
 const selectedIndex = ref(-1)
 const showCashModal = ref(false)
 const amountReceived = ref(0)
@@ -257,12 +255,32 @@ const searchInput = ref(null)
 const expandedCart = ref(null)
 const currentLoadedCartId = ref(null)
 
+// Barcode handling
+const barcodeInput = ref('')
+const barcodeBuffer = ref('')
+const lastKeystrokeTime = ref(0)
+const BARCODE_END_CHAR = 'Enter'
+const SCANNER_TIMEOUT = 50 // Adjust based on your scanner's speed
+
+// Replace searchQuery with more specific search methods
+const searchQuery = computed(() => barcodeInput.value)
+
+// Enhanced product search
 const filteredProducts = computed(() => {
     if (!searchQuery.value) return products.value
 
+    const query = searchQuery.value.trim().toLowerCase()
+
+    // First try exact barcode match
+    const barcodeMatch = products.value.find(product =>
+        product.barCode && product.barCode.toString() === query
+    )
+    if (barcodeMatch) return [barcodeMatch]
+
+    // If no barcode match, search by name or other criteria
     return products.value.filter(product => {
-        if (!product.name) return false
-        return product.name.toLowerCase().includes(searchQuery.value.toLowerCase().trim())
+        return product.name.toLowerCase().includes(query) ||
+            (product.barCode && product.barCode.toString().includes(query))
     })
 })
 
@@ -480,15 +498,13 @@ const generateInvoice = async () => {
     }
 }
 
-const addSelectedResult = () => {
-    if (filteredProducts.value.length > 0) {
-        const indexToAdd = selectedIndex.value >= 0 ? selectedIndex.value : 0
-        addToCart(filteredProducts.value[indexToAdd])
-        searchQuery.value = '' // Clear search after adding
-        selectedIndex.value = -1 // Reset selection
-        nextTick(() => {
-            focusSearch() // Maintain focus after adding item
-        })
+const addSelectedResult = async () => {
+    if (filteredProducts.value.length === 1) {
+        addToCart(filteredProducts.value[0])
+        barcodeInput.value = ''
+        barcodeBuffer.value = ''
+        await nextTick()
+        focusSearch()
     }
 }
 
@@ -513,12 +529,11 @@ watch(searchQuery, () => {
 onMounted(() => {
     fetchProducts()
     focusSearch()
-    // Keep focus on search input when clicking anywhere
-    document.addEventListener('click', focusSearch)
+    window.addEventListener('keydown', handleNavigationKeys)
 })
 
 onUnmounted(() => {
-    document.removeEventListener('click', focusSearch)
+    window.removeEventListener('keydown', handleNavigationKeys)
 })
 
 const isValidPayment = computed(() => {
@@ -676,6 +691,70 @@ const deleteSavedCart = async (cartId) => {
     } catch (error) {
         console.error('Error deleting cart:', error)
         alert('Failed to delete cart: ' + error.message)
+    }
+}
+
+const handleKeyDown = (event) => {
+    const currentTime = Date.now()
+
+    // Handle Enter key
+    if (event.key === BARCODE_END_CHAR) {
+        event.preventDefault()
+        processBarcode()
+        return
+    }
+
+    // Detect if input is from scanner (rapid keystrokes)
+    if (currentTime - lastKeystrokeTime.value < SCANNER_TIMEOUT) {
+        event.preventDefault()
+        barcodeBuffer.value += event.key
+    } else {
+        // Manual input - reset buffer
+        barcodeBuffer.value = event.key
+    }
+
+    lastKeystrokeTime.value = currentTime
+}
+
+const handleInput = (event) => {
+    if (event.inputType === 'insertText') {
+        barcodeInput.value = event.target.value
+    }
+}
+
+const processBarcode = async () => {
+    const barcode = barcodeBuffer.value || barcodeInput.value
+
+    if (!barcode) return
+
+    // Find exact match
+    const product = products.value.find(p =>
+        p.barCode && p.barCode.toString() === barcode
+    )
+
+    if (product) {
+        addToCart(product)
+        // Clear inputs
+        barcodeBuffer.value = ''
+        barcodeInput.value = ''
+        await nextTick()
+        focusSearch()
+    } else {
+        // Optional: Show error feedback
+        console.log('Product not found:', barcode)
+    }
+}
+
+const handleNavigationKeys = (event) => {
+    switch (event.key) {
+        case 'ArrowDown':
+            event.preventDefault()
+            selectNextResult()
+            break
+        case 'ArrowUp':
+            event.preventDefault()
+            selectPreviousResult()
+            break
     }
 }
 </script>
@@ -1041,6 +1120,14 @@ const deleteSavedCart = async (cartId) => {
     font-size: 1rem;
     color: #2d3436;
     transition: all 0.3s ease;
+    caret-color: transparent;
+    /* Hide cursor for barcode scanning */
+}
+
+.search-input::-webkit-outer-spin-button,
+.search-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .search-input:focus {
@@ -1048,6 +1135,8 @@ const deleteSavedCart = async (cartId) => {
     box-shadow:
         inset 6px 6px 12px #a3b1c6,
         inset -6px -6px 12px #ffffff;
+    caret-color: auto;
+    /* Show cursor when manually typing */
 }
 
 .search-input::placeholder {

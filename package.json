@@ -18,7 +18,8 @@
     "html2canvas": "^1.4.1",
     "pinia": "^2.1.7",
     "vue": "^3.4.27",
-    "vue-router": "^4.3.2"
+    "vue-router": "^4.3.2",
+    "sass": "^1.71.1"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.10.3",
@@ -26,7 +27,8 @@
     "@vue/eslint-config-prettier": "^9.0.0",
     "eslint-plugin-vue": "^9.26.0",
     "prettier": "^3.2.5",
-    "sass": "^1.77.2",
+    "sass": "^1.69.5",
+    "sass-loader": "^13.3.2",
     "vite": "^5.2.12"
   }
 }
