@@ -2,8 +2,8 @@
 import { ref, onMounted, computed, watch } from "vue";
 import { dataBase, storage, dataReg, db } from "../main";
 import { addDoc, deleteDoc, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteField, getDocs, query, orderBy, limit, startAfter } from "firebase/firestore";
-import { ref as storageReference, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-
+import { ref as storageReference, uploadBytesResumable, getDownloadURL, uploadString } from "firebase/storage";
+import ImageEditor from "../components/ImageEditor.vue";
 
 const currentCategory = ref("Категорія");
 const categories = ref([]);
@@ -358,7 +358,7 @@ const fetchProducts = async () => {
 
     // Append new products to existing ones
     products.value = [...products.value, ...newProducts];
-    
+
     // Update filtered products if no search is active
     if (!searchTerm.value) {
       filteredProducts.value = products.value;
@@ -379,7 +379,7 @@ const fetchProducts = async () => {
 const handleScroll = async (e) => {
   const element = e.target;
   const nearBottom = element.scrollHeight - element.scrollTop <= element.clientHeight * 1.5;
-  
+
   if (nearBottom && !isLoading.value && hasMore.value) {
     await fetchProducts();
   }
@@ -392,7 +392,7 @@ onMounted(async () => {
   hasMore.value = true;
   products.value = [];
   filteredProducts.value = [];
-  
+
   await fetchProducts();
   await fetchBrands();
   await fetchCountries();
@@ -582,12 +582,126 @@ const toggleNoBarCode = async (productId) => {
   }
 };
 
+const selectedImage = ref("");
+const imageEditorVisible = ref(false);
+const selectedFileName = ref("");
+
+const openImageEditor = (imageUrl) => {
+  // Clear previous state
+  selectedImage.value = "";
+  selectedFileName.value = "";
+  imageEditorVisible.value = false;
+
+  // Small delay to ensure state is reset before showing new image
+  setTimeout(() => {
+    const encodedPath = imageUrl.split('/').pop().split('?')[0];
+    const originalFileName = decodeURIComponent(encodedPath.replace('products%2F', ''));
+    selectedImage.value = imageUrl;
+    selectedFileName.value = originalFileName;
+    imageEditorVisible.value = true;
+  }, 0);
+};
+
+const closeImageEditor = () => {
+  imageEditorVisible.value = false;
+  selectedImage.value = "";
+};
+
+const updateProductImage = async (imageBlob) => {
+  try {
+    isLoading.value = true;
+    // Use selectedFileName to maintain the original filename
+    const imageRef = storageReference(storage, `products/${selectedFileName.value}`);
+    const uploadTask = uploadBytesResumable(imageRef, imageBlob);
+
+    uploadTask.on(
+      'state_changed',
+      null,
+      (error) => {
+        console.error('Error uploading:', error);
+        isLoading.value = false;
+      },
+      async () => {
+        // Get the new download URL
+        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+
+        // Update product in Firestore if we're editing an existing product
+        const productToUpdate = products.value.find(p => p.image === selectedImage.value);
+        if (productToUpdate) {
+          await updateDoc(doc(dataBase, productToUpdate.id), {
+            image: downloadURL
+          });
+
+          // Update local arrays
+          const updateArrays = (arr) => {
+            const index = arr.findIndex(p => p.id === productToUpdate.id);
+            if (index !== -1) {
+              arr[index] = { ...arr[index], image: downloadURL };
+            }
+          };
+
+          updateArrays(products.value);
+          updateArrays(filteredProducts.value);
+        }
+
+        isLoading.value = false;
+        imageEditorVisible.value = false;
+      }
+    );
+  } catch (error) {
+    console.error("Error updating image:", error);
+    isLoading.value = false;
+  }
+};
+
+const handleCroppedImage = async (croppedImageUrl) => {
+  const response = await fetch(croppedImageUrl);
+  const blob = await response.blob();
+  // Aquí puedes manejar la subida de la imagen recortada
+  // Por ejemplo, subirla a Firebase Storage
+  uploadCroppedImage(blob);
+};
+
+const uploadCroppedImage = async (blob) => {
+  try {
+    isLoading.value = true;
+    const filename = `products/${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
+    const storageRef = storageReference(storage, filename);
+    const uploadTask = uploadBytesResumable(storageRef, blob);
+
+    uploadTask.on(
+      'state_changed',
+      null,
+      (error) => {
+        console.error('Error uploading:', error);
+        isLoading.value = false;
+      },
+      async () => {
+        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+        // Actualizar la imagen del producto en la base de datos
+        if (product.value.id) {
+          await updateDoc(doc(dataBase, product.value.id), {
+            image: downloadURL
+          });
+        }
+        isLoading.value = false;
+      }
+    );
+  } catch (error) {
+    console.error("Error updating image:", error);
+    isLoading.value = false;
+  }
+};
 
 </script>
 
 <template>
 
   <div class="products">
+
+    <!-- Add the ImageEditor component -->
+    <ImageEditor :image-url="selectedImage" :file-name="selectedFileName" :is-visible="imageEditorVisible"
+      @close="closeImageEditor" @update="updateProductImage" @crop="handleCroppedImage" />
 
     <div v-if="editVisible || isVisible" class="addproduct">
       <div class="top-inputs">
@@ -769,7 +883,7 @@ const toggleNoBarCode = async (productId) => {
         <tbody @scroll="handleScroll">
           <tr class="tableline" @dblclick="editModal(product.id)" v-for="product in filteredProducts" :key="product.id">
             <td>
-              <img class="productImage" :src="product.image" />
+              <img class="productImage" :src="product.image" @click="openImageEditor(product.image)" />
             </td>
             <td v-bind:title="product.name">{{ product.name }}</td>
             <td v-bind:title="product.brand">{{ product.brand }}</td>
