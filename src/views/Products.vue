@@ -437,18 +437,29 @@ const toggleHiddenFilter = () => {
   showNewOnly.value = false;
 };
 
+// Add this new function
+const fetchAllProducts = async () => {
+  try {
+    const q = query(dataBase);
+    const querySnapshot = await getDocs(q);
+    const allProducts = querySnapshot.docs.map(doc => ({
+      ...doc.data(),
+      id: doc.id
+    }));
+    return allProducts;
+  } catch (error) {
+    console.error("Error fetching all products:", error);
+    return [];
+  }
+};
+
 watch(searchTerm, async (newSearchTerm) => {
   if (!newSearchTerm) {
     await fetchProducts();
     filteredProducts.value = products.value;
     return;
   }
-  const q = query(dataBase);
-  const querySnapshot = await getDocs(q);
-  const allProducts = querySnapshot.docs.map(doc => ({
-    ...doc.data(),
-    id: doc.id
-  }));
+  const allProducts = await fetchAllProducts();
   const searchTerms = newSearchTerm.toLowerCase().split(' ');
   filteredProducts.value = allProducts.filter((product) => {
     return searchTerms.every((term) => {
@@ -850,7 +861,6 @@ const uploadCroppedImage = async (blob) => {
       <div class="list-header">
         <button @click="toggleModal">Створити</button>
         <div class="center-flex">
-          <!-- Add these new buttons -->
           <button class="filter-button" :class="{ 'active': showNewOnly }" @click="toggleNewFilter">
             Нові
           </button>
@@ -863,7 +873,6 @@ const uploadCroppedImage = async (blob) => {
           <button class="hiden-for-mobiles" @click="showCountry">Країни</button>
         </div>
       </div>
-      <!-- Update the v-for to use displayedProducts instead of filteredProducts -->
       <table class="fixed_headers">
         <thead>
           <tr>
