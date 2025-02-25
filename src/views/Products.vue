@@ -39,7 +39,8 @@ const product = ref({
   popular: false,
   new: false,
   outOfStock: false,
-  noBarCode: false
+  noBarCode: false,
+  hidden: false  // Add this line
 });
 const items = ref([]);
 const isVisible = ref(false);
@@ -112,10 +113,10 @@ const fetchSubcategories = async () => {
 };
 
 const selectSubCategory = (subcategory) => {
-  if (typeof product.value === 'object') { // Verifica que product.value sea un objeto
+  if (typeof product.value === 'object') {
     currentCategory.value = subcategory;
-    product.value.category = subcategory; // Asigna la subcategoría
-    categoryModal.value = false; // Cierra el modal
+    product.value.category = subcategory;
+    categoryModal.value = false;
   } else {
     console.error('product.value debe ser un objeto');
   }
@@ -163,10 +164,7 @@ const showCountry = () => {
 };
 
 const editModal = async (id) => {
-  // Try to find the product in filtered products first
   let selectedProduct = filteredProducts.value.find(product => product.id === id);
-
-  // If not found in filtered products and we're not searching, try to find in database
   if (!selectedProduct && !searchTerm.value) {
     const docRef = doc(dataBase, id);
     const docSnap = await getDoc(docRef);
@@ -174,7 +172,6 @@ const editModal = async (id) => {
       selectedProduct = { ...docSnap.data(), id: docSnap.id };
     }
   }
-
   if (selectedProduct) {
     product.value = { ...selectedProduct };
     editVisible.value = true;
@@ -195,15 +192,12 @@ const saveData = async () => {
   try {
     const docRef = await addDoc(dataBase, product.value);
     const newProduct = { ...product.value, id: docRef.id };
-
-    // Add to both arrays
     products.value.unshift(newProduct);
     if (searchTerm.value) {
       filteredProducts.value.unshift(newProduct);
     } else {
       filteredProducts.value = products.value;
     }
-
     currentCategory.value = 'Категорія';
   } catch (e) {
     console.error("Error adding document: ", e);
@@ -216,13 +210,10 @@ const updateData = async () => {
   try {
     const refDoc = doc(db, "products", product.value.id);
     await setDoc(refDoc, product.value, { merge: true });
-
-    // Update both arrays
     const index = products.value.findIndex(p => p.id === product.value.id);
     if (index !== -1) {
       products.value[index] = { ...product.value };
     }
-
     const filteredIndex = filteredProducts.value.findIndex(p => p.id === product.value.id);
     if (filteredIndex !== -1) {
       filteredProducts.value[filteredIndex] = { ...product.value };
@@ -321,7 +312,6 @@ const uploadImage = (e) => {
 
 const fetchProducts = async () => {
   if (isLoading.value || !hasMore.value) return;
-
   isLoading.value = true;
   try {
     let baseQuery = query(
@@ -329,7 +319,6 @@ const fetchProducts = async () => {
       orderBy('name'),
       limit(batchSize)
     );
-
     if (lastDoc.value) {
       baseQuery = query(
         dataBase,
@@ -338,35 +327,22 @@ const fetchProducts = async () => {
         limit(batchSize)
       );
     }
-
     const snapshot = await getDocs(baseQuery);
-
-    // Check if we got any documents
     if (snapshot.empty) {
       hasMore.value = false;
       isLoading.value = false;
       return;
     }
-
-    // Update lastDoc with the last document from this batch
     lastDoc.value = snapshot.docs[snapshot.docs.length - 1];
-
     const newProducts = snapshot.docs.map(doc => ({
       ...doc.data(),
       id: doc.id
     }));
-
-    // Append new products to existing ones
     products.value = [...products.value, ...newProducts];
-
-    // Update filtered products if no search is active
     if (!searchTerm.value) {
       filteredProducts.value = products.value;
     }
-
-    // Update hasMore based on whether we received a full batch
     hasMore.value = snapshot.docs.length === batchSize;
-
   } catch (error) {
     console.error("Error fetching products:", error);
     hasMore.value = false;
@@ -375,24 +351,19 @@ const fetchProducts = async () => {
   }
 };
 
-// Update the handleScroll function to be more precise
 const handleScroll = async (e) => {
   const element = e.target;
   const nearBottom = element.scrollHeight - element.scrollTop <= element.clientHeight * 1.5;
-
   if (nearBottom && !isLoading.value && hasMore.value) {
     await fetchProducts();
   }
 };
 
-// Update the initial mounting to reset the state
 onMounted(async () => {
-  // Reset pagination state
   lastDoc.value = null;
   hasMore.value = true;
   products.value = [];
   filteredProducts.value = [];
-
   await fetchProducts();
   await fetchBrands();
   await fetchCountries();
@@ -409,7 +380,6 @@ const fetchBrands = async () => {
       }));
       brands.value = brandsArray;
     });
-
   } catch (e) { console.error("Error fetching brands: ", e); }
 };
 
@@ -424,7 +394,6 @@ const fetchCountries = async () => {
       }));
       countries.value = countriesArray;
     });
-
   } catch (e) { console.error("Error fetching countries: ", e); }
 };
 
@@ -438,22 +407,48 @@ const currentProduct = computed(() => {
 
 const filteredProducts = ref([]);
 
-// Watch for changes in the search term
+// Add these new refs
+const showNewOnly = ref(false);
+const showHiddenOnly = ref(false);
+
+// Update the computed property to correctly handle both isNew and hidden filters
+const displayedProducts = computed(() => {
+  let filtered = [...filteredProducts.value];
+
+  if (showNewOnly.value) {
+    filtered = filtered.filter(p => p.isNew === true);
+  }
+
+  if (showHiddenOnly.value) {
+    filtered = filtered.filter(p => p.hidden === true);
+  }
+
+  return filtered;
+});
+
+// Add these toggle functions
+const toggleNewFilter = () => {
+  showNewOnly.value = !showNewOnly.value;
+  showHiddenOnly.value = false;
+};
+
+const toggleHiddenFilter = () => {
+  showHiddenOnly.value = !showHiddenOnly.value;
+  showNewOnly.value = false;
+};
+
 watch(searchTerm, async (newSearchTerm) => {
   if (!newSearchTerm) {
-    await fetchProducts(); // Reset to lazy loading when no search
+    await fetchProducts();
     filteredProducts.value = products.value;
     return;
   }
-
-  // When searching, get all products from database
   const q = query(dataBase);
   const querySnapshot = await getDocs(q);
   const allProducts = querySnapshot.docs.map(doc => ({
     ...doc.data(),
     id: doc.id
   }));
-
   const searchTerms = newSearchTerm.toLowerCase().split(' ');
   filteredProducts.value = allProducts.filter((product) => {
     return searchTerms.every((term) => {
@@ -466,7 +461,6 @@ watch(searchTerm, async (newSearchTerm) => {
   });
 });
 
-// Initialize filteredProducts with all products
 onMounted(async () => {
   await fetchProducts();
   filteredProducts.value = products.value;
@@ -493,15 +487,12 @@ const togglePopular = async (productId) => {
     if (productToUpdate) {
       const newPopularState = !productToUpdate.popular;
       await updateDoc(doc(dataBase, productId), { popular: newPopularState });
-
-      // Update both arrays
       const updateArrays = (arr) => {
         const index = arr.findIndex(p => p.id === productId);
         if (index !== -1) {
           arr[index] = { ...arr[index], popular: newPopularState };
         }
       };
-
       updateArrays(products.value);
       updateArrays(filteredProducts.value);
     }
@@ -517,15 +508,12 @@ const toggleNew = async (productId) => {
     if (productToUpdate) {
       const newState = !productToUpdate.isNew;
       await updateDoc(doc(dataBase, productId), { isNew: newState });
-
-      // Update both arrays
       const updateArrays = (arr) => {
         const index = arr.findIndex(p => p.id === productId);
         if (index !== -1) {
           arr[index] = { ...arr[index], isNew: newState };
         }
       };
-
       updateArrays(products.value);
       updateArrays(filteredProducts.value);
     }
@@ -541,15 +529,12 @@ const toggleOutOfStock = async (productId) => {
     if (productToUpdate) {
       const newState = !productToUpdate.outOfStock;
       await updateDoc(doc(dataBase, productId), { outOfStock: newState });
-
-      // Update both arrays
       const updateArrays = (arr) => {
         const index = arr.findIndex(p => p.id === productId);
         if (index !== -1) {
           arr[index] = { ...arr[index], outOfStock: newState };
         }
       };
-
       updateArrays(products.value);
       updateArrays(filteredProducts.value);
     }
@@ -565,15 +550,12 @@ const toggleNoBarCode = async (productId) => {
     if (productToUpdate) {
       const newState = !productToUpdate.noBarCode;
       await updateDoc(doc(dataBase, productId), { noBarCode: newState });
-
-      // Update both arrays
       const updateArrays = (arr) => {
         const index = arr.findIndex(p => p.id === productId);
         if (index !== -1) {
           arr[index] = { ...arr[index], noBarCode: newState };
         }
       };
-
       updateArrays(products.value);
       updateArrays(filteredProducts.value);
     }
@@ -582,17 +564,36 @@ const toggleNoBarCode = async (productId) => {
   }
 };
 
+// Add this new function
+const toggleHidden = async (productId) => {
+  try {
+    const productToUpdate = products.value.find(p => p.id === productId) ||
+      filteredProducts.value.find(p => p.id === productId);
+    if (productToUpdate) {
+      const newState = !productToUpdate.hidden;
+      await updateDoc(doc(dataBase, productId), { hidden: newState });
+      const updateArrays = (arr) => {
+        const index = arr.findIndex(p => p.id === productId);
+        if (index !== -1) {
+          arr[index] = { ...arr[index], hidden: newState };
+        }
+      };
+      updateArrays(products.value);
+      updateArrays(filteredProducts.value);
+    }
+  } catch (error) {
+    console.error("Error updating product hidden status:", error);
+  }
+};
+
 const selectedImage = ref("");
 const imageEditorVisible = ref(false);
 const selectedFileName = ref("");
 
 const openImageEditor = (imageUrl) => {
-  // Clear previous state
   selectedImage.value = "";
   selectedFileName.value = "";
   imageEditorVisible.value = false;
-
-  // Small delay to ensure state is reset before showing new image
   setTimeout(() => {
     const encodedPath = imageUrl.split('/').pop().split('?')[0];
     const originalFileName = decodeURIComponent(encodedPath.replace('products%2F', ''));
@@ -610,10 +611,8 @@ const closeImageEditor = () => {
 const updateProductImage = async (imageBlob) => {
   try {
     isLoading.value = true;
-    // Use selectedFileName to maintain the original filename
     const imageRef = storageReference(storage, `products/${selectedFileName.value}`);
     const uploadTask = uploadBytesResumable(imageRef, imageBlob);
-
     uploadTask.on(
       'state_changed',
       null,
@@ -622,28 +621,21 @@ const updateProductImage = async (imageBlob) => {
         isLoading.value = false;
       },
       async () => {
-        // Get the new download URL
         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-
-        // Update product in Firestore if we're editing an existing product
         const productToUpdate = products.value.find(p => p.image === selectedImage.value);
         if (productToUpdate) {
           await updateDoc(doc(dataBase, productToUpdate.id), {
             image: downloadURL
           });
-
-          // Update local arrays
           const updateArrays = (arr) => {
             const index = arr.findIndex(p => p.id === productToUpdate.id);
             if (index !== -1) {
               arr[index] = { ...arr[index], image: downloadURL };
             }
           };
-
           updateArrays(products.value);
           updateArrays(filteredProducts.value);
         }
-
         isLoading.value = false;
         imageEditorVisible.value = false;
       }
@@ -657,8 +649,6 @@ const updateProductImage = async (imageBlob) => {
 const handleCroppedImage = async (croppedImageUrl) => {
   const response = await fetch(croppedImageUrl);
   const blob = await response.blob();
-  // Aquí puedes manejar la subida de la imagen recortada
-  // Por ejemplo, subirla a Firebase Storage
   uploadCroppedImage(blob);
 };
 
@@ -668,7 +658,6 @@ const uploadCroppedImage = async (blob) => {
     const filename = `products/${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
     const storageRef = storageReference(storage, filename);
     const uploadTask = uploadBytesResumable(storageRef, blob);
-
     uploadTask.on(
       'state_changed',
       null,
@@ -678,7 +667,6 @@ const uploadCroppedImage = async (blob) => {
       },
       async () => {
         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-        // Actualizar la imagen del producto en la base de datos
         if (product.value.id) {
           await updateDoc(doc(dataBase, product.value.id), {
             image: downloadURL
@@ -699,7 +687,6 @@ const uploadCroppedImage = async (blob) => {
 
   <div class="products">
 
-    <!-- Add the ImageEditor component -->
     <ImageEditor :image-url="selectedImage" :file-name="selectedFileName" :is-visible="imageEditorVisible"
       @close="closeImageEditor" @update="updateProductImage" @crop="handleCroppedImage" />
 
@@ -810,7 +797,7 @@ const uploadCroppedImage = async (blob) => {
       <div class="menu">
         <input type="text" v-model="brand" @keyup.enter="saveBrand()" placeholder="Новий Бренд" />
         <div class="menu-table">
-          <div v-for=" brand in brands " :key="brand.id">
+          <div v-for="brand in brands" :key="brand.id">
             <div> {{ brand.id }}
               <div class="deleteButton" @click="deleteBrand(brand.id)">
                 <img src="../assets/imgs/icons/delete.svg" alt="">
@@ -847,7 +834,7 @@ const uploadCroppedImage = async (blob) => {
       <div class="menu">
         <input type="text" v-model="country" @keyup.enter="saveCountry()" placeholder="Новий Країна" />
         <div class="menu-table">
-          <div v-for=" country in countries ">
+          <div v-for="country in countries">
             <div> {{ country.id }}
               <div class="deleteButton" @click="deleteCountry(country.id)">
                 <img src="../assets/imgs/icons/delete.svg" alt="">
@@ -863,12 +850,20 @@ const uploadCroppedImage = async (blob) => {
       <div class="list-header">
         <button @click="toggleModal">Створити</button>
         <div class="center-flex">
+          <!-- Add these new buttons -->
+          <button class="filter-button" :class="{ 'active': showNewOnly }" @click="toggleNewFilter">
+            Нові
+          </button>
+          <button class="filter-button" :class="{ 'active': showHiddenOnly }" @click="toggleHiddenFilter">
+            Приховані
+          </button>
           <input class="searchInput" v-model="searchTerm" placeholder="Пошук" />
           <button class="hiden-for-mobiles" @click="showBrands">Бренди</button>
           <button class="hiden-for-mobiles" @click="showCategory">Категорії</button>
           <button class="hiden-for-mobiles" @click="showCountry">Країни</button>
         </div>
       </div>
+      <!-- Update the v-for to use displayedProducts instead of filteredProducts -->
       <table class="fixed_headers">
         <thead>
           <tr>
@@ -881,7 +876,8 @@ const uploadCroppedImage = async (blob) => {
           </tr>
         </thead>
         <tbody @scroll="handleScroll">
-          <tr class="tableline" @dblclick="editModal(product.id)" v-for="product in filteredProducts" :key="product.id">
+          <tr class="tableline" @dblclick="editModal(product.id)" v-for="product in displayedProducts" :key="product.id"
+            :class="{ 'hidden-product': product.hidden }">
             <td>
               <img class="productImage" :src="product.image" @click="openImageEditor(product.image)" />
             </td>
@@ -899,6 +895,9 @@ const uploadCroppedImage = async (blob) => {
                   @click="toggleOutOfStock(product.id)" :title="'stock'">Stock</div>
                 <div class="status-button" :class="{ 'active': product.noBarCode }" @click="toggleNoBarCode(product.id)"
                   :title="'barcode'">POS</div>
+                <!-- Add this new button -->
+                <div class="status-button" :class="{ 'active': product.hidden }" @click="toggleHidden(product.id)"
+                  :title="'hidden'">Hide</div>
                 <div class="deleteButton" @click="deleteProduct(product.id)">
                   <img src="../assets/imgs/icons/delete.svg" alt="">
                 </div>
@@ -1467,6 +1466,10 @@ label {
   }
 }
 
+.hidden-product {
+  opacity: 0.5;
+}
+
 .menu-container {
   position: absolute;
   top: 0;
@@ -1676,6 +1679,19 @@ label {
 
 .selects {
   display: flex;
+}
+
+.filter-button {
+  min-width: 100px;
+  margin: 0 5px;
+  padding: 5px 10px;
+  background-color: rgb(245, 245, 245);
+  transition: all 0.3s ease;
+}
+
+.filter-button.active {
+  background-color: #183153;
+  color: white;
 }
 
 @media (max-width: 550px) {

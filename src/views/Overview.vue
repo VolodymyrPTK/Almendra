@@ -6,7 +6,7 @@
 
     </div>
 </template>
-  
+
 <script>
 import { dataBase } from "../main";
 import { onSnapshot } from "firebase/firestore";
@@ -19,8 +19,6 @@ export default {
     data() {
         return {
             products: [],
-
-
         };
     },
     async created() {
@@ -38,44 +36,16 @@ export default {
             }, 0);
         },
         productCount() {
-            // Use a Set to store unique product IDs
             const uniqueProductIds = new Set();
-
-            // Loop through the products and add their IDs to the Set
             this.products.forEach((product) => {
                 uniqueProductIds.add(product.id);
             });
-
-
-
-
-
-
-
-
-
-
-            // Return the size of the Set, which is the count of unique products
             return uniqueProductIds.size;
-
-
-
-
-
-
         },
     },
-
-
-
-
-
-
-
-
 };
 </script>
-  
+
 
 <style scoped>
 .overview {

@@ -2,21 +2,21 @@
   <div class="admin">
     <div class="menu" v-if="isDesktop">
       <RouterLink class="navButton" to="/overview">Огляд</RouterLink>
-      <RouterLink class="navButton" to="/products">Продукти</RouterLink>
       <RouterLink class="navButton" to="/pos">POS</RouterLink>
+      <RouterLink class="navButton" to="/orders">Замовлення</RouterLink>
+      <RouterLink class="navButton" to="/products">Продукти</RouterLink>
       <RouterLink class="navButton" to="/inventory">Iнвентар</RouterLink>
       <RouterLink class="navButton" to="/clients">Кліенти</RouterLink>
-      <RouterLink class="navButton" to="/orders">Замовлення</RouterLink>
       <RouterLink class="navButton" to="/novaposhta">Нова Пошта</RouterLink>
     </div>
     <div v-else>
       <button class="menu-btn" @click="showMenu = !showMenu"><img src="../assets/imgs/icons/menu.svg" alt=""></button>
       <div class="menu" v-if="showMenu">
         <RouterLink class="navButton" to="/overview">Огляд</RouterLink>
+        <RouterLink class="navButton" to="/orders">Замовлення</RouterLink>
         <RouterLink class="navButton" to="/products">Продукти</RouterLink>
         <RouterLink class="navButton" to="/inventory">Iнвентар</RouterLink>
         <RouterLink class="navButton" to="/clients">Кліенти</RouterLink>
-        <RouterLink class="navButton" to="/orders">Замовлення</RouterLink>
         <RouterLink class="navButton" to="/novaposhta">Нова Пошта</RouterLink>
       </div>
     </div>
