@@ -354,7 +354,7 @@ const fetchProducts = async () => {
 const handleScroll = async (e) => {
   const element = e.target;
   const nearBottom = element.scrollHeight - element.scrollTop <= element.clientHeight * 1.5;
-  if (nearBottom && !isLoading.value && hasMore.value && !isFiltered.value) {
+  if (nearBottom && !isLoading.value && hasMore.value && !isFiltered.value && !isSearching.value) {
     await fetchProducts();
   }
 };
@@ -414,14 +414,15 @@ const showHiddenOnly = ref(false);
 // Add new ref for filtered mode
 const isFiltered = ref(false);
 
+// Add this new ref to track search mode
+const isSearching = ref(false);
+
 // Update the computed property to correctly handle both isNew and hidden filters
 const displayedProducts = computed(() => {
-  if (!showNewOnly.value && !showHiddenOnly.value) {
-    isFiltered.value = false;
-    return products.value;
+  if (showNewOnly.value || showHiddenOnly.value || isSearching.value) {
+    return filteredProducts.value;
   }
-  isFiltered.value = true;
-  return filteredProducts.value;
+  return products.value;
 });
 
 // Add these toggle functions
@@ -475,21 +476,31 @@ const fetchAllProducts = async () => {
 
 watch(searchTerm, async (newSearchTerm) => {
   if (!newSearchTerm) {
-    await fetchProducts();
+    isSearching.value = false;
     filteredProducts.value = products.value;
     return;
   }
-  const allProducts = await fetchAllProducts();
-  const searchTerms = newSearchTerm.toLowerCase().split(' ');
-  filteredProducts.value = allProducts.filter((product) => {
-    return searchTerms.every((term) => {
-      return (
-        product.name.toLowerCase().includes(term) ||
-        product.detail.toLowerCase().includes(term) ||
-        product.brand.toLowerCase().includes(term)
-      );
+
+  isSearching.value = true;
+  isLoading.value = true;
+
+  try {
+    const allProducts = await fetchAllProducts();
+    const searchTerms = newSearchTerm.toLowerCase().split(' ');
+    filteredProducts.value = allProducts.filter((product) => {
+      return searchTerms.every((term) => {
+        return (
+          product.name?.toLowerCase().includes(term) ||
+          product.detail?.toLowerCase().includes(term) ||
+          product.brand?.toLowerCase().includes(term)
+        );
+      });
     });
-  });
+  } catch (error) {
+    console.error("Error searching products:", error);
+  } finally {
+    isLoading.value = false;
+  }
 });
 
 onMounted(async () => {
