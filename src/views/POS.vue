@@ -4,8 +4,8 @@
             <div class="search-container">
                 <input type="text" v-model="barcodeInput" placeholder="Scan barcode..." class="search-input"
                     ref="searchInput" @keydown="handleKeyDown" @input="handleInput" autofocus>
-                <div v-if="searchQuery && filteredProducts.length > 0" class="search-results-dropdown">
-                    <div v-for="(product, index) in filteredProducts" :key="product.id" class="search-result-item"
+                <div v-if="searchQuery && searchResults.length > 0" class="search-results-dropdown">
+                    <div v-for="(product, index) in searchResults" :key="product.id" class="search-result-item"
                         :class="{ 'selected': selectedIndex === index }" @click="addToCart(product)">
                         <span>{{ product.name }}</span>
                         <span>${{ product.sellPrice }}</span>
@@ -14,7 +14,7 @@
             </div>
 
             <div class="products-grid">
-                <div v-for="product in filteredProducts" :key="product.id" class="product-card"
+                <div v-for="product in displayedProducts" :key="product.id" class="product-card"
                     @click="addToCart(product)">
                     <h3>{{ product.name }}</h3>
                     <p>${{ product.sellPrice }}</p>
@@ -266,8 +266,12 @@ const SCANNER_TIMEOUT = 50 // Adjust based on your scanner's speed
 const searchQuery = computed(() => barcodeInput.value)
 
 // Enhanced product search
-const filteredProducts = computed(() => {
-    if (!searchQuery.value) return products.value
+const displayedProducts = computed(() => {
+    return products.value.filter(product => product.noBarCode === true)
+})
+
+const searchResults = computed(() => {
+    if (!searchQuery.value) return []
 
     const query = searchQuery.value.trim().toLowerCase()
 
@@ -284,7 +288,6 @@ const filteredProducts = computed(() => {
     })
 })
 
-// Fetch products from Firebase
 const fetchProducts = async () => {
     try {
         const querySnapshot = await getDocs(collection(db, 'products'))
@@ -499,8 +502,8 @@ const generateInvoice = async () => {
 }
 
 const addSelectedResult = async () => {
-    if (filteredProducts.value.length === 1) {
-        addToCart(filteredProducts.value[0])
+    if (searchResults.value.length === 1) {
+        addToCart(searchResults.value[0])
         barcodeInput.value = ''
         barcodeBuffer.value = ''
         await nextTick()
@@ -509,15 +512,15 @@ const addSelectedResult = async () => {
 }
 
 const selectNextResult = () => {
-    if (filteredProducts.value.length > 0) {
-        selectedIndex.value = (selectedIndex.value + 1) % filteredProducts.value.length
+    if (searchResults.value.length > 0) {
+        selectedIndex.value = (selectedIndex.value + 1) % searchResults.value.length
     }
 }
 
 const selectPreviousResult = () => {
-    if (filteredProducts.value.length > 0) {
+    if (searchResults.value.length > 0) {
         selectedIndex.value = selectedIndex.value <= 0
-            ? filteredProducts.value.length - 1
+            ? searchResults.value.length - 1
             : selectedIndex.value - 1
     }
 }
@@ -529,11 +532,10 @@ watch(searchQuery, () => {
 onMounted(() => {
     fetchProducts()
     focusSearch()
-    window.addEventListener('keydown', handleNavigationKeys)
 })
 
 onUnmounted(() => {
-    window.removeEventListener('keydown', handleNavigationKeys)
+    // Remove the event listener reference since it's now handled in handleKeyDown
 })
 
 const isValidPayment = computed(() => {
@@ -697,7 +699,35 @@ const deleteSavedCart = async (cartId) => {
 const handleKeyDown = (event) => {
     const currentTime = Date.now()
 
-    // Handle Enter key
+    // Handle navigation and selection in dropdown
+    if (searchResults.value.length > 0) {
+        switch (event.key) {
+            case 'ArrowDown':
+                event.preventDefault()
+                selectNextResult()
+                break
+            case 'ArrowUp':
+                event.preventDefault()
+                selectPreviousResult()
+                break
+            case 'Enter':
+                event.preventDefault()
+                // If an item is selected in the dropdown, add it to cart
+                if (selectedIndex.value >= 0) {
+                    addToCart(searchResults.value[selectedIndex.value])
+                    barcodeInput.value = ''
+                    barcodeBuffer.value = ''
+                    selectedIndex.value = -1
+                    return
+                }
+                // If no item is selected, proceed with barcode processing
+                processBarcode()
+                break
+        }
+        return
+    }
+
+    // Regular barcode handling
     if (event.key === BARCODE_END_CHAR) {
         event.preventDefault()
         processBarcode()
@@ -742,19 +772,6 @@ const processBarcode = async () => {
     } else {
         // Optional: Show error feedback
         console.log('Product not found:', barcode)
-    }
-}
-
-const handleNavigationKeys = (event) => {
-    switch (event.key) {
-        case 'ArrowDown':
-            event.preventDefault()
-            selectNextResult()
-            break
-        case 'ArrowUp':
-            event.preventDefault()
-            selectPreviousResult()
-            break
     }
 }
 </script>

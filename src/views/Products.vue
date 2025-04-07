@@ -311,7 +311,7 @@ const uploadImage = (e) => {
 };
 
 const fetchProducts = async () => {
-  if (isLoading.value || !hasMore.value) return;
+  if (isLoading.value || !hasMore.value || isFiltered.value) return;
   isLoading.value = true;
   try {
     let baseQuery = query(
@@ -354,7 +354,7 @@ const fetchProducts = async () => {
 const handleScroll = async (e) => {
   const element = e.target;
   const nearBottom = element.scrollHeight - element.scrollTop <= element.clientHeight * 1.5;
-  if (nearBottom && !isLoading.value && hasMore.value) {
+  if (nearBottom && !isLoading.value && hasMore.value && !isFiltered.value) {
     await fetchProducts();
   }
 };
@@ -411,30 +411,50 @@ const filteredProducts = ref([]);
 const showNewOnly = ref(false);
 const showHiddenOnly = ref(false);
 
+// Add new ref for filtered mode
+const isFiltered = ref(false);
+
 // Update the computed property to correctly handle both isNew and hidden filters
 const displayedProducts = computed(() => {
-  let filtered = [...filteredProducts.value];
-
-  if (showNewOnly.value) {
-    filtered = filtered.filter(p => p.isNew === true);
+  if (!showNewOnly.value && !showHiddenOnly.value) {
+    isFiltered.value = false;
+    return products.value;
   }
-
-  if (showHiddenOnly.value) {
-    filtered = filtered.filter(p => p.hidden === true);
-  }
-
-  return filtered;
+  isFiltered.value = true;
+  return filteredProducts.value;
 });
 
 // Add these toggle functions
-const toggleNewFilter = () => {
+const toggleNewFilter = async () => {
   showNewOnly.value = !showNewOnly.value;
   showHiddenOnly.value = false;
+
+  if (showNewOnly.value) {
+    isFiltered.value = true;
+    isLoading.value = true;
+    const allProducts = await fetchAllProducts();
+    filteredProducts.value = allProducts.filter(p => p.isNew === true);
+    isLoading.value = false;
+  } else {
+    isFiltered.value = false;
+    filteredProducts.value = products.value;
+  }
 };
 
-const toggleHiddenFilter = () => {
+const toggleHiddenFilter = async () => {
   showHiddenOnly.value = !showHiddenOnly.value;
   showNewOnly.value = false;
+
+  if (showHiddenOnly.value) {
+    isFiltered.value = true;
+    isLoading.value = true;
+    const allProducts = await fetchAllProducts();
+    filteredProducts.value = allProducts.filter(p => p.hidden === true);
+    isLoading.value = false;
+  } else {
+    isFiltered.value = false;
+    filteredProducts.value = products.value;
+  }
 };
 
 // Add this new function
@@ -904,7 +924,6 @@ const uploadCroppedImage = async (blob) => {
                   @click="toggleOutOfStock(product.id)" :title="'stock'">Stock</div>
                 <div class="status-button" :class="{ 'active': product.noBarCode }" @click="toggleNoBarCode(product.id)"
                   :title="'barcode'">POS</div>
-                <!-- Add this new button -->
                 <div class="status-button" :class="{ 'active': product.hidden }" @click="toggleHidden(product.id)"
                   :title="'hidden'">Hide</div>
                 <div class="deleteButton" @click="deleteProduct(product.id)">
@@ -1159,6 +1178,8 @@ const uploadCroppedImage = async (blob) => {
   background-color: rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
+  z-index: 1000;
+  /* Add this line */
 }
 
 .productlist {
@@ -1387,6 +1408,10 @@ label {
 }
 
 .fixed_headers {
+  position: relative;
+  /* Add this line */
+  z-index: 1;
+  /* Add this line */
   width: 90%;
   height: 90%;
   border-collapse: collapse;
@@ -1477,6 +1502,10 @@ label {
 
 .hidden-product {
   opacity: 0.5;
+  position: relative;
+  /* Add this line */
+  z-index: 1;
+  /* Add this line */
 }
 
 .menu-container {

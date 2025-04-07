@@ -7,6 +7,7 @@ import Overview from "../views/Overview.vue";
 import NovaPoshta from "../views/NovaPoshta.vue";
 import Products from "../views/Products.vue";
 import POS from "../views/POS.vue";
+import Tasks from "../views/Tasks.vue";
 import Orders from "../views/Orders.vue";
 import Clients from "../views/Clients.vue";
 import Inventory from "../views/Inventory.vue";
@@ -36,6 +37,11 @@ const router = createRouter({
           path: "pos",
           name: "pos",
           component: POS,
+        },
+        {
+          path: "tasks",
+          name: "tasks",
+          component: Tasks,
         },
         {
           path: "clients",

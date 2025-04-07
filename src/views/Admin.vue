@@ -3,6 +3,7 @@
     <div class="menu" v-if="isDesktop">
       <RouterLink class="navButton" to="/overview">Огляд</RouterLink>
       <RouterLink class="navButton" to="/pos">POS</RouterLink>
+      <RouterLink class="navButton" to="/tasks">Taks</RouterLink>
       <RouterLink class="navButton" to="/orders">Замовлення</RouterLink>
       <RouterLink class="navButton" to="/products">Продукти</RouterLink>
       <RouterLink class="navButton" to="/inventory">Iнвентар</RouterLink>
