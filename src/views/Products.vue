@@ -4,6 +4,7 @@ import { dataBase, storage, dataReg, db } from "../main";
 import { addDoc, deleteDoc, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteField, getDocs, query, orderBy, limit, startAfter } from "firebase/firestore";
 import { ref as storageReference, uploadBytesResumable, getDownloadURL, uploadString } from "firebase/storage";
 import ImageEditor from "../components/ImageEditor.vue";
+import SmartProductCreation from "../components/SmartProductCreation.vue";
 
 const currentCategory = ref("Категорія");
 const categories = ref([]);
@@ -58,6 +59,14 @@ const isLoaded = ref(false);
 const lastDoc = ref(null);
 const hasMore = ref(true);
 const batchSize = 20; // Number of products to load per batch
+
+const showSmartCreation = ref(false);
+
+// Add this new function
+const toggleSmartCreation = () => {
+  showSmartCreation.value = !showSmartCreation.value;
+};
+
 
 const requiredFields = ref([
   "name", "detail", "sellPrice", "buyPrice", "description", "sklad", "kcal", "protein", "carbo", "fat", "brand", "country", "image", "weight", "vitamins"
@@ -406,18 +415,10 @@ const currentProduct = computed(() => {
 });
 
 const filteredProducts = ref([]);
-
-// Add these new refs
 const showNewOnly = ref(false);
 const showHiddenOnly = ref(false);
-
-// Add new ref for filtered mode
 const isFiltered = ref(false);
-
-// Add this new ref to track search mode
 const isSearching = ref(false);
-
-// Update the computed property to correctly handle both isNew and hidden filters
 const displayedProducts = computed(() => {
   if (showNewOnly.value || showHiddenOnly.value || isSearching.value) {
     return filteredProducts.value;
@@ -425,7 +426,6 @@ const displayedProducts = computed(() => {
   return products.value;
 });
 
-// Add these toggle functions
 const toggleNewFilter = async () => {
   showNewOnly.value = !showNewOnly.value;
   showHiddenOnly.value = false;
@@ -458,7 +458,6 @@ const toggleHiddenFilter = async () => {
   }
 };
 
-// Add this new function
 const fetchAllProducts = async () => {
   try {
     const q = query(dataBase);
@@ -728,7 +727,7 @@ const uploadCroppedImage = async (blob) => {
 <template>
 
   <div class="products">
-
+    <SmartProductCreation v-if="showSmartCreation" @close="toggleSmartCreation" />
     <ImageEditor :image-url="selectedImage" :file-name="selectedFileName" :is-visible="imageEditorVisible"
       @close="closeImageEditor" @update="updateProductImage" @crop="handleCroppedImage" />
 
@@ -891,6 +890,9 @@ const uploadCroppedImage = async (blob) => {
     <div class="productlist">
       <div class="list-header">
         <button @click="toggleModal">Створити</button>
+        <button class="smart-creation-btn" @click="toggleSmartCreation" v-if="!editVisible && !isVisible">
+          Розумне створення
+        </button>
         <div class="center-flex">
           <button class="filter-button" :class="{ 'active': showNewOnly }" @click="toggleNewFilter">
             Нові
@@ -1189,8 +1191,8 @@ const uploadCroppedImage = async (blob) => {
   background-color: rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
-  z-index: 1000;
-  /* Add this line */
+  z-index: 9999;
+  /* High z-index for the add product modal */
 }
 
 .productlist {
@@ -1199,6 +1201,9 @@ const uploadCroppedImage = async (blob) => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  position: relative;
+  z-index: 1;
+  /* Lower z-index for product list */
 }
 
 .list-header {
@@ -1420,9 +1425,8 @@ label {
 
 .fixed_headers {
   position: relative;
-  /* Add this line */
   z-index: 1;
-  /* Add this line */
+  /* Ensure table has lower z-index */
   width: 90%;
   height: 90%;
   border-collapse: collapse;
@@ -1532,6 +1536,8 @@ label {
   -webkit-backdrop-filter: blur(15px);
   width: 100%;
   height: 100%;
+  z-index: 9998;
+  /* High z-index for menu container */
 }
 
 .menu {
@@ -1540,7 +1546,8 @@ label {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  z-index: 5;
+  z-index: 9999;
+  /* High z-index for menu */
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);

@@ -8,11 +8,15 @@
 
 <script>
 import { RouterView } from "vue-router";
+import { useStatePersistence } from './composables/useStatePersistence';
 
 export default {
   components: {
     RouterView,
   },
+  setup() {
+    useStatePersistence();
+  }
 };
 </script>
 
