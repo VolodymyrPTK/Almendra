@@ -21,6 +21,16 @@
                                     <div class="nutritional-info">
                                         <div class="form-row">
                                             <div class="form-group">
+                                                <label>Назва</label>
+                                                <input v-model="productInfo.name" type="text" />
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Анотація</label>
+                                                <input v-model="productInfo.detail" type="text" />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group">
                                                 <label>Kcal</label>
                                                 <input v-model="productInfo.kcal" type="text" />
                                             </div>
@@ -115,7 +125,7 @@ const submitForm = async () => {
     modalOpen.value = true;
 
     try {
-        const response = await fetch('http://localhost:5678/webhook-test/cb664c56-5f12-46d8-b10f-40a7af891817', {
+        const response = await fetch('http://localhost:5678/webhook/cb664c56-5f12-46d8-b10f-40a7af891817', {
             method: 'POST',
             body: formData,
         });
@@ -131,9 +141,9 @@ const submitForm = async () => {
                 } else if (item.kcal) {
                     productInfo.value = { ...item };
                 } else if (item.vitamins) {
-                    // Ініціалізувати, якщо ще не створений
+                    // Simply assign the vitamins string directly
                     if (!productInfo.value) productInfo.value = {};
-                    productInfo.value.vitamins = item.vitamins.response || '';
+                    productInfo.value.vitamins = item.vitamins;
                 }
             }
         }

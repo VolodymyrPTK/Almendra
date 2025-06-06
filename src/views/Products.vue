@@ -5,6 +5,7 @@ import { addDoc, deleteDoc, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteFi
 import { ref as storageReference, uploadBytesResumable, getDownloadURL, uploadString } from "firebase/storage";
 import ImageEditor from "../components/ImageEditor.vue";
 import SmartProductCreation from "../components/SmartProductCreation.vue";
+import ProductModal from "../components/ProductModal.vue";
 
 const currentCategory = ref("Категорія");
 const categories = ref([]);
@@ -730,6 +731,10 @@ const uploadCroppedImage = async (blob) => {
     <SmartProductCreation v-if="showSmartCreation" @close="toggleSmartCreation" />
     <ImageEditor :image-url="selectedImage" :file-name="selectedFileName" :is-visible="imageEditorVisible"
       @close="closeImageEditor" @update="updateProductImage" @crop="handleCroppedImage" />
+
+    <ProductModal v-if="editVisible || isVisible" v-model:product="product" :is-visible="isVisible"
+      :edit-visible="editVisible" :current-category="currentCategory" @save="saveData" @update="updateData"
+      @close="closeModal" @toggle="toggleModal" @fetch-categories="fetchCategories" />
 
     <div v-if="editVisible || isVisible" class="addproduct">
       <div class="top-inputs">
