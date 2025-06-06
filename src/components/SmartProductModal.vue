@@ -1,10 +1,14 @@
 <template>
     <div class="overlay">
         <div class="smart-product-container">
+            <button class="close-modal-btn" @click="$emit('close')">&times;</button>
             <!-- Modal -->
-            <div class="modal" v-if="modalOpen">
+            <div class="modal" v-if="modalOpen" @click.self="closeModal">
                 <div class="modal-content">
-                    <h2>Новий Продукт</h2>
+                    <div class="modal-header">
+                        <h2>Новий Продукт</h2>
+                        <button class="close-btn" @click="closeModal">&times;</button>
+                    </div>
                     <div class="modal-body">
                         <div v-if="loading" class="loading">
                             <div class="spinner-ring"></div>
@@ -198,6 +202,28 @@ $shadow-color: rgba(0, 0, 0, 0.1);
     margin: 0; // Add explicit margin reset
     transform: none; // Remove transform
 
+    .close-modal-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.3s;
+        z-index: 1200;
+
+        &:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+    }
+
     .product-form {
         max-width: 500px;
         margin: 0 auto;
@@ -260,9 +286,9 @@ $shadow-color: rgba(0, 0, 0, 0.1);
         bottom: 0;
         width: 100vw;
         height: 100vh;
-        background: rgba(41, 41, 41, 0.6);
-        backdrop-filter: blur(5px);
-        -webkit-backdrop-filter: blur(5px);
+        background: rgba(41, 41, 41, 0.8); // Darker background
+        backdrop-filter: blur(8px); // Increased blur
+        -webkit-backdrop-filter: blur(8px);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -276,6 +302,33 @@ $shadow-color: rgba(0, 0, 0, 0.1);
             border-radius: 15px;
             padding: 2rem;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+            .modal-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1.5rem;
+
+                h2 {
+                    margin: 0;
+                }
+
+                .close-btn {
+                    background: none;
+                    border: none;
+                    font-size: 2rem;
+                    line-height: 1;
+                    padding: 0.2rem 0.5rem;
+                    cursor: pointer;
+                    color: $text-color;
+                    border-radius: 50%;
+                    transition: background-color 0.3s;
+
+                    &:hover {
+                        background-color: $secondary-color;
+                    }
+                }
+            }
 
             h2 {
                 text-align: center;

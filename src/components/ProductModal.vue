@@ -19,6 +19,14 @@ const props = defineProps({
     currentCategory: {
         type: String,
         required: true
+    },
+    categories: {
+        type: Array,
+        required: true
+    },
+    subcategories: {
+        type: Object,
+        required: true
     }
 });
 
@@ -59,6 +67,17 @@ const uploadImage = (e) => {
             });
         }
     );
+};
+
+const categoryModal = ref(false);
+
+const toggleCategoryModal = () => {
+    categoryModal.value = !categoryModal.value;
+};
+
+const selectSubCategory = (subcategory) => {
+    emit('update:product', { ...props.product, category: subcategory });
+    categoryModal.value = false;
 };
 </script>
 
@@ -118,7 +137,7 @@ const uploadImage = (e) => {
 
         <input style="width: 70vw;" type="text" v-model="product.vitamins" placeholder="Вітаміни" />
 
-        <div class="selects">
+        <div style="display: flex;">
             <form>
                 <input v-model="product.country" placeholder="Країна" list="countries" name="country" id="country">
                 <datalist id="countries">
@@ -133,8 +152,21 @@ const uploadImage = (e) => {
                 </datalist>
             </form>
 
-            <div class="button" @click="$emit('fetch-categories')">
+            <div class="button" @click="toggleCategoryModal">
                 <div>{{ product.category || currentCategory }}</div>
+            </div>
+
+            <div v-if="categoryModal" class="categoryModal">
+                <div>
+                    <div v-for="category in categories" :key="category.id">
+                        {{ category.id }}
+                        <div v-for="(subcategory, index) in subcategories[category.id]" :key="index"
+                            @click="selectSubCategory(subcategory)">
+                            {{ subcategory }}
+                        </div>
+                    </div>
+                </div>
+                <button style="width: 200px; height: 50px" @click="toggleCategoryModal">Закрити</button>
             </div>
         </div>
 
@@ -375,5 +407,55 @@ label {
     padding: 0.5vw;
     width: 5vw;
     border-radius: 25px;
+}
+
+.categoryModal {
+    position: absolute;
+    z-index: 20;
+    height: 500px;
+    width: 500px;
+    background-color: #ffffff;
+    border: solid 3px rgb(168, 168, 168);
+    border-radius: 25px;
+    padding: 4vh;
+    gap: 2vw;
+    top: 15%;
+    left: 25%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgb(245, 245, 245);
+
+    >div {
+        align-content: space-between;
+        justify-content: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+
+        >div {
+            font-weight: bold;
+            background-color: #fff;
+            padding: 10px;
+            text-align: center;
+            border-radius: 25px;
+
+            >div {
+                font-weight: normal;
+                margin: 5px;
+                color: #183153;
+                cursor: pointer;
+                width: 150px;
+                transition: 0.5s;
+                text-align: center;
+
+                &:hover {
+                    background-color: antiquewhite;
+                    border-radius: 25px;
+                }
+            }
+        }
+    }
 }
 </style>

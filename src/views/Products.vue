@@ -4,7 +4,7 @@ import { dataBase, storage, dataReg, db } from "../main";
 import { addDoc, deleteDoc, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteField, getDocs, query, orderBy, limit, startAfter } from "firebase/firestore";
 import { ref as storageReference, uploadBytesResumable, getDownloadURL, uploadString } from "firebase/storage";
 import ImageEditor from "../components/ImageEditor.vue";
-import SmartProductCreation from "../components/SmartProductCreation.vue";
+import SmartProductModal from "../components/SmartProductModal.vue";
 import ProductModal from "../components/ProductModal.vue";
 
 const currentCategory = ref("Категорія");
@@ -728,116 +728,13 @@ const uploadCroppedImage = async (blob) => {
 <template>
 
   <div class="products">
-    <SmartProductCreation v-if="showSmartCreation" @close="toggleSmartCreation" />
+    <SmartProductModal v-if="showSmartCreation" @close="toggleSmartCreation" />
     <ImageEditor :image-url="selectedImage" :file-name="selectedFileName" :is-visible="imageEditorVisible"
       @close="closeImageEditor" @update="updateProductImage" @crop="handleCroppedImage" />
 
     <ProductModal v-if="editVisible || isVisible" v-model:product="product" :is-visible="isVisible"
-      :edit-visible="editVisible" :current-category="currentCategory" @save="saveData" @update="updateData"
-      @close="closeModal" @toggle="toggleModal" @fetch-categories="fetchCategories" />
-
-    <div v-if="editVisible || isVisible" class="addproduct">
-      <div class="top-inputs">
-        <div id="group2">
-          <div id="group1">
-            <input type="text" v-model="product.name" placeholder="Назва товару" />
-            <input type="text" v-model="product.detail" placeholder="Опис" />
-          </div>
-
-          <div class="file-upload">
-            <input type="file" @change="uploadImage" />
-            <div :class="{ 'loading': isLoading, 'loaded': isLoaded }">
-              <span v-if="isLoading">
-                <div class="dot-spinner">
-                  <div class="dot-spinner__dot"></div>
-                  <div class="dot-spinner__dot"></div>
-                  <div class="dot-spinner__dot"></div>
-                  <div class="dot-spinner__dot"></div>
-                  <div class="dot-spinner__dot"></div>
-                  <div class="dot-spinner__dot"></div>
-                  <div class="dot-spinner__dot"></div>
-                  <div class="dot-spinner__dot"></div>
-                </div>
-              </span>
-              <span v-else-if="isLoaded"><img class="btnimg" src="../assets/imgs/icons/done.svg" alt="icon" /></span>
-              <span v-else><img class="btnimg" src="../assets/btnimg.png" alt="icon" /></span>
-            </div>
-          </div>
-        </div>
-
-        <div id="group3">
-          <input type="number" v-model="product.buyPrice" placeholder="Ціна Купівлі" />
-          <input type="number" v-model="product.sellPrice" placeholder="Ціна Продажу" />
-          <div class="markUp"> Націнка: {{ markUpPercent }}%</div>
-        </div>
-      </div>
-
-      <div class="textareas">
-        <textarea type="text" v-model="product.description" placeholder="Опис"></textarea>
-        <textarea type="text" v-model="product.sklad" placeholder="Склад"></textarea>
-      </div>
-      <div class="midle-inputs">
-        <input type="checkbox" id="liquid" name="liquid" v-model="product.liquid">
-        <label for="liquid">Рідина</label>
-        <input v-if="product.liquid" type="text" v-model="product.weight" placeholder="Об'єм" />
-        <input v-else type="text" v-model="product.weight" placeholder="Вага" />
-        <input type="number" v-model="product.kcal" placeholder="Kcal" />
-        <input type="number" v-model="product.fat" placeholder="Жири" />
-        <input type="number" v-model="product.carbo" placeholder="Вуглеводи" />
-        <input type="number" v-model="product.protein" placeholder="Білки" />
-      </div>
-      <input style="width: 70vw;" type="text" v-model="product.vitamins" placeholder="Вітаміни" />
-      <div class="selects">
-        <form>
-          <input v-model="product.country" placeholder="Країна" list="countries" name="country" id="country">
-          <datalist id="countries">
-            <option v-for="country in countries" :value="country.id">{{ country.id }}</option>
-          </datalist>
-        </form>
-
-        <form>
-          <input v-model="product.brand" placeholder="Бренд" list="brands" name="brand" id="brand">
-          <datalist id="brands">
-            <option v-for="brand in brands" :value="brand.id">{{ brand.id }}</option>
-          </datalist>
-        </form>
-
-        <div class="button" @click="fetchCategories">
-          <div>{{ product.category || currentCategory }}</div>
-        </div>
-        <div v-if="categoryModal" class="categoryModal">
-          <div>
-            <div v-for="category in categories" :key="category.id">
-              {{ category.id }}
-              <div v-for="(subcategory, index) in subcategories[category.id]" :key="index"
-                @click="() => selectSubCategory(subcategory)">
-                {{ subcategory }}
-              </div>
-            </div>
-          </div>
-          <button style="width: 200px; height: 50px" @click="closeCategoryModal">Закрити</button>
-        </div>
-      </div>
-      <div>
-        <input type="checkbox" class="checkbox" id="gluten" v-model="product.freeGluten" />
-        <label for="gluten">Free gluten</label>
-        <input type="checkbox" class="checkbox" id="sugar" v-model="product.freeSugar" />
-        <label for="sugar">Free Sugar</label>
-        <input type="checkbox" class="checkbox" id="lactosa" v-model="product.freeLactosa" />
-        <label for="lactosa">Free lactosa</label>
-        <input type="checkbox" class="checkbox" id="vegan" v-model="product.vegan" />
-        <label for="vegan">Vegan</label>
-        <input type="checkbox" class="checkbox" id="protein" v-model="product.proteinik" />
-        <label for="protein">Protein</label>
-      </div>
-      <div>
-        <button :disabled="isSubmitDisabled" v-if="isVisible" @click="saveData">Зберегти</button>
-        <button v-if="isVisible" @click="toggleModal">Закрити</button>
-        <button v-if="editVisible" @click="saveData">Дублювати</button>
-        <button v-if="editVisible" @click="updateData">Оновити</button>
-        <button v-if="editVisible" @click="closeModal">Закрити</button>
-      </div>
-    </div>
+      :edit-visible="editVisible" :current-category="currentCategory" :categories="categories"
+      :subcategories="subcategories" @save="saveData" @update="updateData" @close="closeModal" @toggle="toggleModal" />
 
     <div v-if="brandsMenu">
       <div class="menu">
