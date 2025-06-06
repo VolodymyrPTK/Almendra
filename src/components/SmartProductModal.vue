@@ -80,7 +80,7 @@
                             <pre>{{ webhookData }}</pre>
                         </div>
                     </div>
-                    <button class="btn primary-btn" @click="closeModal">Зберегти</button>
+                    <button class="btn primary-btn" @click="saveToFirestore">Зберегти</button>
                     <button class="btn secondary-btn" @click="closeModal">Закрити</button>
                 </div>
             </div>
@@ -105,6 +105,8 @@
 
 <script setup>
 import { ref } from 'vue';
+import { db } from '../main';
+import { collection, addDoc } from 'firebase/firestore';
 
 const productName = ref('');
 const imageFile = ref(null);
@@ -159,6 +161,40 @@ const submitForm = async () => {
         console.error(error);
     } finally {
         loading.value = false;
+    }
+};
+
+const saveToFirestore = async () => {
+    if (!productInfo.value) return;
+
+    try {
+        const productsRef = collection(db, 'products');
+        const productData = {
+            name: productInfo.value.name,
+            detail: productInfo.value.detail,
+            kcal: productInfo.value.kcal,
+            fat: productInfo.value.fat,
+            carbo: productInfo.value.carbo,
+            protein: productInfo.value.protein,
+            sklad: productInfo.value.sklad,
+            vitamins: productInfo.value.vitamins,
+            freeGluten: productInfo.value.freeGluten || false,
+            freeSugar: productInfo.value.freeSugar || false,
+            freeLactose: productInfo.value.freeLactose || false,
+            proteinic: productInfo.value.proteinic || false,
+            lowCarbo: productInfo.value.lowCarbo || false,
+            image: imageUrl.value,
+            createdAt: new Date()
+        };
+
+        await addDoc(productsRef, productData);
+        modalOpen.value = false;
+        productName.value = '';
+        imageFile.value = null;
+        productInfo.value = null;
+        imageUrl.value = null;
+    } catch (error) {
+        console.error('Error saving to Firestore:', error);
     }
 };
 
